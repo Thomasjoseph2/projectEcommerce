@@ -1,0 +1,50 @@
+<style>
+  .navuser {
+    margin-top: 6rem;
+  }
+
+  body {
+    background-image: url('/img/banner/banner-bg.jpg');
+  }
+</style>
+<section style="margin-top: 9rem;">
+  <div class="container">
+    <div class="row navuser">
+      <a style="background-color: #f2ae0f;color:white" href="/admin/search-user" class="btn  ml-1">Search user</a>
+      <a href="/admin/blocked-users" class="btn btn-danger ml-1">Blocked Users</a>
+    </div>
+    <div class="table-responsive mt-5">
+      <table id="myTable" class="table mt-5 userTable mt-3">
+        <thead>
+          <tr>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>User id</th>
+            <th>Options</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each users}}
+          <tr>
+            <td>{{this.name}}</td>
+            <td>{{this.email}}</td>
+            <td>{{this.phonenumber}}</td>
+            <td>{{this._id}}</td>
+            <td>
+              <a href="/admin/block-user?id={{this._id}}" class="btn btn-danger"
+                onclick="return confirm('Are you sure you want to block {{this.name}}?')">Block</a>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<script>
+  $(document).ready(function () {
+    $('.userTable').DataTable();
+  });
+</script>

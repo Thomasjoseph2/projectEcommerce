@@ -1,0 +1,71 @@
+<style>
+ .edititem{
+    margin-top: 22vh;
+ }
+
+  body {
+    background-image: url('/img/banner/banner-bg.jpg');
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+  
+  label {
+    margin-bottom: 5px;
+  }
+  
+  input[type="text"],
+  input[type="number"],
+  select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  button[type="submit"] {
+    margin-top: 20px;
+  }
+</style>
+
+<h1 style="color:#fe7200;" class="text-center edititem ml-auto">Edit product</h1>
+<div class="row container ml-5">
+    <form action="/admin/edit-product/{{product._id}}" method="post" class="col-md-6 ml-5 mt-5" enctype="multipart/form-data">
+        <div class="form-group">
+            <label style="color:#fe7200;" for="product-name">Product Name</label>
+            <input type="text" class="form-control" id="product-name" name="productName" value="{{product.productName}}">
+        </div>
+        <div class="form-group">
+            <label style="color:#fe7200;" for="product-description">Product Description</label>
+            <input type="text" class="form-control" id="product-Description" name="productDescription" value="{{product.productDescription}}">
+        </div>
+        <div class="form-group">
+            <label style="color:#fe7200;" for="product-price">Product Price</label>
+            <input type="number" class="form-control" id="product-price" name="productPrice" value="{{product.productPrice}}">
+        </div>
+        <div class="form-group">
+            <label style="color:#fe7200;" for="product-category">Category</label>
+            <select class="form-control" id="product-category" name="productCategory">
+                {{#each categories}}
+                <option>{{this.categoryName}}</option>
+                {{/each}}
+            </select>
+        </div>
+        <div class="form-group">
+            <label style="color:#fe7200;" for="product-image">Product Image</label>
+            <img class="mb-1"  src="/product-images/{{product._id}}.jpg" alt="" style="width: 150px; height: 150px " id="product-image">
+            <input type="file" class="form-control-file" id="product-image" name="productImage" onchange="viewImage(event)">
+        </div>
+        <button  style="width:17vh;background-color:#fe7200;color:aliceblue" type="submit" class="btn  mb-2">Update</button>
+    </form>
+</div>
+
+<script>
+    function viewImage(event) {
+        document.getElementById('product-image').src = URL.createObjectURL(event.target.files[0]);
+    }
+</script>

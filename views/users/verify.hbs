@@ -1,0 +1,35 @@
+
+
+
+
+  <div class="container mt-5" >
+    <h3 class="mb-4 mt-5">OTP Verification</h3>
+    <form class="mt-5" id="otpForm " action="/verify-signUpOtp" method="POST">
+      <div class="form-group">
+        <label for="otp">OTP:</label>
+        <input type="text" class="form-control" id="otp" name="otp" placeholder="Enter OTP" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Verify</button>
+    </form>
+    <p id="error" class="mt-3 text-danger"></p>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      $("#otpForm").submit(function(event) {
+        event.preventDefault();
+        verifyOTP();
+      });
+
+      function verifyOTP() {
+        var otp = $("#otp").val().trim();
+        if (otp === "") {
+          $("#error").text("Please enter the OTP.");
+        } else {
+          $("#otpForm").unbind("submit").submit();
+        }
+      }
+    });
+  </script>
+
+

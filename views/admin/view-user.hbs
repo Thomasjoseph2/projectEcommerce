@@ -1,0 +1,9 @@
+<!-- admin/view-user.hbs -->
+<h1>User Search Results</h1>
+{{#each users}}
+  <div>
+    <h3>Name: {{this.name}}</h3>
+    <p>Email: {{this.email}}</p>
+    <!-- Display additional user information as needed -->
+  </div>
+{{/each}}

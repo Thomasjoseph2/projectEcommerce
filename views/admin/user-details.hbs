@@ -1,0 +1,13 @@
+<!-- admin/user-details.hbs -->
+
+<h1>User Details</h1>
+
+{{#if user}}
+  <div>
+    <p>User ID: {{user._id}}</p>
+    <p>Username: {{user.username}}</p>
+    <!-- Include other user details here -->
+  </div>
+{{else}}
+  <p>User not found.</p>
+{{/if}}
