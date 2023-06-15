@@ -274,6 +274,7 @@ module.exports = {
   getCartTotal: (userId) => {
     return new Promise(async (resolve, reject) => {
       try {
+        console.log(userId,"dddddddddddddddddddd");
         const total = await db
           .get()
           .collection(collection.CART_COLLECTION)
@@ -313,7 +314,7 @@ module.exports = {
             },
           ])
           .toArray();
-  
+          
         if (total.length > 0) {
           resolve(total[0].total.toFixed(2));
         } else {
@@ -326,48 +327,53 @@ module.exports = {
   },
   
   
-  // getEachTotal: (userId) => {
-  //   return new Promise(async (resolve, reject) => {
-  //     try {
-  //       const eachTotal = await db
-  //         .get()
-  //         .collection(collection.CART_COLLECTION)
-  //         .aggregate([
-  //           {
-  //             $match: { user: ObjectId(userId) },
-  //           },
-  //           {
-  //             $unwind: '$products',
-  //           },
-  //           {
-  //             $project: {
-  //               item: '$products.item',
-  //               quantity: '$products.quantity',
-  //             },
-  //           },
-  //           {
-  //             $lookup: {
-  //               from: collection.PRODUCT_COLLECTION,
-  //               localField: 'item',
-  //               foreignField: '_id',
-  //               as: 'product',
-  //             },
-  //           },
-  //           {
-  //             $project: {
-  //               total: { $sum: { $multiply: ['$quantity', '$product.productPrice'] } },
-  //             },
-  //           },
-  //         ])
-  //         .toArray();
+  getEachTotal: (userId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const eachTotal = await db
+          .get()
+          .collection(collection.CART_COLLECTION)
+          .aggregate([
+            {
+              $match: { user: ObjectId(userId) },
+            },
+            {
+              $unwind: '$products',
+            },
+            {
+              $lookup: {
+                from: collection.PRODUCT_COLLECTION,
+                localField: 'products.item',
+                foreignField: '_id',
+                as: 'product',
+              },
+            },
+            {
+              $project: {
+                productId: { $arrayElemAt: ['$product._id', 0] }, // Update to get the first element of the product._id array
+                total: { $multiply: ['$products.quantity', { $arrayElemAt: ['$product.productPrice', 0] }] }, // Update to get the first element of the product.productPrice array
+              },
+            },
+            {
+              $project: {
+                _id: 0, // Exclude the _id field
+                productId: 1,
+                total: 1,
+              },
+            },
+          ])
+          .toArray();
   
-  //       console.log(eachTotal);
-  //       resolve(eachTotal);
-  //     } catch (error) {
-  //       reject(error);
-  //     }
-  //   });
-  // },
+        resolve(eachTotal);
+      } catch (error) {
+        reject(error);
+      }
+    });
+}
+
+
+  ,
+  
   
   deleteProductFromCart:(productDetails)=>{
 

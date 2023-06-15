@@ -27,7 +27,7 @@ router.get('/add-to-cart/:id', auth.userVerifyLogin,user.addToCart);
 
 router.get('/', user.getHome);
 
-router.post('/change-product-quantity',user.changeProductQuantity);
+router.post( '/change-product-quantity',user.changeProductQuantity);
 
 router.get('/single-product/:id',user.getSingleProduct);
 
