@@ -8,6 +8,7 @@ const verifySid = "VA4f89b10c7da39304caf987482707ea03";
 const client = require("twilio")(accountSid, authToken);
 const nodemailer=require('nodemailer');
 const { log } = require('handlebars/runtime');
+const e = require('express');
 let phone="";
 
 const sendVerifyMail=async (name,email,userId)=>{
@@ -67,6 +68,12 @@ let response=await  userHelper.doSignup(req.body)
 }
 } 
 
+const addUserDetails= async (req,res)=>{
+  
+  await userHelper.addUserDetails(req.session.user._id,req.body);
+  res.redirect('/')
+}
+
 const getLogin = (req, res) => {
   if (req.session.user && req.session.user.loggedIn) {
     res.redirect('/');
@@ -106,6 +113,7 @@ const logout = (req, res) => {
 }
 
 const getCart = async (req, res) => {
+  console.log(req.session.user,"uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
   let products = await userHelper.getCartProducts(req.session.user._id);
   products.forEach((product) => {
     product.total = product.product.productPrice * product.quantity;
@@ -143,10 +151,12 @@ const getHome = async function (req, res, next) {
 
 const changeProductQuantity = (req, res, next) => {
   userHelper.changeProductQuantity(req.body).then(async(response) => {
-    console.log(req.body.user)
-    response.Carttotal=await userHelper.getCartTotal(req.body.user);
-   
-    res.json(response)
+   let Carttotal=await userHelper.getCartTotal(req.body.user);
+   let eachTotal=await userHelper.getEachTotal(req.body.user);
+   console.log(eachTotal);
+   response.Carttotal=Carttotal
+   response.eachTotal=eachTotal
+  res.json(response)
   }).catch((err) => {
     res.status(500).send('Error changing quantity');
   });
@@ -278,7 +288,11 @@ const cancelOrder=async (req,res)=>{
 const placeOrder= async (req,res,next)=>{
   
   let total=await userHelper.getCartTotal(req.session.user._id)
-  res.render('users/place-order',{total,user:req.session.user})
+  let products = await userHelper.getCartProducts(req.session.user._id);
+  products.forEach((product) => {
+    product.total = product.product.productPrice * product.quantity;
+  });
+  res.render('users/place-order',{total,user:req.session.user,products})
 }
 const doPlaceOrder= async (req,res)=>{
    
@@ -299,7 +313,14 @@ const getOrderList= async (req,res)=>{
   
   
 }
-
+const getProfile=(req,res)=>{
+ // let userdetails=userHelper.getUserDetails(req.session.user)
+ 
+ res.render('users/user-profile',{user:req.session.user})
+}
+const  getDetailsPage=(req,res)=>{
+  res.render('users/add-details',{user: req.session.user })
+}
 
 
 module.exports = {
@@ -322,5 +343,8 @@ module.exports = {
   doPlaceOrder,
   getOrderPlaced,
   getOrderList,
-  cancelOrder
+  cancelOrder,
+  getProfile,
+  getDetailsPage,
+  addUserDetails
 };

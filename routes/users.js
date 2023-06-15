@@ -27,7 +27,7 @@ router.get('/add-to-cart/:id', auth.userVerifyLogin,user.addToCart);
 
 router.get('/', user.getHome);
 
-router.post('/change-product-quantity',user.changeProductQuantity);
+router.post( '/change-product-quantity',user.changeProductQuantity);
 
 router.get('/single-product/:id',user.getSingleProduct);
 
@@ -50,6 +50,12 @@ router.get('/order-success',auth.userVerifyLogin,user.getOrderPlaced)
 router.get('/order-list',auth.userVerifyLogin,user.getOrderList)
 
 router.post('/cancel-order',auth.userVerifyLogin,user.cancelOrder)
+
+router.get('/user-profile',auth.userVerifyLogin,user.getProfile)
+
+router.get('/add-details',auth.userVerifyLogin,user.getDetailsPage)
+
+router.post('/add-details',auth.userVerifyLogin,user.addUserDetails)
 
 router.get('/remove-product', (req, res) => {
   let proId = req.query.id

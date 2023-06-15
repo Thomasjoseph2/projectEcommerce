@@ -1,6 +1,4 @@
-<!-- End Banner Area -->
-{{!--
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> --}}
+
 <section class="banner-area organic-breadcrumb">
     <div class="container">
         <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
@@ -68,10 +66,10 @@
 
 
 
-                            <td>
-                                <h5>₹<span id="eachTotal">{{this.total}}</span>/-</h5>
+                           <td>
+                      <h5>₹<span id="{{this.product._id}}">{{this.total}}</span>/-</h5>
+</td>
 
-                            </td>
                             <td><button class="quantity-btn btn-danger"
                                     onclick="removeProductFromCart('{{this._id}}','{{this.product._id}}')">Remove</button>
                             </td>
@@ -261,70 +259,86 @@
     </div>
 </footer>
 <script>
-    function changeQuantity(cartId, proId, userId, count) {
-        let quantity = parseInt(document.getElementById(proId).value);
-        const newQuantity = quantity + parseInt(count);
+  function changeQuantity(cartId, proId, userId, count) {
+  let quantity = parseInt(document.getElementById(proId).value);
+  const newQuantity = quantity + parseInt(count);
 
-        $.ajax({
-            url: '/change-product-quantity',
-            data: {
-                user: userId,
-                cart: cartId,
-                product: proId,
-                count: count,
-                quantity: newQuantity
-            },
-            method: 'post',
-            success: (response) => {
-                if (response.cartProductRemoved) {
-                    alert("Product removed from cart");
-                    location.reload();
-                } else {
-                    console.log(response)
-                    document.getElementById(proId).value = newQuantity;
+  $.ajax({
+    url: '/change-product-quantity',
+    data: {
+      user: userId,
+      cart: cartId,
+      product: proId,
+      count: count,
+      quantity: newQuantity
+    },
+    method: 'post',
+    success: (response) => {
+      if (response.cartProductRemoved) {
+        alert("Product removed from cart");
+        location.reload();
+      } else {
+        document.getElementById(proId).value = newQuantity;
+        document.getElementById("totl").innerHTML = response.Carttotal;
+          // Update each product total
+       const eachTotalArray = response.eachTotal; // Get the array of eachTotal
 
-                    document.getElementById("totl").innerHTML = response.Carttotal
-                }
-            }
-        });
+// Iterate over eachTotalArray
+       eachTotalArray.forEach(eachTotalObject => {
+       const eachTotalElement = document.getElementById(eachTotalObject.productId);
+       if (eachTotalElement) {
+       eachTotalElement.innerHTML = eachTotalObject.total;
+       } else {
+      console.error("Element not found for product with ID " + eachTotalObject.productId);
+  }
+});
+
+       
+
+      
+      }
     }
-    function removeProductFromCart(cartId, productId) {
-
-        // console.log('Remove product from cart Function Called');
-        // The above message will be consoled in the browser console as it is happening at client side
-
-        // AJAX Function for removing a product from cart
-
-        $.ajax({
-
-            url: '/delete-product-from-cart',
-
-            data: {
-
-                cart: cartId,
-
-                product: productId,
+  });
+}
 
 
-            },
 
-            method: 'post',
 
-            success: (response) => {
+function removeProductFromCart(cartId, productId) {
 
-                if (response.cartProductRemoved) { // If the quantity of the product was 1 and if it was further decremented using the decrement function, then the product is removed from the cart as the quantity of the product would become zero
+    // console.log('Remove product from cart Function Called');
+    // The above message will be consoled in the browser console as it is happening at client side
 
-                    alert("Product removed from cart");
+    // AJAX Function for removing a product from cart
 
-                    location.reload(); // Reload the entire page if there is a product removed from the cart - Later have to modify this code and have to update the table alone using Ajax
+    $.ajax({
 
-                }
+        url: '/delete-product-from-cart',
+
+        data: {
+
+            cart: cartId,
+
+            product: productId,
+
+
+        },
+
+        method: 'post',
+
+        success: (response) => {
+
+            if (response.cartProductRemoved) { // If the quantity of the product was 1 and if it was further decremented using the decrement function, then the product is removed from the cart as the quantity of the product would become zero
+
+                alert("Product removed from cart");
+
+                location.reload(); // Reload the entire page if there is a product removed from the cart - Later have to modify this code and have to update the table alone using Ajax
 
             }
 
-        })
+        }
 
-    }
+    })
 
-
+}
 </script>
