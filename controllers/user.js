@@ -68,6 +68,12 @@ let response=await  userHelper.doSignup(req.body)
 }
 } 
 
+const addUserDetails= async (req,res)=>{
+  
+  await userHelper.addUserDetails(req.session.user._id,req.body);
+  res.redirect('/')
+}
+
 const getLogin = (req, res) => {
   if (req.session.user && req.session.user.loggedIn) {
     res.redirect('/');
@@ -107,6 +113,7 @@ const logout = (req, res) => {
 }
 
 const getCart = async (req, res) => {
+  console.log(req.session.user,"uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
   let products = await userHelper.getCartProducts(req.session.user._id);
   products.forEach((product) => {
     product.total = product.product.productPrice * product.quantity;
@@ -144,7 +151,6 @@ const getHome = async function (req, res, next) {
 
 const changeProductQuantity = (req, res, next) => {
   userHelper.changeProductQuantity(req.body).then(async(response) => {
-    console.log(req.body.user,"hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
    let Carttotal=await userHelper.getCartTotal(req.body.user);
    let eachTotal=await userHelper.getEachTotal(req.body.user);
    console.log(eachTotal);
@@ -287,7 +293,6 @@ const placeOrder= async (req,res,next)=>{
     product.total = product.product.productPrice * product.quantity;
   });
   res.render('users/place-order',{total,user:req.session.user,products})
-  console.log(products,"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
 }
 const doPlaceOrder= async (req,res)=>{
    
@@ -308,7 +313,14 @@ const getOrderList= async (req,res)=>{
   
   
 }
-
+const getProfile=(req,res)=>{
+ // let userdetails=userHelper.getUserDetails(req.session.user)
+ 
+ res.render('users/user-profile',{user:req.session.user})
+}
+const  getDetailsPage=(req,res)=>{
+  res.render('users/add-details',{user: req.session.user })
+}
 
 
 module.exports = {
@@ -331,5 +343,8 @@ module.exports = {
   doPlaceOrder,
   getOrderPlaced,
   getOrderList,
-  cancelOrder
+  cancelOrder,
+  getProfile,
+  getDetailsPage,
+  addUserDetails
 };

@@ -51,6 +51,12 @@ router.get('/order-list',auth.userVerifyLogin,user.getOrderList)
 
 router.post('/cancel-order',auth.userVerifyLogin,user.cancelOrder)
 
+router.get('/user-profile',auth.userVerifyLogin,user.getProfile)
+
+router.get('/add-details',auth.userVerifyLogin,user.getDetailsPage)
+
+router.post('/add-details',auth.userVerifyLogin,user.addUserDetails)
+
 router.get('/remove-product', (req, res) => {
   let proId = req.query.id
   productHelpers.removeProduct(proId).then((response) => {

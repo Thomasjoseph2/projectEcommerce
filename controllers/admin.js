@@ -171,9 +171,10 @@ const getCategory = async function (req, res) {
     try {
        
         let categories = await adminHelper.getCategory();
-        const err=req.session.categoryExistsErr
+       
+        res.render('admin/category', { admin: true, categories: categories ,CATEGORYERROR:req.session.categoryExistsErr});
+        console.log( req.session.categoryExistsErr,"idjjjjjjjjjjklncsocklo qlCS.");
         req.session.categoryExistsErr=false
-        res.render('admin/category', { admin: true, categories: categories ,err});
     } catch (error) {
         console.log(error);
         res.redirect('/admin');

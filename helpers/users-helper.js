@@ -4,6 +4,7 @@ const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
 const { response } = require('../app');
 const { promises } = require('nodemailer/lib/xoauth2');
+const { resolve } = require('promise');
 
 module.exports = {
   doSignup: (userData) => {
@@ -274,7 +275,6 @@ module.exports = {
   getCartTotal: (userId) => {
     return new Promise(async (resolve, reject) => {
       try {
-        console.log(userId,"dddddddddddddddddddd");
         const total = await db
           .get()
           .collection(collection.CART_COLLECTION)
@@ -486,5 +486,18 @@ placeOrder: (order, products, total) => {
       }
     });
   },
+  addUserDetails: (userId, userDetails) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await db.get().collection(collection.USER_COLLECTION).updateOne(
+          { _id: ObjectId(userId) },
+          { $set: userDetails } // Set the userDetails object
+        );
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
   
 };
