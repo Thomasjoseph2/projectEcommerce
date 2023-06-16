@@ -5,7 +5,11 @@ const bcrypt = require('bcrypt');
 const { response } = require('../app');
 const { promises } = require('nodemailer/lib/xoauth2');
 const { resolve } = require('promise');
-
+const Razorpay = require('razorpay');
+var instance = new Razorpay({
+ key_id: 'rzp_test_4VSqO0TCBFvtCE',
+ key_secret: '4iUcWrjuqM0RKejSrKHisBif' 
+})
 module.exports = {
   doSignup: (userData) => {
     return new Promise(async (resolve, reject) => {
@@ -445,7 +449,7 @@ placeOrder: (order, products, total) => {
       db.get().collection(collection.ORDER_COLLECTION).insertOne(orderObj)
         .then((response) => {
           db.get().collection(collection.CART_COLLECTION).deleteOne({ user: ObjectId(order.userId) });
-          resolve();
+          resolve(response);
         });
     }
   });
@@ -498,6 +502,25 @@ placeOrder: (order, products, total) => {
         reject(error);
       }
     });
+  },
+  generateRazorpay:(orderId,total)=>{
+   total=parseInt(total)
+return new Promise((resolve,reject)=>{
+  var options = {
+    amount:total,  // amount in the smallest currency unit
+    currency: "INR",
+    receipt:""+orderId
+  };
+  instance.orders.create(options, function(err, order) {
+   if(err){
+    console.log(err);
+   }else{
+    console.log("New Order:",order);
+    resolve(order)
+   }
+   
+  });
+})
   }
   
 };

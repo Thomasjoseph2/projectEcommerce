@@ -308,7 +308,14 @@ const doPlaceOrder= async (req,res)=>{
   let total=await userHelper.getCartTotal(req.body.userId)
   console.log(req.body,products,total);
   userHelper.placeOrder(req.body,products,total).then((response)=>{
-  res.json({status:true})
+    if(req.body['payment-method']==='COD'){
+      res.json({codStatus:true})
+    }else{
+      userHelper.generateRazorpay(response.insertedId,total).then((response)=>{
+        res.json(response)
+      })
+    }
+
   })
 }
 
@@ -330,6 +337,9 @@ const  getDetailsPage=(req,res)=>{
   res.render('users/add-details',{user: req.session.user })
 }
 
+const verifyPayment=(req,res)=>{
+  console.log(req.body);
+}
 
 module.exports = {
   getSignup,
@@ -354,5 +364,6 @@ module.exports = {
   cancelOrder,
   getProfile,
   getDetailsPage,
-  addUserDetails
+  addUserDetails,
+  verifyPayment
 };

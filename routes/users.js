@@ -57,6 +57,8 @@ router.get('/add-details',auth.userVerifyLogin,user.getDetailsPage)
 
 router.post('/add-details',auth.userVerifyLogin,user.addUserDetails)
 
+router.post('/verify-payment',auth.userVerifyLogin,user.verifyPayment)
+
 router.get('/remove-product', (req, res) => {
   let proId = req.query.id
   productHelpers.removeProduct(proId).then((response) => {
