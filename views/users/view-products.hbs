@@ -785,17 +785,44 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 		</div>
 	</footer>
 	<!-- End footer Area -->
-
+<div class="modal fade" id="popupModal" tabindex="-1" role="dialog" aria-labelledby="popupModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="popupModalLabel">Message</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="popupMessage"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
-// Function to handle the AJAX request and add the product to the cart
+function showPopupMessage(message) {
+  // Set the message content
+  document.getElementById("popupMessage").textContent = message;
+  
+  // Show the modal
+  $('#popupModal').modal('show');
+}
+
 function addToCart(productId) {
   // Send an AJAX request to the server
   $.ajax({
     url: '/add-to-cart/' + productId,
     type: 'GET',
     success: function(response) {
-      // Show the fading popup message with the response message
-      showPopupMessage(response.message);
+      if (response.message === "Added to cart") {
+        showPopupMessage("Item added to cart");
+      } else {
+        showPopupMessage("please login");
+      }
     },
     error: function(error) {
       console.error('Error occurred while adding to cart:', error);
@@ -804,26 +831,4 @@ function addToCart(productId) {
     }
   });
 }
-
-// Function to show the fading popup message
-function showPopupMessage(message) {
-  // Create a new element for the popup message
-  var popup = $('<div class="popup-message">' + message + '</div>');
-
-  // Append the popup element to the body
-  $('body').append(popup);
-
-  // Fade in the popup message
-  popup.fadeIn('slow');
-
-  // Set a timeout to fade out and remove the popup message
-  setTimeout(function() {
-    popup.fadeOut('slow', function() {
-      // Remove the popup element from the DOM
-      popup.remove();
-    });
-  }, 3000); // Adjust the duration as needed (here, it's set to 3 seconds)
-}
-
-
 </script>

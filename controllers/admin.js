@@ -79,7 +79,7 @@ const deleteProduct = (req, res) => {
 }
 const getEditProduct = async (req, res) => {
     let product = await productHelpers.getProductDetails(req.params.id)
-   let categories= await adminHelper.getCategory();
+    let categories= await adminHelper.getCategory();
     res.render('admin/edit-product', { admin: true, product ,categories})
 }
 

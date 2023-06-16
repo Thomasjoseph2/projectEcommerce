@@ -278,6 +278,7 @@
         alert("Product removed from cart");
         location.reload();
       } else {
+        console.log(response)
         document.getElementById(proId).value = newQuantity;
         document.getElementById("totl").innerHTML = response.Carttotal;
           // Update each product total
@@ -292,10 +293,8 @@
       console.error("Element not found for product with ID " + eachTotalObject.productId);
   }
 });
-
        
 
-      
       }
     }
   });

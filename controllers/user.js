@@ -2,9 +2,9 @@ const productHelpers = require('../helpers/product-helper');
 const userHelper = require('../helpers/users-helper');
 const adminHelper = require('../helpers/admin-helper');
 const usersHelper = require('../helpers/users-helper');
-const accountSid = "AC3d28d77a88183ef2695e962fdb125248";
-const authToken = "51a2c439c67245cefb72ab439aade4a5";
-const verifySid = "VA4f89b10c7da39304caf987482707ea03";
+const accountSid = "AC655f2659db56c5504407570babdbd676";
+const authToken = "423f1b41a1ef5eba1980daa5b4edc5cb";
+const verifySid = "VAb8d4aa3610b51c3ee296c9e5e7209be5";
 const client = require("twilio")(accountSid, authToken);
 const nodemailer=require('nodemailer');
 const { log } = require('handlebars/runtime');
@@ -78,7 +78,6 @@ const getLogin = (req, res) => {
   if (req.session.user && req.session.user.loggedIn) {
     res.redirect('/');
   } else {
-
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.render('users/login', { loginErr: req.session.userLogginErr,notVerified: req.session.verificationErr,blocked:req.session.blocked});
     req.session.userLogginErr = false;
@@ -125,16 +124,25 @@ const getCart = async (req, res) => {
 }
 
 const addToCart = (req, res) => {
-  userHelper.addToCart(req.params.id, req.session.user._id).then(() => {
-    console.log("added to cart");
-    // Send a response indicating that the product was added successfully
-    res.json({ message: "Added to cart" });
-  }).catch((error) => {
-    console.error("Error adding to cart:", error);
-    // Send an error response if there was an issue adding the product
-    res.status(500).json({ message: "Error adding to cart" });
-  });
+  if (!req.session.user || !req.session.user.loggedIn) {
+    res.json({ message: "Please log in to add items to the cart" });
+    return;
+  }
+
+  userHelper
+    .addToCart(req.params.id, req.session.user._id)
+    .then(() => {
+      console.log("added to cart");
+      // Send a response indicating that the product was added successfully
+      res.json({ message: "Added to cart" });
+    })
+    .catch((error) => {
+      console.error("Error adding to cart:", error);
+      // Send an error response if there was an issue adding the product
+      res.status(500).json({ message: "Error adding to cart" });
+    });
 };
+
 
 
 const getHome = async function (req, res, next) {
@@ -189,11 +197,11 @@ const getOtp = (req, res) => {
 
 const SendOtp = async (req, res) => {
   phone = "+91" + req.body.phoneNumber;
-  console.log(phone);
+  console.log(phone,"hhhhhhhhhhhhhhhhhhhh");
   let user = await userHelper.searchUser(phone);
   console.log(user,"user consoled");
   if (user) {
-    client.verify.v2
+       client.verify.v2
       .services(verifySid)
       .verifications.create({ to: phone, channel: "sms" })
       .then((verification) => console.log(verification.status));
