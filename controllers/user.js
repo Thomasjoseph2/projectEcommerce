@@ -339,6 +339,14 @@ const  getDetailsPage=(req,res)=>{
 
 const verifyPayment=(req,res)=>{
   console.log(req.body);
+  userHelper.verifyPayment(req.body).then(()=>{
+    userHelper.changePaymentStatus(req.body['order[receipt]']).then(()=>{
+      res.json({status:true})
+    })
+  }).catch((err)=>{
+    console.log(err);
+    res.json({status:false})
+  })
 }
 
 module.exports = {
