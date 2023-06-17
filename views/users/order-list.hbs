@@ -40,6 +40,9 @@
                             <th scope="col">
                                 <h6 style="color:#fe7200">Adminstatus</h6>
                             </th>
+                             <th scope="col">
+                                <h6 style="color:#fe7200"> Orders</h6>
+                            </th>
 
                         </tr>
                     </thead>
@@ -64,6 +67,11 @@
                             <td>
                                 <h5>{{this.OrderStatus}}</h5>
                             </td>
+                                  <td>
+                            <form method="POST" action="/users/order-summary">
+                                <button style="width:8vh;color:aliceblue;background-color:#fe7200;border-color:#fe7200" name="orderId" value="{{this._id}}" type="submit" class="quantity-btn  ">View</button>
+                            </form>
+                             </td>
                             <td>
                                 {{#if (or (eq this.OrderStatus "approved") (eq this.OrderStatus "shipped")(eq this.OrderStatus "pending"))}}
                                 <button class="quantity-btn btn-danger"

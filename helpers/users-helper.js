@@ -424,9 +424,6 @@ placeOrder: (order, products, total) => {
     let status = order['payment-method'] === 'COD' ? 'placed' : 'pending';
     {
       let currentDate = new Date();
-      let day = currentDate.getDate();
-      let month = currentDate.getMonth() + 1; // Adding 1 because months are zero-based (0 for January)
-      let year = currentDate.getFullYear();
 
       let orderObj = {
         address: {
@@ -443,7 +440,7 @@ placeOrder: (order, products, total) => {
         totalAmound: total,
         status: status,
         OrderStatus: 'pending',
-        date: `${day}/${month}/${year}` // Assigning date as day/month/year string
+        date:currentDate
       };
       
       db.get().collection(collection.ORDER_COLLECTION).insertOne(orderObj)

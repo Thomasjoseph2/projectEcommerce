@@ -8,6 +8,9 @@
         margin-left: 5vh;
 
     }
+    .addressoption{
+        width: 100%;
+    }
 </style>
 
 <!-- Start Banner Area -->
@@ -64,14 +67,20 @@
 
                         </div>
 
-                        <div class="col-md-12 form-group p_star">
-                            <input type="text" class="form-control" id="add1" name="add1" placeholder="Address line 01">
+ <div class="col-md-12 form-group p_star ">
+    <select class="form-control addressoption" id="address" name="address">
+        <option value="" disabled selected >Choose your address</option>
+        {{#if user}}
+        <option value="{{user.add1}}">{{user.add1}}</option>
+        <option value="{{user.add1}}">{{user.add2}}</option>
+        {{/if}}
+        <!-- Add more address options here -->
+    </select>
+</div>
 
-                        </div>
-                        <div class="col-md-12 form-group p_star">
-                            <input type="text" class="form-control" id="add2" name="add2" placeholder="Address line 02">
 
-                        </div>
+
+                        
                         <div class="col-md-12 form-group p_star">
                             <input type="text" class="form-control" id="city" name="city" placeholder="Town/City">
 

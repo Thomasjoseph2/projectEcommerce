@@ -303,7 +303,7 @@ const placeOrder= async (req,res,next)=>{
   res.render('users/place-order',{total,user:req.session.user,products})
 }
 const doPlaceOrder= async (req,res)=>{
-   
+   console.log(req.session.user);
   let products=await userHelper.getcartProductList(req.body.userId)
   let total=await userHelper.getCartTotal(req.body.userId)
   console.log(req.body,products,total);
@@ -348,6 +348,23 @@ const verifyPayment=(req,res)=>{
     res.json({status:false})
   })
 }
+const getOrderSummary=async(req,res)=>{
+  // let user = req.session.userSession // Used for storing user details for further use in this route
+ 
+   // console.log(req.body);
+ 
+   let orderId = req.body.orderId;
+   console.log(orderId);
+ 
+   let productDetails = await adminHelper.getProductsInOrder(orderId);
+ // For passing order date to the page
+ console.log(productDetails);
+ 
+   // console.log(orderDate);
+ 
+   res.render('users/order-summary',{ productDetails,user:req.session.user,orderId});
+ 
+}
 
 module.exports = {
   getSignup,
@@ -373,5 +390,6 @@ module.exports = {
   getProfile,
   getDetailsPage,
   addUserDetails,
-  verifyPayment
+  verifyPayment,
+  getOrderSummary
 };

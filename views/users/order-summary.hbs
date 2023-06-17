@@ -1,0 +1,192 @@
+{{!-- 
+
+<section>
+ 
+
+    <div class="row justify-content-center">
+      {{#each productDetails}}
+      <div class="col-md-4 mt-5" style="width: 15rem; height: 23rem;">
+        <div class="card mb-4">
+          <img style="width: 10vh;height:10vh" src="/product-images/{{this.product._id}}.jpg" class="card-img-top" alt="{{this.product.name}}">
+          <div class="card-body">
+            <h5 class="card-title">{{this.product.productName}}</h5>
+            <p class="card-text">{{this.product.productDescription}}</p>
+            <p class="card-text">Price: ₹ {{this.product.productPrice}}</p>
+            <p class="card-text">Quantity: {{this.quantity}}</p>
+          </div>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+</section> --}}
+
+
+    <!-- Start Banner Area -->
+    <section class="banner-area organic-breadcrumb">
+        <div class="container">
+            <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+                <div class="col-first">
+                    <h1>Order List</h1>
+                    <nav class="d-flex align-items-center">
+                        <a href="index.html">Home<span class="lnr lnr-arrow-right"></span></a>
+                        <a href="category.html">Cart</a>
+                    </nav>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    <!-- End Banner Area -->  
+    <section>
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive mt-3">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col"> <h5>Image</h5></th>
+                                <th scope="col"> <h5>Description</h5></th>
+                                <th scope="col"> <h5>Price</h5></th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {{#each productDetails}}
+                            <tr>
+                                 <td>
+                                <div class="media">
+                                    <div class="d-flex">
+                                        <img style="width:14vh;height:10vh"
+                                            src="/product-images/{{this.product._id}}.jpg" alt="">
+                                    </div>
+                                    <div class="media-body">
+                                        <p>{{this.product.productName}}</p>
+                                    </div>
+                                </div>
+                            </td>
+                              
+                                <td>{{this.product.productDescription}}</td>
+                                <td>
+                                    <h5>₹{{this.product.productPrice}}/-</h5>
+                                </td>
+              
+                            </tr>
+                           {{/each}}
+                        </tbody>
+                    </table>
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!--================End Cart Area =================-->
+
+    <!-- start footer Area -->
+    <footer class="footer-area section_gap">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3  col-md-6 col-sm-6">
+                    <div class="single-footer-widget">
+                        <h6>About Us</h6>
+                        <p>
+                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt
+                            ut labore dolore
+                            magna aliqua.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4  col-md-6 col-sm-6">
+                    <div class="single-footer-widget">
+                        <h6>Newsletter</h6>
+                        <p>Stay update with our latest</p>
+                        <div class="" id="mc_embed_signup">
+
+                            <form target="_blank" novalidate="true" action="https://spondonit.us12.list-manage.com/subscribe/post?u=1462626880ade1ac87bd9c93a&amp;id=92a4423d01"
+                                method="get" class="form-inline">
+
+                                <div class="d-flex flex-row">
+
+                                    <input class="form-control" name="EMAIL" placeholder="Enter Email" onfocus="this.placeholder = ''"
+                                        onblur="this.placeholder = 'Enter Email '" required="" type="email">
+
+
+                                    <button class="click-btn btn btn-default"><i class="fa fa-long-arrow-right"
+                                            aria-hidden="true"></i></button>
+                                    <div style="position: absolute; left: -5000px;">
+                                        <input name="b_36c4fd991d266f23781ded980_aefe40901a" tabindex="-1" value=""
+                                            type="text">
+                                    </div>
+
+                                    <!-- <div class="col-lg-4 col-md-4">
+													<button class="bb-btn btn"><span class="lnr lnr-arrow-right"></span></button>
+												</div>  -->
+                                </div>
+                                <div class="info"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3  col-md-6 col-sm-6">
+                    <div class="single-footer-widget mail-chimp">
+                        <h6 class="mb-20">Instragram Feed</h6>
+                        <ul class="instafeed d-flex flex-wrap">
+                            <li><img src="img/i1.jpg" alt=""></li>
+                            <li><img src="img/i2.jpg" alt=""></li>
+                            <li><img src="img/i3.jpg" alt=""></li>
+                            <li><img src="img/i4.jpg" alt=""></li>
+                            <li><img src="img/i5.jpg" alt=""></li>
+                            <li><img src="img/i6.jpg" alt=""></li>
+                            <li><img src="img/i7.jpg" alt=""></li>
+                            <li><img src="img/i8.jpg" alt=""></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 col-sm-6">
+                    <div class="single-footer-widget">
+                        <h6>Follow Us</h6>
+                        <p>Let us be social</p>
+                        <div class="footer-social d-flex align-items-center">
+                            <a href="#"><i class="fa fa-facebook"></i></a>
+                            <a href="#"><i class="fa fa-twitter"></i></a>
+                            <a href="#"><i class="fa fa-dribbble"></i></a>
+                            <a href="#"><i class="fa fa-behance"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom d-flex justify-content-center align-items-center flex-wrap">
+                <p class="footer-text m-0"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+</p>
+            </div>
+        </div>
+    </footer>
+<script>
+  document.getElementById('statusForm').addEventListener('submit', function(event) {
+  event.preventDefault(); // Prevent form submission
+  
+  var form = event.target;
+  var formData = new FormData(form);
+
+  fetch('/admin/admin-order-manage', {
+    method: 'POST',
+    body: formData
+  })
+  .then(function(response) {
+    if (response.ok) {
+      // Reload the page after successful status update
+      location.reload();
+    } else {
+      throw new Error('Error updating status');
+    }
+  })
+  .catch(function(error) {
+    console.error(error);
+    // Handle error here (e.g., show error message to the user)
+  });
+});
+
+</script>
