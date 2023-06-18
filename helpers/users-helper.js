@@ -6,6 +6,7 @@ const { response } = require('../app');
 const { promises } = require('nodemailer/lib/xoauth2');
 const { resolve } = require('promise');
 const Razorpay = require('razorpay');
+const moment = require('moment');
 var instance = new Razorpay({
  key_id: 'rzp_test_4VSqO0TCBFvtCE',
  key_secret: '4iUcWrjuqM0RKejSrKHisBif' 
@@ -422,33 +423,38 @@ module.exports = {
 placeOrder: (order, products, total) => {
   return new Promise((resolve, reject) => {
     let status = order['payment-method'] === 'COD' ? 'placed' : 'pending';
-    {
-      let currentDate = new Date();
+    let currentDate = moment().format('DD/MM/YYYY HH:mm:ss');
 
-      let orderObj = {
-        address: {
-          mobile: order.phonenumber,
-          address1: order.add1,
-          address2: order.add2,
-          city: order.city,
-          pincode: order.pincode
-        },
-        userName:order.firstname+""+order.lastname,
-        userId: ObjectId(order.userId),
-        paymentMethod: order['payment-method'],
-        products: products,
-        totalAmound: total,
-        status: status,
-        OrderStatus: 'pending',
-        date:currentDate
-      };
-      
-      db.get().collection(collection.ORDER_COLLECTION).insertOne(orderObj)
-        .then((response) => {
-          db.get().collection(collection.CART_COLLECTION).deleteOne({ user: ObjectId(order.userId) });
-          resolve(response);
-        });
-    }
+    let orderObj = {
+      address: {
+        mobile: order.phonenumber,
+        address1: order.add1,
+        address2: order.add2,
+        city: order.city,
+        pincode: order.pincode
+      },
+      userName: order.firstname + ' ' + order.lastname,
+      userId: ObjectId(order.userId),
+      paymentMethod: order['payment-method'],
+      products: products,
+      totalAmound: total,
+      status: status,
+      OrderStatus: 'pending',
+      date: currentDate
+    };
+
+    db.get()
+      .collection(collection.ORDER_COLLECTION)
+      .insertOne(orderObj)
+      .then((response) => {
+        db.get()
+          .collection(collection.CART_COLLECTION)
+          .deleteOne({ user: ObjectId(order.userId) });
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
   });
 }
 
@@ -462,12 +468,20 @@ placeOrder: (order, products, total) => {
   }
   ,
 
-  getOrderList:(userId)=>{
-    return new Promise( async (resolve,reject) =>{
-      let orderdetails=await db.get().collection(collection.ORDER_COLLECTION).find({userId:ObjectId(userId)}).sort({ date:1 }).toArray()
-      resolve(orderdetails)
-    })
-
+  getOrderList: (userId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let orderdetails = await db
+          .get()
+          .collection(collection.ORDER_COLLECTION)
+          .find({ userId: ObjectId(userId) })
+          .sort({ date: -1 }) // Sort by date in descending order (newest first)
+          .toArray();
+        resolve(orderdetails);
+      } catch (error) {
+        reject(error);
+      }
+    });
   },
 
 
@@ -546,4 +560,36 @@ return new Promise((resolve,reject)=>{
       })
     })
   }
+  ,searchProducts: (searchQuery) => {
+    return new Promise(async (resolve, reject) => {
+      const categoryQuery = { categoryName: { $regex: searchQuery, $options: 'i' } };
+      const category = await db.get().collection(collection.CATEGORY_COLLECTION).findOne(categoryQuery);
+  
+      let productQuery = {};
+      if (category) {
+        productQuery = {
+          $or: [
+            { productName: { $regex: searchQuery, $options: 'i' } },
+            { productCategory: category._id }
+          ]
+        };
+      } else {
+        productQuery = { productName: { $regex: searchQuery, $options: 'i' } };
+      }
+  
+      let products = await db
+        .get()
+        .collection(collection.PRODUCT_COLLECTION)
+        .find(productQuery)
+        .toArray();
+  
+      resolve(products);
+    });
+  },
+  
+  
+  
+  
 };
+
+

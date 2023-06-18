@@ -179,38 +179,26 @@
 </footer>
 <script>
     function cancelOrder(orderId) {
+  // Display a confirmation dialog to the user
+  if (confirm("Are you sure you want to cancel this order?")) {
+    // AJAX Function for removing a product from cart
+    $.ajax({
+      url: '/cancel-order',
+      data: {
+        orderId: orderId,
+      },
+      method: 'post',
+      success: (response) => {
+        if (response.ordercancelled) {
+          alert("Order cancelled");
+          location.reload();
+        } else {
+          console.log("Some errors occurred");
+        }
+      }
+    });
+  }
+}
 
-        // console.log('Remove product from cart Function Called');
-        // The above message will be consoled in the browser console as it is happening at client side
-
-        // AJAX Function for removing a product from cart
-
-        $.ajax({
-
-            url: '/cancel-order',
-
-            data: {
-                orderId: orderId,
-            },
-
-            method: 'post',
-
-            success: (response) => {
-
-                if (response.ordercancelled) { // If the quantity of the product was 1 and if it was further decremented using the decrement function, then the product is removed from the cart as the quantity of the product would become zero
-
-                    alert("order cancelled");
-
-                    location.reload(); // Reload the entire page if there is a product removed from the cart - Later have to modify this code and have to update the table alone using Ajax
-
-                } else {
-                    console.log("some errors")
-                }
-
-            }
-
-        })
-
-    }
 
 </script>

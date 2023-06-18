@@ -143,6 +143,14 @@ const addToCart = (req, res) => {
     });
 };
 
+const getSearchResults = async (req, res) => {
+  const searchQuery = req.query.search;
+  const products = await userHelper.searchProducts(searchQuery);
+  res.render('users/view-products', { products, user: req.session.user });
+};
+
+
+
 
 
 const getHome = async function (req, res, next) {
@@ -365,6 +373,9 @@ const getOrderSummary=async(req,res)=>{
    res.render('users/order-summary',{ productDetails,user:req.session.user,orderId});
  
 }
+const searchCategory =(req,res)=>{
+     res.render('users/categorys-search')
+}
 
 module.exports = {
   getSignup,
@@ -391,5 +402,7 @@ module.exports = {
   getDetailsPage,
   addUserDetails,
   verifyPayment,
-  getOrderSummary
+  getOrderSummary,
+  searchCategory ,
+  getSearchResults 
 };

@@ -171,9 +171,9 @@ const getCategory = async function (req, res) {
     try {
        
         let categories = await adminHelper.getCategory();
-       
-        res.render('admin/category', { admin: true, categories: categories ,CATEGORYERROR:req.session.categoryExistsErr});
-        console.log( req.session.categoryExistsErr,"idjjjjjjjjjjklncsocklo qlCS.");
+       let errorcat=req.session.categoryExistsErr
+        res.render('admin/category', { admin: true, categories: categories ,errorcat});
+
         req.session.categoryExistsErr=false
     } catch (error) {
         console.log(error);
@@ -183,12 +183,13 @@ const getCategory = async function (req, res) {
 
 const addCategory = async (req, res) => {
     const categoryName  = req.body.categoryName;
+    console.log(categoryName)
     
     try {
       const categoryExists = await adminHelper.checkCategoryExists(categoryName);
-  
+      console.log(categoryExists);
       if (categoryExists) {
-        req.session.categoryExistsErr =true;
+        req.session.categoryExistsErr ="category already exists";
         console.log(req.session.categoryExistsErr)
       } else {
          await adminHelper.addCategory({ categoryName }).then((result)=>{
@@ -202,7 +203,7 @@ const addCategory = async (req, res) => {
       console.log(error);
       res.redirect('/admin');
     }
-  };
+  }
 
 const removeCategory=(req, res) => {
     let ctId = req.query.id

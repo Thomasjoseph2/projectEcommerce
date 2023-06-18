@@ -121,7 +121,7 @@ module.exports = {
   },
   checkCategoryExists: (categoryName) => {
     return new Promise((resolve, reject) => {
-      db.get()
+         let category=db.get()
         .collection(collection.CATEGORY_COLLECTION)
         .findOne({ categoryName: categoryName })
         .then((category) => {
@@ -165,6 +165,7 @@ module.exports = {
           .get()
           .collection(collection.ORDER_COLLECTION)
           .find({ OrderStatus: { $ne: 'cancelled' } })
+          .sort({ date: -1 }) // Sort by date in descending order (newest first)
           .toArray();
         resolve(orders);
       } catch (error) {
@@ -172,6 +173,7 @@ module.exports = {
       }
     });
   }
+  
   ,
   getProductsInOrder: (orderId) => {
     return new Promise(async (resolve, reject) => {
