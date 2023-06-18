@@ -63,7 +63,11 @@ router.post('/users/order-summary',user.getOrderSummary)
 
 router.get('/search-category',user.searchCategory )
 
+router.post('/list-category',user.ListCategory)
+
 router.get('/search',user.getSearchResults)
+
+
 
 router.get('/remove-product', (req, res) => {
   let proId = req.query.id

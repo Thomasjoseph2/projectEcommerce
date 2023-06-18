@@ -629,10 +629,41 @@ return new Promise((resolve,reject)=>{
       }
     });
   },
+  getCategory: () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const categories = await db.get().collection(collection.CATEGORY_COLLECTION).find().toArray();
+        resolve(categories);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
   
+  ,
+  getCategoryByName:(category)=>{
+    return new Promise(async (resolve, reject) => {
+      try {
+        const cid = await db.get().collection(collection.CATEGORY_COLLECTION).findOne({categoryName:category });
+        resolve(cid);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
   
-  
-  
+  ,
+  listCategorys:(catId)=>{
+    return new Promise(async (resolve, reject) => {
+      try {
+        const categoryProducts= await db.get().collection(collection.PRODUCT_COLLECTION).find({productCategory:catId }).toArray();
+        
+        resolve(categoryProducts);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
 };
 
 

@@ -382,8 +382,20 @@ const getOrderSummary=async(req,res)=>{
    res.render('users/order-summary',{ productDetails,user:req.session.user,orderId});
  
 }
-const searchCategory =(req,res)=>{
-     res.render('users/categorys-search')
+const searchCategory =async(req,res)=>{
+  let categories = await userHelper.getCategory();
+  let products=await productHelpers.getAllProducts();
+     res.render('users/categorys-search',{categories,products})
+}
+const ListCategory=async(req,res)=>{
+    let catId=await userHelper.getCategoryByName(req.body.status);
+    
+    console.log(catId._id);
+    
+    let products= await userHelper.listCategorys(catId._id)
+    let categories = await userHelper.getCategory();
+    
+    res.render('users/categorys-search',{products,categories})
 }
 
 module.exports = {
@@ -413,5 +425,6 @@ module.exports = {
   verifyPayment,
   getOrderSummary,
   searchCategory ,
-  getSearchResults 
+  getSearchResults ,
+  ListCategory
 };
