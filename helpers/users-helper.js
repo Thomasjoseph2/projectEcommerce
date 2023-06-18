@@ -48,6 +48,25 @@ module.exports = {
       }
     });
   },
+  getAllProductsForHome: (page, productPerPage,totalProducts) => {
+    return new Promise(async (resolve, reject) => {
+      const productCollection = db.get().collection(collection.PRODUCT_COLLECTION);
+      const totalPages = Math.ceil(totalProducts / productPerPage);
+  
+      productCollection
+        .find()
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage)
+        .toArray((err, products) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve({ products, totalPages });
+          }
+        });
+    });
+  }
+  ,
 
   addToCart: (proId, userId) => {
     const proObj = {
@@ -584,6 +603,30 @@ return new Promise((resolve,reject)=>{
         .toArray();
   
       resolve(products);
+    });
+  },getTotalProductCount: () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const count = await db.get().collection(collection.PRODUCT_COLLECTION).countDocuments();
+        resolve(count);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+
+  getPaginatedProducts: (perPage, currentPage) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const products = await db.get().collection(collection.PRODUCT_COLLECTION)
+          .find()
+          .skip((currentPage - 1) * perPage)
+          .limit(perPage)
+          .toArray();
+        resolve(products);
+      } catch (error) {
+        reject(error);
+      }
     });
   },
   

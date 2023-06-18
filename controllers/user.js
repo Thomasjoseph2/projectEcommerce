@@ -156,14 +156,23 @@ const getSearchResults = async (req, res) => {
 const getHome = async function (req, res, next) {
   let user = req.session.user;
   let cartCount = null;
-  // if (req.session.user) {
-  //   cartCount = await userHelper.getCartCount(req.session.user._id);
-  // }
+  const page = parseInt(req.query.page) || 1;
+  const productPerPage = 8;
 
-  productHelpers.getAllProducts().then((products) => {
-    res.render('users/view-products', { products, user, cartCount });
+  const totalProducts = await userHelper.getTotalProductCount();
+
+  userHelper.getAllProductsForHome(page, productPerPage, totalProducts).then((result) => {
+    const { products, totalPages } = result;
+    console.log(totalProducts, products, totalPages);
+    if (req.xhr) {
+      res.render('users/product-section', { products, user, cartCount, currentPage: page, totalPages, layout: false });
+    } else {
+      res.render('users/view-products', { products, user, cartCount, currentPage: page, totalPages });
+    }
   });
-}
+};
+
+
 
 const changeProductQuantity = (req, res, next) => {
   userHelper.changeProductQuantity(req.body).then(async(response) => {
