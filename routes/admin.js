@@ -49,6 +49,12 @@ router.get('/remove-category', auth.verifyLogin, admin.removeCategory)
  
 router.get('/order-list', auth.verifyLogin, admin.getOrderList)
 
+router.get('/coupon-manage', auth.verifyLogin, admin.getCoupon)
+
+router.get('/add-coupon', auth.verifyLogin, admin.getCreateCoupon)
+
+router.post('/add-coupon',auth.verifyLogin,admin.addCoupon)
+
 router.post('/ordered-product-details',auth.verifyLogin,admin.adminOrderDetailsPOST);
 
 router.post('/admin-order-manage',auth.verifyLogin,admin.changeStatus)

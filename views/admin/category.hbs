@@ -11,33 +11,24 @@
 <section style="margin-top: 9rem;">
   <div class="container">
     <div class="row navuser">
-       {{#if CATEGORYERROR}}
-  <div class="alert alert-danger mt-2" role="alert">
-    Category already exists.
-  </div>
-  {{/if}}
+      {{#if CATEGORYERROR}}
+      <div class="alert alert-danger mt-2" role="alert">
+        Category already exists.
+      </div>
+      {{/if}}
       <form action="/admin/add-category" method="POST" id="categoryForm">
         <div class="mb-3">
-
           <label for="category-name" class="form-label">Category Name</label>
           <input type="text" class="form-control" id="category-name" name="categoryName" required>
- 
- 
-
-
         </div>
         <button type="submit" class="btn btn-primary">Add Category</button>
-        <div>
-  
-</div>
+        <div></div>
       </form>
-
     </div>
     <div class="table-responsive mt-5" id="categoryTableContainer">
-      <table id="categoryTable" class="table mt-5 userTable mt-3">
+      <table id="categoryTable" class="table mt-5 mt-3 categoryTable">
         <thead>
           <tr>
-
             <th>Category Name</th>
             <th>id</th>
             <th>Remove</th>
@@ -45,9 +36,7 @@
         </thead>
         {{#each categories}}
         <tbody>
-
           <tr>
-
             <td>{{this.categoryName}}</td>
             <td>{{this._id}}</td>
             <td>
@@ -55,56 +44,64 @@
                 onclick="return confirm('Are you sure you want to remove {{this.categoryName}}?')">Remove</a>
             </td>
           </tr>
-
         </tbody>
         {{/each}}
       </table>
     </div>
   </div>
 </section>
-<script>
-// Event handler for remove category button
-$('.remove-category').on('click', function (event) {
-  event.preventDefault();
-  var categoryId = $(this).data('category-id');
-  var confirmation = confirm('Are you sure you want to remove this category?');
 
-  if (confirmation) {
-    // Perform AJAX request to remove the category
+<script>
+  // Event handler for remove category button
+  $('.remove-category').on('click', function (event) {
+    event.preventDefault();
+    var categoryId = $(this).data('category-id');
+    var confirmation = confirm('Are you sure you want to remove this category?');
+
+    if (confirmation) {
+      // Perform AJAX request to remove the category
+      $.ajax({
+        url: '/admin/remove-category?id=' + categoryId,
+        method: 'GET',
+        success: function (response) {
+          // If the category is successfully removed, update the category table
+          $('#categoryTableContainer').load('/admin/category #categoryTable');
+        },
+        error: function (error) {
+          console.log(error);
+        }
+      });
+    }
+  });
+
+  $('#categoryForm').submit(function (event) {
+    event.preventDefault();
+
+    // Perform AJAX request to add a new category
     $.ajax({
-      url: '/admin/remove-category?id=' + categoryId,
-      method: 'GET',
+      url: '/admin/add-category',
+      method: 'POST',
+      data: $('#categoryForm').serialize(),
       success: function (response) {
-        // If the category is successfully removed, update the category table
-        $('#categoryTableContainer').load('/admin/category #categoryTable');
+        // Reset the form fields
+        $('#categoryForm')[0].reset();
+
+        // If the category is successfully added, update the category table
+        $('#categoryTableContainer').load('/admin/category #categoryTable', function() {
+          // After reloading the table, initialize the DataTable plugin
+          $('.categoryTable').DataTable();
+        });
       },
       error: function (error) {
         console.log(error);
+        location.reload(); // Refresh the page to restore the original state
       }
     });
-  }
-});
-
-$('#categoryForm').submit(function (event) {
-  event.preventDefault();
-
-  // Perform AJAX request to add a new category
-  $.ajax({
-    url: '/admin/add-category',
-    method: 'POST',
-    data: $('#categoryForm').serialize(),
-    success: function (response) {
-      // Reset the form fields
-      $('#categoryForm')[0].reset();
-
-      // If the category is successfully added, update the category table
-      $('#categoryTableContainer').load('/admin/category #categoryTable');
-    },
-    error: function (error) {
-      console.log(error);
-    }
   });
-});
-  
 </script>
 
+<script>
+  $(document).ready(function () {
+    $('.categoryTable').DataTable();
+  });
+</script>

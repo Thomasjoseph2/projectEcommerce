@@ -67,7 +67,7 @@ router.post('/list-category',user.ListCategory)
 
 router.get('/search',user.getSearchResults)
 
-
+router.post('/apply-coupon',auth.userVerifyLogin,user.verifyCoupon)
 
 router.get('/remove-product', (req, res) => {
   let proId = req.query.id

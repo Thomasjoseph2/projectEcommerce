@@ -2,7 +2,7 @@
 const productHelpers = require('../helpers/product-helper');
 const userHelpers = require('../helpers/users-helper');
 const adminHelper = require('../helpers/admin-helper');
-
+const moment = require('moment');
 const adminLoadLogin = function (req, res) {
     if (req.session.admin && req.session.admin.loggedIn) {
         
@@ -249,6 +249,62 @@ const changeStatus = async (req, res) => {
   }
 };
 
+
+const getCoupon = async (req, res) => {
+  try {
+    let coupons = await adminHelper.getAllCoupons();
+
+    // Format the dates in a readable format before rendering the view
+    coupons = coupons.map(coupon => {
+      coupon.expiryDate = moment(coupon.expiryDate).format('DD/MM/YYYY HH:mm:ss');
+      coupon.createdAt = moment(coupon.createdAt).format('DD/MM/YYYY HH:mm:ss');
+      return coupon;
+    });
+
+    console.log(coupons);
+    res.render('admin/coupon-manage', { admin: true, coupons });
+  } catch (error) {
+    console.error(error);
+    // Send JSON response with error message
+  }
+};
+
+const getCreateCoupon=(req,res)=>{
+  try {
+    
+    res.render('admin/add-coupon',{admin:true})
+      
+     
+    } catch (error) {
+      console.error(error);
+       // Send JSON response with error message
+    }
+}
+
+
+
+const addCoupon = async (req, res) => {
+  let coupon = req.body;
+  coupon.purchaseamound = parseInt(coupon.purchaseamound);
+  coupon.expiary = parseInt(coupon.expiary);
+  coupon.discount = parseInt(coupon.discount);
+
+  // Calculate the expiry date based on the current date and the number of days
+  const currentDate = new Date();
+  const expiryDate = moment().add(coupon.expiary, 'days').toDate();
+  coupon.expiryDate = expiryDate;
+
+  // Add the current date to the coupon object
+  coupon.createdAt = currentDate;
+
+  let coupons = await adminHelper.addCoupon(coupon);
+  console.log(coupons);
+  res.redirect('/admin/add-coupon');
+};
+
+
+
+
 module.exports = {
     adminLoadLogin,
     adminCheck,
@@ -270,7 +326,10 @@ module.exports = {
     removeCategory,
     getOrderList,
     adminOrderDetailsPOST,
-    changeStatus
+    changeStatus,
+    getCoupon,
+    getCreateCoupon,
+    addCoupon
   
 
 }

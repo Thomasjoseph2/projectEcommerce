@@ -2,6 +2,7 @@ const db = require('../model/connection');
 const collection = require('../model/collections');
 const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
+const { reject, resolve } = require('promise');
 
 module.exports = {
   doLogin: async (adminData) => {
@@ -226,7 +227,36 @@ module.exports = {
         reject(error);
       }
     });
+  },
+  addCoupon:(coupon)=>{
+   return new Promise(async(resolve,reject)=>{
+    try{
+
+
+      await db.get().collection(collection.COUPON_COLLECTION).insertOne(coupon).then((coupon)=>{
+        resolve(coupon)
+      })
+    }catch(err){
+      console.log(err);
+    }
+   })
+  },
+  getAllCoupons: () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const coupons = await db
+          .get()
+          .collection(collection.COUPON_COLLECTION)
+          .find()
+          .sort({ createdAt: -1 }) // Sort by descending order of createdAt field
+          .toArray();
+        resolve(coupons);
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
+  
 
 };
 

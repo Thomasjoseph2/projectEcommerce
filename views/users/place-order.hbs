@@ -32,14 +32,18 @@
 <!--================Checkout Area =================-->
 <section class="checkout_area section_gap">
     <div class="container">
+       
+   <div class="cupon_area">
+  <div class="check_title">
+    <h2>Have a coupon? <a href="#">Click here to enter your code</a></h2>
+  </div>
+  <form action="/apply-coupon" method="post">
+    <input type="text" name="couponCode" placeholder="Enter coupon code">
+    <button class="btn" type="submit">Apply Coupon</button>
+  </form>
+</div>
 
-        <div class="cupon_area">
-            <div class="check_title">
-                <h2>Have a coupon? <a href="#">Click here to enter your code</a></h2>
-            </div>
-            <input type="text" placeholder="Enter coupon code">
-            <a class="tp_btn" href="#">Apply Coupon</a>
-        </div>
+      
         <div class="billing_details">
             <div class="row">
                 <div class="col-lg-8">
@@ -71,8 +75,8 @@
     <select class="form-control addressoption" id="address" name="address">
         <option value="" disabled selected >Choose your address</option>
         {{#if user}}
-        <option value="{{user.add1}}">{{user.add1}}</option>
-        <option value="{{user.add1}}">{{user.add2}}</option>
+        <option value="">{{user.add1}}</option>
+        <option value="">{{user.add2}}</option>
         {{/if}}
         <!-- Add more address options here -->
     </select>

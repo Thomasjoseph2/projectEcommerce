@@ -663,7 +663,60 @@ return new Promise((resolve,reject)=>{
         reject(error);
       }
     });
+  },
+  couponExist: (coupon) => {
+console.log(coupon)
+
+    return new Promise(async (resolve, reject) => {
+      try {
+        const exists = await db
+          .get()
+          .collection(collection.COUPON_COLLECTION)
+          .findOne({ couponcode: coupon });
+          if(exists){
+            resolve(exists)
+          }else{
+            resolve(false)
+          }
+         
+          
+
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+  getOrder:(userId)=>{
+    return new Promise(async (resolve, reject) => {
+      try {
+        const order= await db
+          .get()
+          .collection(collection.ORDER_COLLECTION)
+          .findOne({ userId: ObjectId(userId)});
+           resolve(order)    
+
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+  updateOrder:(orderId,discountedTotal)=>{
+    return new Promise(async (resolve, reject) => {
+      try {
+      let updated=  await db
+        .get()
+        .collection(collection.ORDER_COLLECTION)
+        .updateOne(
+          { _id: orderId},
+          { $set: { totalAmound: discountedTotal.toFixed(2) } }
+        );  
+        resolve(updated)
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
+
 };
 
 
