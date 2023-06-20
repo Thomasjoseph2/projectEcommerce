@@ -5,5 +5,6 @@ module.exports={
     ADMIN_COLLECTION:'admin',
     CATEGORY_COLLECTION:'category',
     ORDER_COLLECTION:'order',
-    COUPON_COLLECTION:'coupon'
+    COUPON_COLLECTION:'coupon',
+    USED_COUPON_COLLECTION:'usedcoupon'
 }

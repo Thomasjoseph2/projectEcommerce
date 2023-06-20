@@ -37,10 +37,12 @@
   <div class="check_title">
     <h2>Have a coupon? <a href="#">Click here to enter your code</a></h2>
   </div>
-  <form action="/apply-coupon" method="post">
-    <input type="text" name="couponCode" placeholder="Enter coupon code">
-    <button class="btn" type="submit">Apply Coupon</button>
-  </form>
+ <form action="/apply-coupon" method="post" id="coupon-form">
+    <input type="text" name="couponCode" id="couponCode" placeholder="Enter coupon code">
+    <div id="couponMessage"></div>
+    <button class="btn" type="submit" id="applyCouponButton">Apply Coupon</button>
+</form>
+
 </div>
 
       
@@ -140,16 +142,17 @@
                         <ul class="list">
                             <li><a href="#">Product <span>Total</span></a></li>
                             {{#each products}}
-                            <li><a href="#">{{this.product.productName}}<span class="middle">x {{this.quantity}}</span>
-                                    <span class="last">{{this.total}}</span></a></li>
+                            <li><a href="#">{{this.product.productName}}<span class="middle">x{{this.quantity}}</span>
+                                    <span class="last">₹{{this.total}}/-</span></a></li>
                             {{/each}}
                         </ul>
 
                         <ul class="list list_2">
-                            <li><a href="#">Subtotal <span>{{this.total}}</span></a></li>
+                            <li><a href="#">total price <span>₹{{this.carttotal}}/-</span></a></li>
+                          
                             <li><a href="#">Shipping <span>Free</span></a></li>
 
-                            <li><a href="#">Total <span>{{this.total}}</span></a></li>
+                            <li><a href="#"> sub Total <span>₹{{this.total}}/-</span></a></li>
                         </ul>
 
 
@@ -250,6 +253,51 @@
     </div>
 </footer>
 <script>
+
+$("#coupon-form").submit((e) => {
+  e.preventDefault();
+  const couponCode = $("#couponCode").val();
+
+  $.ajax({
+    url: '/apply-coupon',
+    method: 'post',
+    data: { couponCode },
+    success: (response) => {
+      if (response.couponExist) {
+        // Display coupon applied message
+        Swal.fire({
+          icon: 'success',
+          title: 'Coupon Applied',
+          text: 'Coupon applied successfully!',
+        }).then(() => {
+          // Refresh the page after the alert is closed
+          location.reload();
+        });
+      } else {
+        // Display invalid coupon message
+        let errorMessage = 'Invalid coupon!';
+
+        if (response.expired) {
+          errorMessage = 'Coupon expired!';
+        } else if (response.alreadyUsed) {
+          errorMessage = 'Coupon already used!';
+        } else if (response.notApplicable) {
+          errorMessage = 'Coupon is not applicable for this amount!';
+        }
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Coupon Error',
+          text: errorMessage,
+        });
+      }
+    }
+  });
+});
+
+
+
+
     $("#checkout-form").submit((e) => {
         e.preventDefault()
         $.ajax({

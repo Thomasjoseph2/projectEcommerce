@@ -311,20 +311,34 @@ const cancelOrder = async (req, res) => {
 
 
 const placeOrder = async (req, res, next) => {
-
-  let total = await userHelper.getCartTotal(req.session.user._id)
+  let total=0;
+  let carttotal = await userHelper.getCartTotal(req.session.user._id)
   let products = await userHelper.getCartProducts(req.session.user._id);
+  if(req.session.user.newtotal){
+    total=req.session.user.newtotal
+  }else{
+    total=carttotal
+  }
   products.forEach((product) => {
     product.total = product.product.productPrice * product.quantity;
   });
-  res.render('users/place-order', { total, user: req.session.user, products })
+
+  console.log(req.session.user.newtotal,carttotal);
+  res.render('users/place-order', { total, user: req.session.user, products ,carttotal})
 }
 const doPlaceOrder = async (req, res) => {
   console.log(req.session.user);
   let products = await userHelper.getcartProductList(req.body.userId)
-  let total = await userHelper.getCartTotal(req.body.userId)
+  let discountedAmount = await userHelper.getDiscountedAmount(req.session.user._id)
+  let cartTotal = await userHelper.getCartTotal(req.body.userId)
+  let total = 0;
+  if (discountedAmount) {
+    total = discountedAmount
+  } else {
+    total = cartTotal
+  }
   console.log(req.body, products, total);
-  userHelper.placeOrder(req.body, products, total).then((response) => {
+  userHelper.placeOrder(req.body, products, total).then(async (response) => {
     if (req.body['payment-method'] === 'COD') {
       res.json({ codStatus: true })
     } else {
@@ -332,6 +346,9 @@ const doPlaceOrder = async (req, res) => {
         res.json(response)
       })
     }
+    couponCode = req.session.user.couponCode
+
+    await userHelper.updateCouponStatus(req.session.user._id, couponCode);
 
   })
 }
@@ -390,8 +407,6 @@ const searchCategory = async (req, res) => {
 const ListCategory = async (req, res) => {
   let catId = await userHelper.getCategoryByName(req.body.status);
 
-
-
   let products = await userHelper.listCategorys(catId._id)
   let categories = await userHelper.getCategory();
 
@@ -399,18 +414,45 @@ const ListCategory = async (req, res) => {
 }
 const verifyCoupon = async (req, res) => {
   let couponExist = await userHelper.couponExist(req.body.couponCode);
-  console.log(couponExist);
-  if (couponExist) {
-    console.log(req.session.user._id);
-    const discount = couponExist.discount;
-    let Carttotal = await userHelper.getCartTotal(req.session.user._id);
-    const discountedTotal =(Carttotal *(discount/100))
+  req.session.user.couponCode = req.body.couponCode;
 
-    console.log(discount, "discount percentage");
-    console.log(Carttotal, "Cart total");
-    console.log(discountedTotal, "discounted total");
+  if (couponExist) {
+    console.log(couponExist, "the coupon");
+    let Carttotal = await userHelper.getCartTotal(req.session.user._id);
+    console.log(Carttotal, couponExist.purchaseamound);
+    console.log(couponExist.expiryDate, couponExist.createdAt);
+
+    // Check if the coupon is not expired
+    const currentDate = new Date();
+    if (currentDate <= couponExist.expiryDate) {
+      if (Carttotal >= couponExist.purchaseamound) {
+        let alredyused = await userHelper.isAlreadyUsed(req.session.user._id, req.body.couponCode);
+        if (alredyused) {
+          console.log(req.session.user._id);
+          const discount = Math.floor(couponExist.discount);
+          let total = parseInt(Carttotal);
+          const discounted = total * (discount / 100);
+          const discountedTotal = Math.floor(total - discounted);
+           req.session.user.newtotal=discountedTotal
+          await userHelper.addDiscountedTotal(req.session.user._id, discountedTotal).then(async (updated) => {
+            console.log(updated);
+            userHelper.addToUsedCoupon(req.session.user._id, req.body.couponCode);
+          });
+          res.json({ couponExist: true });
+        } else {
+          res.json({ couponExist: false, alreadyUsed: true });
+        }
+      } else {
+        res.json({ couponExist: false, notApplicable: true });
+      }
+    } else {
+      res.json({ couponExist: false, expired: true });
+    }
+  } else {
+    res.json({ couponExist: false });
   }
-}
+};
+
 
 
 

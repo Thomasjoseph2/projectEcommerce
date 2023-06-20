@@ -700,17 +700,114 @@ console.log(coupon)
       }
     });
   },
-  updateOrder:(orderId,discountedTotal)=>{
+  // updateOrder:(orderId,discountedTotal)=>{
+  //   return new Promise(async (resolve, reject) => {
+  //     try {
+  //     let updated=  await db
+  //       .get()
+  //       .collection(collection.ORDER_COLLECTION)
+  //       .updateOne(
+  //         { _id: orderId},
+  //         { $set: { totalAmound: discountedTotal.toFixed(2) } }
+  //       );  
+  //       resolve(updated)
+  //     } catch (error) {
+  //       reject(error);
+  //     }
+  //   });
+  // },
+  addDiscountedTotal: (userId, discountedTotal) => {
     return new Promise(async (resolve, reject) => {
       try {
-      let updated=  await db
-        .get()
-        .collection(collection.ORDER_COLLECTION)
-        .updateOne(
-          { _id: orderId},
-          { $set: { totalAmound: discountedTotal.toFixed(2) } }
-        );  
-        resolve(updated)
+        let updated = await db
+          .get()
+          .collection(collection.CART_COLLECTION)
+          .updateOne(
+            { user: ObjectId(userId) },
+            { $set: { discountedAmount: discountedTotal } }
+          );
+        resolve(updated);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+  getDiscountedAmount: (userId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let cart = await db
+          .get()
+          .collection(collection.CART_COLLECTION)
+          .findOne({ user: ObjectId(userId) }, { discountedAmount: 1 });
+  
+        if (cart) {
+          resolve(cart.discountedAmount);
+        } else {
+          resolve(null);
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+  ,
+  addToUsedCoupon:(userId,couponcode)=>{
+
+  },
+  addToUsedCoupon: (userId, couponCode) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const coupon = {
+        couponCode: couponCode,
+        status: 'applied'
+      };
+
+      await db.get().collection(collection.USED_COUPON_COLLECTION).updateOne(
+        { user: ObjectId(userId) },
+        { $push: { coupons: coupon } },
+        { upsert: true }
+      );
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+  ,
+  isAlreadyUsed: (userId, couponCode) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const usedCoupon = await db.get().collection(collection.USED_COUPON_COLLECTION).findOne({
+          user: ObjectId(userId),
+          coupons: {
+            $elemMatch: {
+              couponCode: couponCode,
+              status: "used"
+            }
+          }
+        });
+        console.log(usedCoupon,"couponused")
+        if (usedCoupon) {
+          resolve(false); // Coupon is already used
+        } else {
+          resolve(true); // Coupon is not used
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+  ,
+  updateCouponStatus: (userId, couponCode) => {
+    console.log(userId,couponCode);
+    return new Promise(async (resolve, reject) => {
+      try {
+        await db.get().collection(collection.USED_COUPON_COLLECTION).updateOne(
+          { user: ObjectId(userId), 'coupons.couponCode': couponCode },
+          { $set: { 'coupons.$.status': 'used' } }
+        );
+  
+        resolve();
       } catch (error) {
         reject(error);
       }
