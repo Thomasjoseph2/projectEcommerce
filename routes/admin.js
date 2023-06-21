@@ -51,6 +51,8 @@ router.get('/order-list', auth.verifyLogin, admin.getOrderList)
 
 router.get('/coupon-manage', auth.verifyLogin, admin.getCoupon)
 
+router.get('/remove-coupon', auth.verifyLogin, admin.removeCoupon);
+
 router.get('/add-coupon', auth.verifyLogin, admin.getCreateCoupon)
 
 router.post('/add-coupon',auth.verifyLogin,admin.addCoupon)

@@ -255,7 +255,19 @@ module.exports = {
         reject(error);
       }
     });
-  }
+  },
+  // adminHelper.js
+removeCoupon: (couponId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await db.get().collection(collection.COUPON_COLLECTION).deleteOne({ _id: ObjectId(couponId) });
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
+},
+
   
 
 };

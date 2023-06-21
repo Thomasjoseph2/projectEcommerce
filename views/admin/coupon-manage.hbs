@@ -34,8 +34,9 @@
     
     <td>
       {{!-- <a href="/admin/edit-product/{{this._id}}" class="btn " style="background-color: #FFAD01;color:aliceblue;">Edit</a> --}}
-      <a href="/admin/delete-coupon?id={{this._id}}" class="btn btn-danger"
-        onclick="return confirm('Are you sure you want to delete {{this.name}}?')">Delete</a>
+<a href="#" class="btn btn-danger remove-coupon" data-coupon-id="{{this._id}}">Delete</a>
+
+     
     </td>
   </tr>
   {{/each}}
@@ -46,7 +47,29 @@
   </div>
 </section>
 <script>
-  $(document).ready(function () {
-    $('#myTable').DataTable();
+$(document).ready(function () {
+  // Handle click event on delete button
+  $('.remove-coupon').on('click', function (event) {
+    event.preventDefault();
+    var couponId = $(this).data('coupon-id');
+    var confirmation = confirm('Are you sure you want to delete this coupon?');
+
+    if (confirmation) {
+      // Perform AJAX request to remove the coupon
+      $.ajax({
+        url: '/admin/remove-coupon?id=' + couponId,
+        method: 'GET',
+        success: function (response) {
+          // If the coupon is successfully removed, reload the page or perform any other desired action
+          window.location.reload();
+        },
+        error: function (error) {
+          console.log('Error removing coupon: ' + error);
+        }
+      });
+    }
   });
+});
+
+
 </script>

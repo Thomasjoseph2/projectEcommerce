@@ -302,6 +302,18 @@ const addCoupon = async (req, res) => {
   res.redirect('/admin/add-coupon');
 };
 
+const removeCoupon = (req, res) => {
+  const couponId = req.query.id;
+  adminHelper.removeCoupon(couponId)
+    .then(() => {
+      res.redirect('/admin/coupon-manage');
+    })
+    .catch((error) => {
+      console.log(error);
+      res.redirect('/admin/coupon-manage');
+    });
+};
+
 
 
 
@@ -329,7 +341,8 @@ module.exports = {
     changeStatus,
     getCoupon,
     getCreateCoupon,
-    addCoupon
+    addCoupon,
+    removeCoupon
   
 
 }
