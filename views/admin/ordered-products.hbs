@@ -42,11 +42,13 @@
   <div class="container">
     <form id="statusForm">
       <select class="select" name="status" id="statusSelect">
+        
         <option value="" disabled selected>Select Status</option>
         <option value="approved">Approved</option>
         <option value="cancelled">Cancelled</option>
         <option value="shipped">Shipped</option>
         <option value="delivered">Delivered</option>
+         <option value="returned">Returned</option>
       </select>
       <input type="hidden" name="orderId" value="{{this.orderId}}">
       <button style="height: 42px; background-color:#fe7200;color:aliceblue;" class="btn" type="submit">Update Status</button>
@@ -54,8 +56,6 @@
   </div>
 </section>
 
-
-  
     <section>
         <div class="container">
             <div class="cart_inner">
@@ -201,7 +201,8 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
       .then(function(response) {
         if (response.ok) {
           // Reload the page after successful status update
-          location.reload();
+          //location.reload()
+          location.href='/admin/order-list';
         } else {
           throw new Error('Error updating status');
         }

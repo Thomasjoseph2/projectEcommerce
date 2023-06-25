@@ -230,7 +230,7 @@ module.exports = {
 
   ,
 
-  changeStatusoOrder: (orderId, orderStatus) => {
+  changeStatusOrder: (orderId, orderStatus) => {
     return new Promise(async (resolve, reject) => {
       try {
         await db.get().collection(collection.ORDER_COLLECTION).updateOne(
@@ -348,7 +348,59 @@ getReturnRequests: () => {
       reject(error);
     }
   });
-}
+},
+getOrderStatus: (orderId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const order = await db.get().collection(collection.ORDER_COLLECTION).findOne({ _id: ObjectId(orderId) });
+      if (order) {
+        resolve(order.OrderStatus);
+      } else {
+        reject(new Error('Order not found'));
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+},
+getOrder:(orderId)=>{
+  return new Promise((resolve, reject) => {
+    db.get().collection(collection.ORDER_COLLECTION).findOne({ _id: ObjectId(orderId) }).then((order) => {
+      resolve(order);
+    }).catch((error) => {
+      reject(error);
+    });
+  });
+},
+updateWallet: (userId,totalAmound) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const user = await db
+        .get()
+        .collection(collection.USER_COLLECTION)
+        .findOne({ _id: ObjectId(userId) });
+      
+      if (user) {
+        const currentAmount = user.walletAmount;
+        const updatedAmount = currentAmount + totalAmound;
+        
+        await db
+          .get()
+          .collection(collection.USER_COLLECTION)
+          .updateOne(
+            { _id: ObjectId(userId) },
+            { $set: { walletAmount: updatedAmount } }
+          );
+        
+        resolve();
+      } else {
+        reject(new Error('User not found'));
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+},
 
 };
 

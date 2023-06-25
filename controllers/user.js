@@ -79,6 +79,7 @@ const signup = async (req, res) => {
 
 const addUserDetails = async (req, res) => {
   try {
+    console.log("going to add details");
     await userHelper.addUserDetails(req.session.user._id, req.body);
     res.redirect('/');
   } catch (err) {
@@ -360,7 +361,7 @@ const placeOrder = async (req, res, next) => {
     products.forEach((product) => {
       product.total = product.product.productPrice * product.quantity;
     });
-
+    req.session.user.newtotal=0;
     console.log(req.session.user.newtotal, carttotal);
     res.render('users/place-order', { total, user: req.session.user, products, carttotal });
   } catch (error) {
@@ -494,7 +495,9 @@ const verifyCoupon = async (req, res) => {
     let couponExist = await userHelper.couponExist(req.body.couponCode);
     req.session.user.couponCode = req.body.couponCode;
     if (couponExist) {
+
       console.log(couponExist, "the coupon");
+      if(couponExist.removed===false){
       const Carttotal = await userHelper.getCartTotal(req.session.user._id);
       console.log(Carttotal, couponExist.purchaseamound);
       console.log(couponExist.expiryDate, couponExist.createdAt);
@@ -524,9 +527,13 @@ const verifyCoupon = async (req, res) => {
       } else {
         res.json({ couponExist: false, expired: true });
       }
+    }else{
+      res.json({couponExist:false, expired:true})
+    }
     } else {
       res.json({ couponExist: false });
     }
+    
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'Internal Server Error' });

@@ -247,34 +247,42 @@ const removeCategory=(req, res) => {
     }
   };
   
-const adminOrderDetailsPOST=async(req,res)=>{
-   // let user = req.session.userSession // Used for storing user details for further use in this route
+  const isReturnRequestOrCancelRequest = (status) => {
+    return status === "returnrequest" || status === "cancelrequest";
+  };
   
-    // console.log(req.body);
-  
-    let orderId = req.body.orderId;
-    console.log(orderId);
-  
+  const adminOrderDetailsPOST = async (req, res) => {
+
+    let orderId=req.body.orderId
     let productDetails = await adminHelper.getProductsInOrder(orderId);
-  // For passing order date to the page
-  console.log(productDetails);
+    let orderStatus = await adminHelper.getOrderStatus(orderId); // Assuming you have a function to get the order status
+    
+    res.render('admin/ordered-products', { productDetails, admin: true, orderId, isReturnRequestOrCancelRequest: isReturnRequestOrCancelRequest(orderStatus) });
+  };
   
-    // console.log(orderDate);
-  
-    res.render('admin/ordered-products',{ productDetails,admin: true ,orderId});
-  
-}
 const changeStatus = async (req, res) => {
   try {
     let orderId = req.body.orderId;
     let status = req.body.status;
+    console.log(status);
+    const order=await adminHelper.getOrder(orderId);
+    await adminHelper.changeStatusOrder(orderId, status);
     
-    await adminHelper.changeStatusoOrder(orderId, status);
-    
+    console.log(order,"this is the order");
+     if(order.paymentMethod==='COD' && order.OrderStatus==="returnrequest" && status==="returned"){
+        await adminHelper.updateWallet(order.userId,order.totalAmound)
+         
+     }else if(order.paymentMethod==='ONLINE' && order.OrderStatus==="cancelrequest" && status==="cancelled"){
+      await adminHelper.updateWallet(order.userId,order.totalAmound)
+     }
+    else if(order.paymentMethod==='ONLINE' && order.OrderStatus==="returnrequest" && status==="returned"){
+      await adminHelper.updateWallet(order.userId,order.totalAmound)
+    }
     res.json({ success: true }); // Send JSON response indicating success
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' }); // Send JSON response with error message
+    res.status(500).json({ error: 'Internal Server Error' }); 
+    
   }
 };
 
@@ -321,10 +329,12 @@ const addCoupon = async (req, res) => {
      res.redirect('/admin/add-coupon')
   }
   else
-    {  coupon.purchaseamound = parseInt(coupon.purchaseamound);
+    {  
+  coupon.purchaseamound = parseInt(coupon.purchaseamound);
   coupon.expiary = parseInt(coupon.expiary);
   coupon.discount = parseInt(coupon.discount);
-
+  coupon.removed=false
+  
   // Calculate the expiry date based on the current date and the number of days
   const currentDate = new Date();
   const expiryDate = moment().add(coupon.expiary, 'days').toDate();

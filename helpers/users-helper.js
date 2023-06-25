@@ -18,6 +18,7 @@ module.exports = {
         userData.password = await bcrypt.hash(userData.password, 10);
         userData.blocked = false;
         userData.isVerified=false;
+        userData.walletAmount=0;
         const response = await db.get().collection(collection.USER_COLLECTION).insertOne(userData);
         resolve(response);
       } catch (error) {
@@ -455,7 +456,7 @@ placeOrder: (order, products, total) => {
       userId: ObjectId(order.userId),
       paymentMethod: order['payment-method'],
       products: products,
-      totalAmound: total,
+      totalAmound: parseInt(total),
       status: status,
       OrderStatus: 'pending',
       date: currentDate
@@ -538,10 +539,12 @@ placeOrder: (order, products, total) => {
   addUserDetails: (userId, userDetails) => {
     return new Promise(async (resolve, reject) => {
       try {
+        console.log("reached");
         await db.get().collection(collection.USER_COLLECTION).updateOne(
           { _id: ObjectId(userId) },
           { $set: userDetails } // Set the userDetails object
         );
+        console.log("added");
         resolve();
       } catch (error) {
         reject(error);
@@ -814,7 +817,7 @@ console.log(coupon)
   }
   ,
   updateCouponStatus: (userId, couponCode) => {
-    console.log(userId,couponCode);
+    //console.log(userId,couponCode);
     return new Promise(async (resolve, reject) => {
       try {
         await db.get().collection(collection.USED_COUPON_COLLECTION).updateOne(
