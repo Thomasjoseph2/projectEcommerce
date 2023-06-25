@@ -84,6 +84,21 @@ module.exports = {
       });
     });
   },
+  isUserBlocked: (userId) => {
+    return new Promise((resolve, reject) => {
+      db.get().collection(collection.USER_COLLECTION).findOne({ _id: ObjectId(userId) }, (err, user) => {
+        if (err) {
+          reject(err);
+        } else {
+          if (user && user.blocked === true) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        }
+      });
+    });
+  },
   userisSBlocked: (searchTerm) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -165,7 +180,7 @@ module.exports = {
         const orders = await db
           .get()
           .collection(collection.ORDER_COLLECTION)
-          .find({ OrderStatus: { $ne: 'cancelled' } })
+          .find()
           .sort({ date: -1 }) // Sort by date in descending order (newest first)
           .toArray();
         resolve(orders);
@@ -268,7 +283,72 @@ removeCoupon: (couponId) => {
   });
 },
 
-  
+couponExists:(coupon)=>{
+  return new Promise(async (resolve, reject) => {
+    try {
+    
+      const couponexists = await db.get().collection(collection.COUPON_COLLECTION).findOne({ couponcode: coupon });
+      if (couponexists) {
+        resolve(true); //coupon exists
+      } else {
+        resolve(false); //no coupon
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+},
+getTotalOrders: () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const count = await db.get().collection(collection.ORDER_COLLECTION).countDocuments();
+      resolve(count);
+    } catch (error) {
+      reject(error);
+    }
+  });
+},
+
+getOrdersByPage: (page, perPage) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const orders = await db
+        .get()
+        .collection(collection.ORDER_COLLECTION)
+        .find({ OrderStatus: { $ne: "cancelrequest" } })
+        .sort({ date: -1 }) // Sort by date in descending order (newest first)
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .toArray();
+      resolve(orders);
+    } catch (error) {
+      reject(error);
+    }
+  });
+},
+
+getCancelRequests: () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const cancelRequests = await db.get().collection(collection.ORDER_COLLECTION).find({ OrderStatus: "cancelrequest" }).toArray();
+      console.log(cancelRequests)
+      resolve(cancelRequests);
+    } catch (error) {
+      reject(error);
+    }
+  });
+},
+getReturnRequests: () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const cancelRequests = await db.get().collection(collection.ORDER_COLLECTION).find({ OrderStatus: "returnrequest" }).toArray();
+      console.log(cancelRequests)
+      resolve(cancelRequests);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 
 };
 

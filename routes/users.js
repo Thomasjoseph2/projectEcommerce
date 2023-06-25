@@ -41,7 +41,7 @@ router.post('/delete-product-from-cart',auth.userVerifyLogin,user.removefromCart
 
 router.get('/verify',user.verifyMail)
 
-router.get('/place-order',auth.userVerifyLogin,user.placeOrder)
+router.get('/place-order',auth.userVerifyLogin,auth.userverifyBlock,user.placeOrder)
 
 router.post('/place-order',auth.userVerifyLogin,user.doPlaceOrder)
 
@@ -49,7 +49,9 @@ router.get('/order-success',auth.userVerifyLogin,user.getOrderPlaced)
 
 router.get('/order-list',auth.userVerifyLogin,user.getOrderList)
 
-router.post('/cancel-order',auth.userVerifyLogin,user.cancelOrder)
+router.post('/cancel-order',user.cancelOrder)
+
+router.post('/return-order',user.returnOrder)
 
 router.get('/user-profile',auth.userVerifyLogin,user.getProfile)
 

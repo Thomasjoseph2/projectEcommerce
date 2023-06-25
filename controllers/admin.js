@@ -89,6 +89,7 @@ const editProduct = (req, res) => {
 
   // Retrieve the category ID based on the category name
   productHelpers.getCategoryId(categoryName, (categoryId) => {
+    req.body.productPrice=parseInt(req.body.productPrice)
     if (categoryId) {
       productHelpers.updateProduct(productId, req.body, categoryId).then(() => {
         if (req.files) {
@@ -171,10 +172,10 @@ const getCategory = async function (req, res) {
     try {
        
         let categories = await adminHelper.getCategory();
-       let errorcat=req.session.categoryExistsErr
-        res.render('admin/category', { admin: true, categories: categories ,errorcat});
+        
+        res.render('admin/category', { admin: true, categories: categories ,categoryError:req.session.admin.categoryExistsErr});
 
-        req.session.categoryExistsErr=false
+        req.session.admin.categoryExistsErr=false
     } catch (error) {
         console.log(error);
         res.redirect('/admin');
@@ -182,42 +183,70 @@ const getCategory = async function (req, res) {
 }
 
 const addCategory = async (req, res) => {
-    const categoryName  = req.body.categoryName;
-    console.log(categoryName)
-    
-    try {
-      const categoryExists = await adminHelper.checkCategoryExists(categoryName);
-      console.log(categoryExists);
-      if (categoryExists) {
-        req.session.categoryExistsErr ="category already exists";
-        console.log(req.session.categoryExistsErr)
-      } else {
-         await adminHelper.addCategory({ categoryName }).then((result)=>{
-            console.log(result);
-         })
-       
-      }
+  const categoryName  = req.body.categoryName;
   
-      res.redirect('/admin/category');
-    } catch (error) {
-      console.log(error);
-      res.redirect('/admin');
+  try {
+    const categoryExists = await adminHelper.checkCategoryExists(categoryName);
+
+    if (categoryExists) {
+      req.session.admin.categoryExistsErr =true;
+      console.log(req.session.admin.categoryExistsErr)
+      res.redirect('/admin/category')
+    } else {
+       await adminHelper.addCategory({ categoryName }).then((result)=>{
+          console.log(result);
+       })
+       res.redirect('/admin/category');
+     
     }
+
+    
+  } catch (error) {
+    console.log(error);
+    res.redirect('/admin');
   }
+};
 
 const removeCategory=(req, res) => {
+
+   
     let ctId = req.query.id
+    const productExist=productHelpers.isProductExist(ctId)
     adminHelper.removeCategory(ctId).then(() => {
       res.redirect('/admin/category')
     })
   
   }
   
-const getOrderList=async(req,res)=>{
-   let orders=await adminHelper.getOrderList();
-   console.log(orders);
-  res.render('admin/order-list',{orders,admin: true })
-}
+  const getOrderList = async (req, res) => {
+    try {
+      const currentPage = parseInt(req.query.page) || 1;
+      const perPage =4 ; // Number of orders per page
+      const totalOrders = await adminHelper.getTotalOrders();
+  
+      const totalPages = Math.ceil(totalOrders / perPage);
+      const hasPrevPage = currentPage > 5;
+      const hasNextPage = currentPage < totalPages;
+  
+      const orders = await adminHelper.getOrdersByPage(currentPage, perPage);
+  
+      res.render('admin/order-list', {
+        orders,
+        admin: true,
+        currentPage,
+        totalPages,
+        hasPrevPage,
+        hasNextPage,
+        prevPage: currentPage - 1,
+        nextPage: currentPage + 1,
+        pages: Array.from({ length: totalPages }, (_, i) => i + 1),
+      });
+    } catch (error) {
+      console.error(error);
+      // Send JSON response with error message
+    }
+  };
+  
 const adminOrderDetailsPOST=async(req,res)=>{
    // let user = req.session.userSession // Used for storing user details for further use in this route
   
@@ -272,8 +301,8 @@ const getCoupon = async (req, res) => {
 const getCreateCoupon=(req,res)=>{
   try {
     
-    res.render('admin/add-coupon',{admin:true})
-      
+    res.render('admin/add-coupon',{admin:true,couponExists:req.session.admin.couponExistsError})
+    req.session.admin.couponExistsError=false
      
     } catch (error) {
       console.error(error);
@@ -284,8 +313,15 @@ const getCreateCoupon=(req,res)=>{
 
 
 const addCoupon = async (req, res) => {
+  
   let coupon = req.body;
-  coupon.purchaseamound = parseInt(coupon.purchaseamound);
+  const couponExists= await adminHelper.couponExists(coupon.couponcode)
+  if(couponExists){
+     req.session.admin.couponExistsError="coupon already exists"
+     res.redirect('/admin/add-coupon')
+  }
+  else
+    {  coupon.purchaseamound = parseInt(coupon.purchaseamound);
   coupon.expiary = parseInt(coupon.expiary);
   coupon.discount = parseInt(coupon.discount);
 
@@ -300,6 +336,7 @@ const addCoupon = async (req, res) => {
   let coupons = await adminHelper.addCoupon(coupon);
   console.log(coupons);
   res.redirect('/admin/add-coupon');
+}
 };
 
 const removeCoupon = (req, res) => {
@@ -314,8 +351,17 @@ const removeCoupon = (req, res) => {
     });
 };
 
+const getCancelRequests=async (req,res)=>{
+  let cancelRequests= await adminHelper.getCancelRequests();
+//  console.log(cancelRequests,"this is cancel requests");
+  res.render('admin/cancel-requests',{cancelRequests})
+}
 
-
+const getReturnRequests=async (req,res)=>{
+  console.log("hiii");
+  let returnRequests= await adminHelper.getReturnRequests();
+  res.render('admin/return-requests',{returnRequests})
+}
 
 module.exports = {
     adminLoadLogin,
@@ -342,7 +388,9 @@ module.exports = {
     getCoupon,
     getCreateCoupon,
     addCoupon,
-    removeCoupon
+    removeCoupon,
+    getCancelRequests,
+    getReturnRequests
   
 
 }

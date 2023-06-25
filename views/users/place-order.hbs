@@ -77,8 +77,8 @@
     <select class="form-control addressoption" id="address" name="address">
         <option value="" disabled selected >Choose your address</option>
         {{#if user}}
-        <option value="">{{user.add1}}</option>
-        <option value="">{{user.add2}}</option>
+        <option value="{{user.add1}}">{{user.add1}}</option>
+        <option value="{{user.add2}}">{{user.add2}}</option>
         {{/if}}
         <!-- Add more address options here -->
     </select>

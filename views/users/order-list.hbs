@@ -19,7 +19,7 @@
     <div class="container">
         <div class="cart_inner">
             <div class="table-responsive">
-                <table class="table">
+                <table class="myTable">
                     <thead>
                         <tr>
                             <th scope="col">
@@ -40,7 +40,7 @@
                             <th scope="col">
                                 <h6 style="color:#fe7200">Adminstatus</h6>
                             </th>
-                             <th scope="col">
+                            <th scope="col">
                                 <h6 style="color:#fe7200"> Orders</h6>
                             </th>
 
@@ -67,16 +67,33 @@
                             <td>
                                 <h5>{{this.OrderStatus}}</h5>
                             </td>
-                                  <td>
-                            <form method="POST" action="/users/order-summary">
-                                <button style="width:8vh;color:aliceblue;background-color:#fe7200;border-color:#fe7200" name="orderId" value="{{this._id}}" type="submit" class="quantity-btn  ">View</button>
-                            </form>
-                             </td>
                             <td>
-                                {{#if (or (eq this.OrderStatus "approved") (eq this.OrderStatus "shipped")(eq this.OrderStatus "pending"))}}
+                                <form method="POST" action="/users/order-summary">
+                                    <button
+                                        style="width:8vh;color:aliceblue;background-color:#fe7200;border-color:#fe7200"
+                                        name="orderId" value="{{this._id}}" type="submit"
+                                        class="quantity-btn  ">View</button>
+                                </form>
+                            </td>
+                            <td>
+                                {{#if (eq this.OrderStatus "approved")}}
                                 <button class="quantity-btn btn-danger"
                                     onclick="cancelOrder('{{this._id}}')">Cancel</button>
+                                {{else if (eq this.OrderStatus "shipped")}}
+                                <button class="quantity-btn btn-danger"
+                                    onclick="cancelOrder('{{this._id}}')">Cancel</button>
+                                {{else if (eq this.OrderStatus "pending")}}
+                                <button class="quantity-btn btn-danger"
+                                    onclick="cancelOrder('{{this._id}}')">Cancel</button>
+                                {{else if (eq this.OrderStatus "cancelrequest")}}
+                                <button class="quantity-btn btn-danger">Requested</button>
+                                {{else if (eq this.OrderStatus "returnrequest")}}
+                                <button class="quantity-btn btn-danger">Requested</button>
+                                {{else if (eq this.OrderStatus "delivered")}}
+                                <button class="quantity-btn btn-danger" 
+                                onclick="returnOrder('{{this._id}}')">Return</button>
                                 {{/if}}
+
                             </td>
 
 
@@ -179,26 +196,51 @@
 </footer>
 <script>
     function cancelOrder(orderId) {
-  // Display a confirmation dialog to the user
-  if (confirm("Are you sure you want to cancel this order?")) {
-    // AJAX Function for removing a product from cart
-    $.ajax({
-      url: '/cancel-order',
-      data: {
-        orderId: orderId,
-      },
-      method: 'post',
-      success: (response) => {
-        if (response.ordercancelled) {
-          alert("Order cancelled");
-          location.reload();
-        } else {
-          console.log("Some errors occurred");
+        // Display a confirmation dialog to the user
+        if (confirm("Are you sure you want to cancel this order?")) {
+            // AJAX Function for removing a product from cart
+            $.ajax({
+                url: '/cancel-order',
+                data: {
+                    orderId: orderId,
+                },
+                method: 'post',
+                success: (response) => {
+                    if (response.cancelrequest) {
+                        alert("Cancel request send");
+                        location.reload();
+                    } else {
+                        console.log("Some errors occurred");
+                    }
+                }
+            });
         }
-      }
-    });
-  }
-}
+    }
+       
+       function returnOrder(orderId) {
+        // Display a confirmation dialog to the user
+        if (confirm("Are you sure you want to return this order?")) {
+            // AJAX Function for removing a product from cart
+            $.ajax({
+                url: '/return-order',
+                data: {
+                    orderId: orderId,
+                },
+                method: 'post',
+                success: (response) => {
+                    if (response.returnrequest) {
+                        alert("Cancel request send");
+                        location.reload();
+                    } else {
+                         console.log("Some errors occurred");
+                         alert("somethng went wrong");
+                         location.reload();
+                       
+                    }
+                }
+            });
+        }
+    }
 
 
 </script>

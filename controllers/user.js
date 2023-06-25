@@ -45,7 +45,7 @@ const sendVerifyMail = async (name, email, userId) => {
 
 const verifyMail = async (req, res) => {
   try {
-    let response = await userHelper.userVerified(req.query.id)
+    const response = await userHelper.userVerified(req.query.id)
     console.log(response);
     res.render("users/email-verified")
   } catch (err) {
@@ -55,136 +55,170 @@ const verifyMail = async (req, res) => {
 
 
 const getSignup = (req, res) => {
-  res.render('users/signup', { verifyErr: req.session.verifyLoginError });
-  req.session.verifyLoginError = false;
+  try {
+    res.render('users/signup', { verifyErr: req.session.verifyLoginError });
+    req.session.verifyLoginError = false;
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 const signup = async (req, res) => {
-  let response = await userHelper.doSignup(req.body)
-  sendVerifyMail(req.body.name, req.body.email, response.insertedId)
-  if (response) {
-    res.render('users/signup', { message: "Your registration has been successfull, Please verify your email" })
-  } else {
-    res.render('users/signup', { message: "Your registration has been failed" })
+  try {
+    const response = await userHelper.doSignup(req.body)
+    sendVerifyMail(req.body.name, req.body.email, response.insertedId)
+    if (response) {
+      res.render('users/signup', { message: "Your registration has been successful, Please verify your email" })
+    } else {
+      res.render('users/signup', { message: "Your registration has failed" })
+    }
+  } catch (err) {
+    console.log(err);
   }
 }
 
 const addUserDetails = async (req, res) => {
-
-  await userHelper.addUserDetails(req.session.user._id, req.body);
-  res.redirect('/')
+  try {
+    await userHelper.addUserDetails(req.session.user._id, req.body);
+    res.redirect('/');
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 const getLogin = (req, res) => {
-  if (req.session.user && req.session.user.loggedIn) {
-    res.redirect('/');
-  } else {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.render('users/login', { loginErr: req.session.userLogginErr, notVerified: req.session.verificationErr, blocked: req.session.blocked });
-    req.session.userLogginErr = false;
-    req.session.verificationErr = false;
-    req.session.blocked = false;
-
+  try {
+    if (req.session.user && req.session.user.loggedIn) {
+      res.redirect('/');
+    } else {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+      res.render('users/login', { loginErr: req.session.userLogginErr, notVerified: req.session.verificationErr, blocked: req.session.blocked });
+      req.session.userLogginErr = false;
+      req.session.verificationErr = false;
+      req.session.blocked = false;
+    }
+  } catch (err) {
+    console.log(err);
   }
 };
 
 const login = (req, res) => {
-  userHelper.doLogin(req.body).then((response) => {
-    console.log(response);
-    if (response.status) {
-      req.session.user = response.user;
-      req.session.user.loggedIn = true;
-      res.redirect('/');
-    } else {
-
-      req.session.userLogginErr = true;
-      res.redirect('/login');
-    }
-  });
+  try {
+    userHelper.doLogin(req.body).then((response) => {
+      console.log(response);
+      if (response.status) {
+        req.session.user = response.user;
+        req.session.user.loggedIn = true;
+        res.redirect('/');
+      } else {
+        req.session.userLogginErr = true;
+        res.redirect('/login');
+      }
+    });
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 const logout = (req, res) => {
-  if (req.session.user.otploggedin) {
-    req.session.user.otploggedin = false;
+  try {
+    if (req.session.user.otploggedin) {
+      req.session.user.otploggedin = false;
+    }
+    req.session.user.loggedIn = false;
+    req.session.user = null;
+    res.redirect('/');
+  } catch (err) {
+    console.log(err);
   }
-  req.session.user.loggedIn = false;
-  req.session.user = null;
-  res.redirect('/');
 }
 
 const getCart = async (req, res) => {
-  let products = await userHelper.getCartProducts(req.session.user._id);
-  products.forEach((product) => {
-    product.total = product.product.productPrice * product.quantity;
-  });
-  let Carttotal = await userHelper.getCartTotal(req.session.user._id);
-  // let eachTotal=await userHelper.getEachTotal(req.session.user._id)
-  console.log(products);
-  res.render('users/cart', { products, user: req.session.user, Carttotal });
+  try {
+    const products = await userHelper.getCartProducts(req.session.user._id);
+    products.forEach((product) => {
+      product.total = product.product.productPrice * product.quantity;
+    });
+    const Carttotal = await userHelper.getCartTotal(req.session.user._id);
+    console.log(products);
+    res.render('users/cart', { products, user: req.session.user, Carttotal });
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 const addToCart = (req, res) => {
-  if (!req.session.user || !req.session.user.loggedIn) {
-    res.json({ message: "Please log in to add items to the cart" });
-    return;
-  }
+  try {
+    if (!req.session.user || !req.session.user.loggedIn) {
+      res.json({ message: "Please log in to add items to the cart" });
+      return;
+    }
 
-  userHelper
-    .addToCart(req.params.id, req.session.user._id)
-    .then(() => {
-      console.log("added to cart");
-      // Send a response indicating that the product was added successfully
-      res.json({ message: "Added to cart" });
-    })
-    .catch((error) => {
-      console.error("Error adding to cart:", error);
-      // Send an error response if there was an issue adding the product
-      res.status(500).json({ message: "Error adding to cart" });
-    });
+    userHelper
+      .addToCart(req.params.id, req.session.user._id)
+      .then(() => {
+        console.log("added to cart");
+        // Send a response indicating that the product was added successfully
+        res.json({ message: "Added to cart" });
+      })
+      .catch((error) => {
+        console.error("Error adding to cart:", error);
+        // Send an error response if there was an issue adding the product
+        res.status(500).json({ message: "Error adding to cart" });
+      });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 const getSearchResults = async (req, res) => {
-  const searchQuery = req.query.search;
-  const products = await userHelper.searchProducts(searchQuery);
-  res.render('users/view-products', { products, user: req.session.user });
+  try {
+    const searchQuery = req.query.search;
+    const products = await userHelper.searchProducts(searchQuery);
+    res.render('users/view-products', { products, user: req.session.user });
+  } catch (err) {
+    console.log(err);
+  }
 };
-
-
-
-
 
 const getHome = async function (req, res, next) {
-  let user = req.session.user;
-  let cartCount = null;
-  const page = parseInt(req.query.page) || 1;
-  const productPerPage = 8;
+  try {
+    const user = req.session.user;
+    let cartCount = null;
+    const page = parseInt(req.query.page) || 1;
+    const productPerPage = 8;
 
-  const totalProducts = await userHelper.getTotalProductCount();
+    const totalProducts = await userHelper.getTotalProductCount();
 
-  userHelper.getAllProductsForHome(page, productPerPage, totalProducts).then((result) => {
-    const { products, totalPages } = result;
-    console.log(totalProducts, products, totalPages);
-    if (req.xhr) {
-      res.render('users/product-section', { products, user, cartCount, currentPage: page, totalPages, layout: false });
-    } else {
-      res.render('users/view-products', { products, user, cartCount, currentPage: page, totalPages });
-    }
-  });
+    userHelper.getAllProductsForHome(page, productPerPage, totalProducts).then((result) => {
+      const { products, totalPages } = result;
+      console.log(totalProducts, products, totalPages);
+      if (req.xhr) {
+        res.render('users/product-section', { products, user, cartCount, currentPage: page, totalPages, layout: false });
+      } else {
+        res.render('users/view-products', { products, user, cartCount, currentPage: page, totalPages });
+      }
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
-
-
 const changeProductQuantity = (req, res, next) => {
-  userHelper.changeProductQuantity(req.body).then(async (response) => {
-    let Carttotal = await userHelper.getCartTotal(req.body.user);
-    let eachTotal = await userHelper.getEachTotal(req.body.user);
-    console.log(eachTotal);
-    response.Carttotal = Carttotal
-    response.eachTotal = eachTotal
-    res.json(response)
-  }).catch((err) => {
-    res.status(500).send('Error changing quantity');
-  });
+  try {
+    userHelper.changeProductQuantity(req.body).then(async (response) => {
+      let Carttotal = await userHelper.getCartTotal(req.body.user);
+      let eachTotal = await userHelper.getEachTotal(req.body.user);
+      console.log(eachTotal);
+      response.Carttotal = Carttotal
+      response.eachTotal = eachTotal
+      res.json(response)
+    }).catch((err) => {
+      res.status(500).send('Error changing quantity');
+    });
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 const getSingleProduct = async (req, res) => {
@@ -198,51 +232,54 @@ const getSingleProduct = async (req, res) => {
     res.redirect('/error-page'); // Handle the error appropriately
   }
 }
-const getOtp = (req, res) => {
 
-  if (req.session.user && req.session.user.loggedIn) {
-    res.redirect('/');
-    console.log(req.session.user, req.session.user.loggedIn)
-  } else {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.render('users/otp', { phoneError: req.session.phoneError, otpError: req.session.otpError, blocked: req.session.blocked });
-    req.session.phoneError = false;
-    req.session.otpError = false;
-    req.session.blocked = false; // Reset the error flag after displaying it
+const getOtp = (req, res) => {
+  try {
+    if (req.session.user && req.session.user.loggedIn) {
+      res.redirect('/');
+      console.log(req.session.user, req.session.user.loggedIn)
+    } else {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+      res.render('users/otp', { phoneError: req.session.phoneError, otpError: req.session.otpError, blocked: req.session.blocked });
+      req.session.phoneError = false;
+      req.session.otpError = false;
+      req.session.blocked = false; // Reset the error flag after displaying it
+    }
+  } catch (err) {
+    console.log(err);
   }
 };
 
 const SendOtp = async (req, res) => {
-  phone = "+91" + req.body.phoneNumber;
-  console.log(phone, "hhhhhhhhhhhhhhhhhhhh");
-  let user = await userHelper.searchUser(phone);
-  console.log(user, "user consoled");
-  if (user) {
-    client.verify.v2
-      .services(verifySid)
-      .verifications.create({ to: phone, channel: "sms" })
-      .then((verification) => console.log(verification.status));
-  } else {
-    req.session.phoneError = "user not found";
-    res.redirect('/otp');
+  try {
+    phone = "+91" + req.body.phoneNumber;
+    console.log(phone, "hhhhhhhhhhhhhhhhhhhh");
+    let user = await userHelper.searchUser(phone);
+    console.log(user, "user consoled");
+    if (user) {
+      client.verify.v2
+        .services(verifySid)
+        .verifications.create({ to: phone, channel: "sms" })
+        .then((verification) => console.log(verification.status));
+    } else {
+      req.session.phoneError = "user not found";
+      res.redirect('/otp');
+    }
+  } catch (err) {
+    console.log(err);
   }
 };
-
-
-
 
 const verifyOtp = async (req, res) => {
   try {
     console.log(phone)
-    let otpCode = req.body.otp;
+    const otpCode = req.body.otp;
     client.verify.v2
       .services(verifySid)
       .verificationChecks.create({ to: phone, code: otpCode })
       .then(async (verification_check) => {
         console.log(verification_check.status);
-
         if (verification_check.status === "approved") {
-
           let user = await userHelper.isPhoneVerified(phone);
           if (user) {
             console.log(user);
@@ -267,191 +304,235 @@ const verifyOtp = async (req, res) => {
     console.error('Error occurred during OTP verification:', error);
     res.redirect('/error-page'); // Handle the error appropriately
   }
-};
-
-
-
-
-
-
-
-const removefromCart = (req, res, next) => {
-
-  // console.log(req.body);
-
-  usersHelper.deleteProductFromCart(req.body).then((response) => {
-
-    res.json(response);
-    /* 
-    # Used JSON to send data back here as RESPONSE to AJAX Call from cart page
-    # As we are using AJAX there is no need of sending back a complete web page or redirecting to a webpage (which will load the page completely)
-    # We can configure the AJAX to use the data in JSON format for updating the specific element of webpage
-    */
-
-  }).catch((err) => {
-
-    console.log(err);
-
-    reject(err);
-
-  });
-
 }
+
+
+
+
+
+
+
+const removefromCart = async (req, res, next) => {
+  try {
+    const response = await usersHelper.deleteProductFromCart(req.body);
+    res.json(response);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 
 const cancelOrder = async (req, res) => {
-  console.log(req.body)
-  orderId = req.body.orderId;
-  console.log(orderId);
-  await userHelper.cancelOrder(orderId).then((response) => {
-    res.json(response)
-  }).catch((err) => {
-    console.log(err);
-  });
-}
-
-
-const placeOrder = async (req, res, next) => {
-  let total=0;
-  let carttotal = await userHelper.getCartTotal(req.session.user._id)
-  let products = await userHelper.getCartProducts(req.session.user._id);
-  if(req.session.user.newtotal){
-    total=req.session.user.newtotal
-  }else{
-    total=carttotal
-  }
-  products.forEach((product) => {
-    product.total = product.product.productPrice * product.quantity;
-  });
-
-  console.log(req.session.user.newtotal,carttotal);
-  res.render('users/place-order', { total, user: req.session.user, products ,carttotal})
-}
-const doPlaceOrder = async (req, res) => {
-  console.log(req.session.user);
-  let products = await userHelper.getcartProductList(req.body.userId)
-  let discountedAmount = await userHelper.getDiscountedAmount(req.session.user._id)
-  let cartTotal = await userHelper.getCartTotal(req.body.userId)
-  let total = 0;
-  if (discountedAmount) {
-    total = discountedAmount
-  } else {
-    total = cartTotal
-  }
-  console.log(req.body, products, total);
-  userHelper.placeOrder(req.body, products, total).then(async (response) => {
-    if (req.body['payment-method'] === 'COD') {
-      res.json({ codStatus: true })
-    } else {
-      userHelper.generateRazorpay(response.insertedId, total).then((response) => {
-        res.json(response)
-      })
-    }
-    couponCode = req.session.user.couponCode
-
-    await userHelper.updateCouponStatus(req.session.user._id, couponCode);
-
-  })
-}
-
-const getOrderPlaced = (req, res) => {
-  res.render('users/order-success')
-}
-const getOrderList = async (req, res) => {
-  let orderdetails = await userHelper.getOrderList(req.session.user._id);
-  res.render('users/order-list', { orderdetails, user: req.session.user })
-
-
-}
-const getProfile = (req, res) => {
-  // let userdetails=userHelper.getUserDetails(req.session.user)
-
-  res.render('users/user-profile', { user: req.session.user })
-}
-const getDetailsPage = (req, res) => {
-  res.render('users/add-details', { user: req.session.user })
-}
-
-const verifyPayment = (req, res) => {
-  console.log(req.body);
-  userHelper.verifyPayment(req.body).then(() => {
-    userHelper.changePaymentStatus(req.body['order[receipt]']).then(() => {
-      res.json({ status: true })
-    })
-  }).catch((err) => {
-    console.log(err);
-    res.json({ status: false })
-  })
-}
-const getOrderSummary = async (req, res) => {
-  // let user = req.session.userSession // Used for storing user details for further use in this route
-
-  // console.log(req.body);
-
-  let orderId = req.body.orderId;
-  console.log(orderId);
-
-  let productDetails = await adminHelper.getProductsInOrder(orderId);
-  // For passing order date to the page
-  console.log(productDetails);
-
-  // console.log(orderDate);
-
-  res.render('users/order-summary', { productDetails, user: req.session.user, orderId });
-
-}
-const searchCategory = async (req, res) => {
-  let categories = await userHelper.getCategory();
-  let products = await productHelpers.getAllProducts();
-  res.render('users/categorys-search', { categories, products })
-}
-const ListCategory = async (req, res) => {
-  let catId = await userHelper.getCategoryByName(req.body.status);
-
-  let products = await userHelper.listCategorys(catId._id)
-  let categories = await userHelper.getCategory();
-
-  res.render('users/categorys-search', { products, categories })
-}
-const verifyCoupon = async (req, res) => {
-  let couponExist = await userHelper.couponExist(req.body.couponCode);
-  req.session.user.couponCode = req.body.couponCode;
-
-  if (couponExist) {
-    console.log(couponExist, "the coupon");
-    let Carttotal = await userHelper.getCartTotal(req.session.user._id);
-    console.log(Carttotal, couponExist.purchaseamound);
-    console.log(couponExist.expiryDate, couponExist.createdAt);
-
-    // Check if the coupon is not expired
-    const currentDate = new Date();
-    if (currentDate <= couponExist.expiryDate) {
-      if (Carttotal >= couponExist.purchaseamound) {
-        let alredyused = await userHelper.isAlreadyUsed(req.session.user._id, req.body.couponCode);
-        if (alredyused) {
-          console.log(req.session.user._id);
-          const discount = Math.floor(couponExist.discount);
-          let total = parseInt(Carttotal);
-          const discounted = total * (discount / 100);
-          const discountedTotal = Math.floor(total - discounted);
-           req.session.user.newtotal=discountedTotal
-          await userHelper.addDiscountedTotal(req.session.user._id, discountedTotal).then(async (updated) => {
-            console.log(updated);
-            userHelper.addToUsedCoupon(req.session.user._id, req.body.couponCode);
-          });
-          res.json({ couponExist: true });
-        } else {
-          res.json({ couponExist: false, alreadyUsed: true });
-        }
-      } else {
-        res.json({ couponExist: false, notApplicable: true });
-      }
-    } else {
-      res.json({ couponExist: false, expired: true });
-    }
-  } else {
-    res.json({ couponExist: false });
+  try {
+    
+    const orderId = req.body.orderId;
+  
+    const response = await userHelper.cancelOrder(orderId);
+    res.json(response);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+const returnOrder= async (req, res) => {
+  try {
+    console.log(req.body);
+    const orderId = req.body.orderId;
+    console.log(orderId);
+    const response = await userHelper.returnOrder(orderId);
+    res.json(response);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const placeOrder = async (req, res, next) => {
+  try {
+    let total = 0;
+    const carttotal = await userHelper.getCartTotal(req.session.user._id);
+    const products = await userHelper.getCartProducts(req.session.user._id);
+    if (req.session.user.newtotal) {
+      total = req.session.user.newtotal;
+    } else {
+      total = carttotal;
+    }
+    products.forEach((product) => {
+      product.total = product.product.productPrice * product.quantity;
+    });
+
+    console.log(req.session.user.newtotal, carttotal);
+    res.render('users/place-order', { total, user: req.session.user, products, carttotal });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const doPlaceOrder = async (req, res) => {
+  try {
+    console.log(req.session.user);
+    const products = await userHelper.getcartProductList(req.body.userId);
+    const discountedAmount = await userHelper.getDiscountedAmount(req.session.user._id);
+    const cartTotal = await userHelper.getCartTotal(req.body.userId);
+    let total = 0;
+    if (discountedAmount) {
+      total = discountedAmount;
+    } else {
+      total = cartTotal;
+    }
+    console.log(req.body, products, total);
+    const response = await userHelper.placeOrder(req.body, products, total);
+    if (req.body['payment-method'] === 'COD') {
+      res.json({ codStatus: true });
+    } else {
+      const razorpayResponse = await userHelper.generateRazorpay(response.insertedId, total);
+      res.json(razorpayResponse);
+    }
+    couponCode = req.session.user.couponCode;
+    await userHelper.updateCouponStatus(req.session.user._id, couponCode);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const getOrderPlaced = (req, res) => {
+  try {
+    res.render('users/order-success');
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const getOrderList = async (req, res) => {
+  try {
+    const orderdetails = await userHelper.getOrderList(req.session.user._id);
+    res.render('users/order-list', { orderdetails, user: req.session.user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+const getProfile = (req, res) => {
+  try {
+    res.render('users/user-profile', { user: req.session.user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const getDetailsPage = (req, res) => {
+  try {
+    res.render('users/add-details', { user: req.session.user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const verifyPayment = (req, res) => {
+  try {
+    console.log(req.body);
+    userHelper.verifyPayment(req.body)
+      .then(() => {
+        userHelper.changePaymentStatus(req.body['order[receipt]'])
+          .then(() => {
+            res.json({ status: true });
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.json({ status: false });
+      });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const getOrderSummary = async (req, res) => {
+  try {
+    let orderId = req.body.orderId;
+    console.log(orderId);
+    let productDetails = await adminHelper.getProductsInOrder(orderId);
+    console.log(productDetails);
+    res.render('users/order-summary', { productDetails, user: req.session.user, orderId });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const searchCategory = async (req, res) => {
+  try {
+    const categories = await userHelper.getCategory();
+    const products = await productHelpers.getAllProducts();
+    res.render('users/categorys-search', { categories, products });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const ListCategory = async (req, res) => {
+  try {
+    const catId = await userHelper.getCategoryByName(req.body.status);
+    const products = await userHelper.listCategorys(catId._id);
+    const categories = await userHelper.getCategory();
+    res.render('users/categorys-search', { products, categories });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const verifyCoupon = async (req, res) => {
+  try {
+    let couponExist = await userHelper.couponExist(req.body.couponCode);
+    req.session.user.couponCode = req.body.couponCode;
+    if (couponExist) {
+      console.log(couponExist, "the coupon");
+      const Carttotal = await userHelper.getCartTotal(req.session.user._id);
+      console.log(Carttotal, couponExist.purchaseamound);
+      console.log(couponExist.expiryDate, couponExist.createdAt);
+      const currentDate = new Date();
+      if (currentDate <= couponExist.expiryDate) {
+        if (Carttotal >= couponExist.purchaseamound) {
+          let alreadyUsed = await userHelper.isAlreadyUsed(req.session.user._id, req.body.couponCode);
+          if (alreadyUsed) {
+            console.log(req.session.user._id);
+            const discount = Math.floor(couponExist.discount);
+            let total = parseInt(Carttotal);
+            const discounted = total * (discount / 100);
+            const discountedTotal = Math.floor(total - discounted);
+            req.session.user.newtotal = discountedTotal;
+            await userHelper.addDiscountedTotal(req.session.user._id, discountedTotal)
+              .then(async (updated) => {
+                console.log(updated);
+                userHelper.addToUsedCoupon(req.session.user._id, req.body.couponCode);
+              });
+            res.json({ couponExist: true });
+          } else {
+            res.json({ couponExist: false, alreadyUsed: true });
+          }
+        } else {
+          res.json({ couponExist: false, notApplicable: true });
+        }
+      } else {
+        res.json({ couponExist: false, expired: true });
+      }
+    } else {
+      res.json({ couponExist: false });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 
 
 
@@ -485,5 +566,6 @@ module.exports = {
   searchCategory,
   getSearchResults,
   ListCategory,
-  verifyCoupon
+  verifyCoupon,
+  returnOrder
 };

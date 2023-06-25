@@ -112,6 +112,23 @@ const verifyLogin = (req, res, next) => {
       console.log(err);
     }
    }
+   const userverifyBlock = async (req, res, next) => {
+    try {
+      console.log("ivide vannitt ond");
+      console.log(req.session.user._id);
+      let blocked = await adminHelper.isUserBlocked(req.session.user._id);
+      console.log(blocked,"sddddddddddd");
+      if (blocked) {
+      req.session.blocked="you are blocked by the admin"
+        res.redirect('/login');
+      } else {
+        next();
+      }
+    } catch (error) {
+      console.error('Error occurred during block verification:', error);
+      res.redirect('/error-page'); // Handle the error appropriately
+    }
+  };
   
   module.exports={
     verifyLogin,
@@ -121,5 +138,6 @@ const verifyLogin = (req, res, next) => {
     userisVerified,
     isuserVerified,
     otpverifyBlock,
-    otpuserisVerified
+    otpuserisVerified,
+    userverifyBlock
   }

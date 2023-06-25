@@ -257,6 +257,8 @@
        eachTotalArray.forEach(eachTotalObject => {
        const eachTotalElement = document.getElementById(eachTotalObject.productId);
        if (eachTotalElement) {
+        console.log("jvljghl",eachTotalElement)
+        console.log("ligoiuglh",eachTotalObject)
        eachTotalElement.innerHTML = eachTotalObject.total;
        } else {
       console.error("Element not found for product with ID " + eachTotalObject.productId);

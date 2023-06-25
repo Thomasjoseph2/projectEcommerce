@@ -1284,7 +1284,7 @@ h1, h2, h3, h4, h5, h6 {
 .organic-breadcrumb {
   background: url(/img/banner/common-banner.jpg) center no-repeat;
   background-size: cover;
-  padding-top: 130px; }
+  padding-top: 60px; }
   @media (max-width: 991px) {
     .organic-breadcrumb {
       padding-top: 80px; } }

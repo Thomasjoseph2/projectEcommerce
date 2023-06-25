@@ -11,16 +11,21 @@
 <section style="margin-top: 9rem;">
   <div class="container">
     <div class="row navuser">
-      {{#if CATEGORYERROR}}
-      <div class="alert alert-danger mt-2" role="alert">
-        Category already exists.
-      </div>
-      {{/if}}
+
+      
+
+
       <form action="/admin/add-category" method="POST" id="categoryForm">
         <div class="mb-3">
           <label for="category-name" class="form-label">Category Name</label>
           <input type="text" class="form-control" id="category-name" name="categoryName" required>
+
         </div>
+             
+          {{#if categoryError}}
+          <h1 class="text-danger">CATEGORY ALREADY EXISTS</h1>
+          {{/if}}
+              
         <button type="submit" class="btn btn-primary">Add Category</button>
         <div></div>
       </form>
@@ -102,6 +107,6 @@
 
 <script>
   $(document).ready(function () {
-    $('.categoryTable').DataTable();
+    $('#categoryTable').DataTable();
   });
 </script>

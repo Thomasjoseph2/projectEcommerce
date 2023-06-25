@@ -447,8 +447,7 @@ placeOrder: (order, products, total) => {
     let orderObj = {
       address: {
         mobile: order.phonenumber,
-        address1: order.add1,
-        address2: order.add2,
+        address1: order.address,
         city: order.city,
         pincode: order.pincode
       },
@@ -512,9 +511,25 @@ placeOrder: (order, products, total) => {
           .collection(collection.ORDER_COLLECTION)
           .updateOne(
             { _id: ObjectId(orderId) },
-            { $set: {OrderStatus: 'cancelled' } }
+            { $set: {OrderStatus: 'cancelrequest' } }
           );
-        resolve({ordercancelled:true});
+        resolve({cancelrequest:true});
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+  returnOrder: (orderId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await db
+          .get()
+          .collection(collection.ORDER_COLLECTION)
+          .updateOne(
+            { _id: ObjectId(orderId) },
+            { $set: {OrderStatus: 'returnrequest' } }
+          );
+        resolve({returnrequest:true}); 
       } catch (error) {
         reject(error);
       }

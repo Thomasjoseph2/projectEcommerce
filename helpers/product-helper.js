@@ -79,7 +79,7 @@ module.exports = {
             productName: proDetails.productName,
             productCategory: categoryId,
             productDescription: proDetails.productDescription,
-            productPrice: proDetails.productPrice
+            productPrice: parseFloat(proDetails.productPrice)
           }
         }).then((response) => {
           resolve(response)
@@ -120,6 +120,25 @@ updateProductCategory: (productId, categoryId, callback) => {
       callback();
     });
 },
+isProductExist:  (ctId) => {
+   return new Promise(async(resolve, reject) => {
+  await   db.get()
+      .collection(collection.PRODUCT_COLLECTION)
+      .find({ _id: objectId(ctId) }).toArray()
+      .then((product) => {
+        if (product) {
+          resolve(true); // Resolve true if product exists
+        } else {
+          resolve(false); // Resolve false if product does not exist
+        }
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
+
 
 
 

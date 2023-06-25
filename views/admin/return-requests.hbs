@@ -1,27 +1,12 @@
-{{!-- 
 
-<section>
- 
+<style>
+    .pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-    <div class="row justify-content-center">
-      {{#each productDetails}}
-      <div class="col-md-4 mt-5" style="width: 15rem; height: 23rem;">
-        <div class="card mb-4">
-          <img style="width: 10vh;height:10vh" src="/product-images/{{this.product._id}}.jpg" class="card-img-top" alt="{{this.product.name}}">
-          <div class="card-body">
-            <h5 class="card-title">{{this.product.productName}}</h5>
-            <p class="card-text">{{this.product.productDescription}}</p>
-            <p class="card-text">Price: ₹ {{this.product.productPrice}}</p>
-            <p class="card-text">Quantity: {{this.quantity}}</p>
-          </div>
-        </div>
-      </div>
-      {{/each}}
-    </div>
-  </div>
-</section> --}}
-
-
+</style>
     <!-- Start Banner Area -->
     <section class="banner-area organic-breadcrumb">
         <div class="container">
@@ -34,71 +19,87 @@
                     </nav>
                 </div>
             </div>
-            
         </div>
     </section>
     <!-- End Banner Area -->
-<section>
-  <div class="container">
-    <form id="statusForm">
-      <select class="select" name="status" id="statusSelect">
-        <option value="" disabled selected>Select Status</option>
-        <option value="approved">Approved</option>
-        <option value="cancelled">Cancelled</option>
-        <option value="shipped">Shipped</option>
-        <option value="delivered">Delivered</option>
-      </select>
-      <input type="hidden" name="orderId" value="{{this.orderId}}">
-      <button style="height: 42px; background-color:#fe7200;color:aliceblue;" class="btn" type="submit">Update Status</button>
-    </form>
-  </div>
-</section>
-
-
-  
-    <section>
+    
+    <!--================Cart Area =================-->
+    <section class="cart_area">
         <div class="container">
+            
             <div class="cart_inner">
-                <div class="table-responsive mt-3">
+                <div class="table-responsive">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th scope="col"> <h5>Image</h5></th>
-                                <th scope="col"> <h5>Description</h5></th>
-                                <th scope="col"> <h5>Price</h5></th>
+                                <th scope="col"> <h5  style="color:#fe7200">Date</h5></th>
+                                <th scope="col"> <h5  style="color:#fe7200">user</h5></th>
+                                <th scope="col"> <h5  style="color:#fe7200">Total Price</h5></th>
+                                <th scope="col"> <h5  style="color:#fe7200">Method </h5></th>
+                                <th scope="col"><h5  style="color:#fe7200">Status</h5></th>
+                               
+                                <th scope="col"> <h5  style="color:#fe7200">Manage order</h5></th>
                             </tr>
                         </thead>
                         <tbody>
-                        {{#each productDetails}}
+                        {{#each returnRequests}}
                             <tr>
-                                 <td>
-                                <div class="media">
-                                    <div class="d-flex">
-                                        <img style="width:14vh;height:10vh"
-                                            src="/product-images/{{this.product._id}}.jpg" alt="">
-                                    </div>
-                                    <div class="media-body">
-                                        <p>{{this.product.productName}}</p>
-                                    </div>
-                                </div>
-                            </td>
-                              
-                                <td>{{this.product.productDescription}}</td>
+                                <td>{{this.date}}</td>
+                                <td>{{userName}}</td>
                                 <td>
-                                    <h5>₹{{this.product.productPrice}}/-</h5>
+                                    <h5>₹{{this.totalAmound}}/-</h5>
                                 </td>
+                                <td>
+                                    <h5>{{this.paymentMethod}}</h5>
+                                </td>
+                                <td>
+                                    <h5>{{status}}</h5>
+                                </td>
+                                 
+                                 <td>
+                            <form method="POST" action="/admin/ordered-product-details">
+                                <button name="orderId" value="{{this._id}}" type="submit" class="btn  animate__animated animate__fadeInLeft"  style="background-color:#fe7200 ;color:white">View Products</button>
+                            </form>
+                             </td>
+                                <td>
               
                             </tr>
                            {{/each}}
                         </tbody>
                     </table>
-                    
                 </div>
+                <div class="">
+                    <div class="pagination-container">
+  <ul class="pagination">
+    {{#if hasPrevPage}}
+    <li class="page-item">
+      <a class="page-link" href="?page={{prevPage}}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    {{/if}}
+    
+    {{#each pages}}
+    <li class="page-item{{#if active}} active{{/if}}">
+      <a class="page-link" href="?page={{this}}">{{this}}</a>
+    </li>
+    {{/each}}
+    
+    {{#if hasNextPage}}
+    <li class="page-item">
+      <a class="page-link" href="?page={{nextPage}}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+    {{/if}}
+  </ul>
+  </div>
+</div>
             </div>
         </div>
     </section>
-    
     <!--================End Cart Area =================-->
+
 
     <!-- start footer Area -->
     <footer class="footer-area section_gap">
@@ -181,34 +182,6 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
             </div>
         </div>
     </footer>
-<script>
-  document.getElementById('statusForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent form submission
 
-    var statusSelect = document.getElementById('statusSelect');
-    if (statusSelect.value === '') {
-      alert('Please select a status');
-      return;
-    }
 
-    var form = event.target;
-    var formData = new FormData(form);
 
-    fetch('/admin/admin-order-manage', {
-      method: 'POST',
-      body: formData
-    })
-      .then(function(response) {
-        if (response.ok) {
-          // Reload the page after successful status update
-          location.reload();
-        } else {
-          throw new Error('Error updating status');
-        }
-      })
-      .catch(function(error) {
-        console.error(error);
-        // Handle error here (e.g., show error message to the user)
-      });
-  });
-</script>

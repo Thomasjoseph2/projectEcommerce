@@ -61,6 +61,14 @@ router.post('/ordered-product-details',auth.verifyLogin,admin.adminOrderDetailsP
 
 router.post('/admin-order-manage',auth.verifyLogin,admin.changeStatus)
 
+//router.post('/check-products', auth.verifyLogin, admin.checkProductsExist);
+  
+router.get('/cancel-requests', auth.verifyLogin, admin.getCancelRequests)
+
+router.get('/return-requests',auth.verifyLogin, admin.getReturnRequests)
+
+
+
 module.exports = router;
 
 
