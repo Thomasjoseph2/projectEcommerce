@@ -181,7 +181,7 @@
                                     <p class="hover-text">add to bag</p>
                                     </a>
 
-									<a href="" class="social-info">
+									<a href="#" class="social-info" onclick="addToWishlist('{{this._id}}'); return false;">
 										<span class="lnr lnr-heart"></span>
 										<p class="hover-text">Wishlist</p>
 									</a>
@@ -266,7 +266,7 @@
                                     <p class="hover-text">add to bag</p>
                                     </a>
 
-									<a href="" class="social-info">
+									<a href="#" class="social-info" onclick="addToWishlist('{{this._id}}'); return false;">
 										<span class="lnr lnr-heart"></span>
 										<p class="hover-text">Wishlist</p>
 									</a>
@@ -582,6 +582,25 @@ function addToCart(productId) {
       console.error('Error occurred while adding to cart:', error);
       // Show an error message if needed
       showPopupMessage('Error adding to cart');
+    }
+  });
+}
+function addToWishlist(productId) {
+  // Send an AJAX request to the server
+  $.ajax({
+    url: '/add-to-wishlist/' + productId,
+    type: 'GET',
+    success: function(response) {
+      if (response.message === "Added to wishlist") {
+        showPopupMessage("Item added to wishlist");
+      } else {
+        showPopupMessage("Please login");
+      }
+    },
+    error: function(error) {
+      console.error('Error occurred while adding to wishlist:', error);
+      // Show an error message if needed
+      showPopupMessage('Error adding to wishlist');
     }
   });
 }

@@ -109,7 +109,55 @@ module.exports = {
       }
     });
   },
-
+  addToWishList: (proId, userId) => {
+    const proObj = {
+      item: ObjectId(proId),
+    };
+    return new Promise(async (resolve, reject) => {
+      try {
+        const userWishlist = await db
+          .get()
+          .collection(collection.WISHLIST_COLLECTION)
+          .findOne({ user: ObjectId(userId) });
+  
+        if (userWishlist) {
+          const proExist = userWishlist.products.find(
+            (product) => product.item.toString() === proId
+          );
+  
+          if (proExist) {
+            // Product already exists in the wishlist
+            resolve();
+          } else {
+            await db
+              .get()
+              .collection(collection.WISHLIST_COLLECTION)
+              .updateOne(
+                { user: ObjectId(userId) },
+                {
+                  $push: { products: proObj },
+                }
+              );
+            resolve();
+          }
+        } else {
+          const wishlistObj = {
+            user: ObjectId(userId),
+            products: [proObj],
+          };
+  
+          const response = await db
+            .get()
+            .collection(collection.WISHLIST_COLLECTION)
+            .insertOne(wishlistObj);
+          resolve(response);
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+  
   getCartProducts: (userId) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -150,6 +198,34 @@ module.exports = {
           .toArray();
   
         resolve(cartItems);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+  wishlistProducts: (userId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const wishlist = await db
+          .get()
+          .collection(collection.WISHLIST_COLLECTION)
+          .findOne({ user: ObjectId(userId) });
+  
+        if (wishlist) {
+          const wishlistProducts = await db
+            .get()
+            .collection(collection.PRODUCT_COLLECTION)
+            .aggregate([
+              {
+                $match: { _id: { $in: wishlist.products.map((product) => product.item) } },
+              },
+            ])
+            .toArray();
+  
+          resolve(wishlistProducts);
+        } else {
+          resolve([]);
+        }
       } catch (error) {
         reject(error);
       }
@@ -475,8 +551,10 @@ placeOrder: (order, products, total) => {
         reject(error);
       });
   });
+},
+walletPayment:(order,total)=>{
+   
 }
-
   ,
   getcartProductList:(userId)=>{
     return new Promise( async (resolve,reject) =>{

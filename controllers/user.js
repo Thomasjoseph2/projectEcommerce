@@ -141,12 +141,20 @@ const getCart = async (req, res) => {
       product.total = product.product.productPrice * product.quantity;
     });
     const Carttotal = await userHelper.getCartTotal(req.session.user._id);
-    console.log(products);
     res.render('users/cart', { products, user: req.session.user, Carttotal });
   } catch (err) {
     console.log(err);
   }
 }
+const getWishList = async (req, res) => {
+  try {
+    const products = await userHelper.wishlistProducts(req.session.user._id);
+    console.log(products);
+    res.render('users/wishlist', { products, user: req.session.user });
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 const addToCart = (req, res) => {
   try {
@@ -171,7 +179,29 @@ const addToCart = (req, res) => {
     console.log(err);
   }
 };
+const addToWishList=(req,res)=>{
+  try {
+    if (!req.session.user || !req.session.user.loggedIn) {
+      res.json({ message: "Please log in to add items to the wish list" });
+      return;
+    }
 
+    userHelper
+      .addToWishList(req.params.id, req.session.user._id)
+      .then(() => {
+        console.log("added to wishlist");
+        // Send a response indicating that the product was added successfully
+        res.json({ message: "Added to wishlist" });
+      })
+      .catch((error) => {
+        console.error("Error adding to cart:", error);
+        // Send an error response if there was an issue adding the product
+        res.status(500).json({ message: "Error adding to cart" });
+      });
+  } catch (err) {
+    console.log(err);
+  }
+}
 const getSearchResults = async (req, res) => {
   try {
     const searchQuery = req.query.search;
@@ -386,9 +416,12 @@ const doPlaceOrder = async (req, res) => {
     const response = await userHelper.placeOrder(req.body, products, total);
     if (req.body['payment-method'] === 'COD') {
       res.json({ codStatus: true });
-    } else {
+    } else if(req.body['payment-method'] === 'ONLINE') {
       const razorpayResponse = await userHelper.generateRazorpay(response.insertedId, total);
       res.json(razorpayResponse);
+    }else{
+      const walletPayment= await userHelper.walletPayment(req.body,total)
+      res.json(walletstatus)
     }
     couponCode = req.session.user.couponCode;
     await userHelper.updateCouponStatus(req.session.user._id, couponCode);
@@ -575,5 +608,7 @@ module.exports = {
   getSearchResults,
   ListCategory,
   verifyCoupon,
-  returnOrder
+  returnOrder,
+  addToWishList,
+  getWishList
 };

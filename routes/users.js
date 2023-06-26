@@ -23,7 +23,11 @@ router.get('/logout',user.logout);
 
 router.get('/cart', auth.userVerifyLogin,user.getCart);
 
+router.get('/wishlist', auth.userVerifyLogin,user.getWishList);
+
 router.get('/add-to-cart/:id', auth.userVerifyLogin,user.addToCart);
+
+router.get('/add-to-wishlist/:id', auth.userVerifyLogin,user.addToWishList);
 
 router.get('/', user.getHome);
 
