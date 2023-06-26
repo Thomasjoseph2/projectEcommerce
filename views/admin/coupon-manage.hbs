@@ -52,7 +52,7 @@ $(document).ready(function () {
   $('.remove-coupon').on('click', function (event) {
     event.preventDefault();
     var couponId = $(this).data('coupon-id');
-    var confirmation = confirm('Are you sure you want to delete this coupon?');
+    var confirmation = confirm('Are you sure you want to remove this coupon?');
 
     if (confirmation) {
       // Perform AJAX request to remove the coupon

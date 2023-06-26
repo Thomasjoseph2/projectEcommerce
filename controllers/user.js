@@ -79,7 +79,7 @@ const signup = async (req, res) => {
 
 const addUserDetails = async (req, res) => {
   try {
-    console.log("going to add details");
+    console.log("going to add details",req.body);
     await userHelper.addUserDetails(req.session.user._id, req.body);
     res.redirect('/');
   } catch (err) {
@@ -416,8 +416,9 @@ const getOrderList = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-const getProfile = (req, res) => {
+const getProfile = async(req, res) => {
   try {
+    console.log(req.session.user,"hi this is the wallet amound")
     res.render('users/user-profile', { user: req.session.user });
   } catch (error) {
     console.log(error);

@@ -262,7 +262,8 @@ module.exports = {
         const coupons = await db
           .get()
           .collection(collection.COUPON_COLLECTION)
-          .find()
+          .find({
+            removed:false})
           .sort({ createdAt: -1 }) // Sort by descending order of createdAt field
           .toArray();
         resolve(coupons);
@@ -272,16 +273,20 @@ module.exports = {
     });
   },
   // adminHelper.js
-removeCoupon: (couponId) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      await db.get().collection(collection.COUPON_COLLECTION).deleteOne({ _id: ObjectId(couponId) });
-      resolve();
-    } catch (error) {
-      reject(error);
-    }
-  });
-},
+  removeCoupon: (couponId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await db.get().collection(collection.COUPON_COLLECTION).updateOne(
+          { _id: ObjectId(couponId) },
+          { $set: { removed: true } }
+        );
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+  ,
 
 couponExists:(coupon)=>{
   return new Promise(async (resolve, reject) => {

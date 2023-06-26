@@ -493,7 +493,7 @@ a>code {
   height: calc(2.75rem + 2px);
   padding: .625rem .75rem;
   transition: all .2s cubic-bezier(.68, -.55, .265, 1.55);
-  color: #8898aa;
+  color: var(--gray);
   border: 1px solid #cad1d7;
   border-radius: .375rem;
   background-color: #fff;
@@ -1387,11 +1387,11 @@ button.bg-white:focus {
 }
 
 .bg-gradient-default {
-  background: linear-gradient(87deg, #172b4d 0, #1a174d 100%) !important;
+  background: linear-gradient(87deg,#f8e404 0, #f5aa0a 100%) !important;
 }
 
 .bg-gradient-default {
-  background: linear-gradient(87deg, #172b4d 0, #1a174d 100%) !important;
+  background: linear-gradient(87deg, #f5aa0a 0, #f5aa0a 100%) !important;
 }
 
 @keyframes floating-lg {
@@ -2071,45 +2071,46 @@ p {
             </div>
             <div class="card-header text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
               <div class="d-flex justify-content-between">
-                <a href="#" class="btn btn-sm btn-info mr-4">Connect</a>
-                <a href="#" class="btn btn-sm btn-default float-right">Message</a>
+                <a href="#" class="btn btn-sm btn-info mr-4">Purchase</a>
+                <a href="#" class="btn btn-sm btn-default float-right">Wish</a>
               </div>
             </div>
             <div class="card-body pt-0 pt-md-4">
               <div class="row">
                 <div class="col">
                   <div class="card-profile-stats d-flex justify-content-center mt-md-5">
-                    <div>
+                    {{!-- <div>
                       <span class="heading">20</span>
                       <span class="description">CartItems</span>
-                    </div>
+                    </div> --}}
                     <div>
-                      <span class="heading">10</span>
-                      <span class="description">Purchases</span>
+                      <span class="heading">₹{{user.walletAmount}}</span>
+                      <span class="description">Your wallet balance</span>
                     </div>
-                    <div>
+                    {{!-- <div>
                       <span class="heading">89</span>
                       <span class="description">Wishlist</span>
-                    </div>
+                    </div> --}}
                   </div>
                 </div>
               </div>
               <div class="text-center">
-                <h3>
-                 {{user.name}}<span class="font-weight-light">, 27</span>
+                <h3 class="mt-2">
+                 {{user.name}}
                 </h3>
                 <div class="h5 font-weight-300">
-                  <i class="ni location_pin mr-2"></i>Bucharest, Romania
+                  <i class="ni location_pin mr-2"></i>{{user.district}},{{user.city}}
                 </div>
                 <div class="h5 mt-4">
-                  <i class="ni business_briefcase-24 mr-2"></i>Solution Manager - Creative Tim Officer
+                  <i class="ni business_briefcase-24 mr-2"></i>User id:{{user._id}}
                 </div>
-                <div>
+                {{!-- <div>
                   <i class="ni education_hat mr-2"></i>University of Computer Science
-                </div>
+                </div> --}}
                 <hr class="my-4">
-                <p>Ryan — the name taken by Melbourne-raised, Brooklyn-based Nick Murphy — writes, performs and records all of his own music.</p>
-                <a href="#">Show more</a>
+                <p>We wish you a happy purchasing!
+Enjoy your shopping experience!</p>
+               
               </div>
             </div>
           </div>
@@ -2122,7 +2123,7 @@ p {
                   <h3 class="mb-0">My account</h3>
                 </div>
                 <div class="col-4 text-right">
-                  <a href="#!" class="btn btn-sm btn-primary">Settings</a>
+                  <a href="#!" class="btn btn-sm btn-primary">Details</a>
                 </div>
               </div>
             </div>
@@ -2134,13 +2135,13 @@ p {
                     <div class="col-lg-6">
                       <div class="form-group focused">
                         <label class="form-control-label" for="input-username">Username</label>
-                        <input type="text" id="input-username" class="form-control form-control-alternative" placeholder="Username" value="{{user.name}}">
+                        <input type="text" id="input-username" class="form-control form-control-alternative"  value="{{user.name}}"readonly>
                       </div>
                     </div>
                     <div class="col-lg-6">
-                      <div class="form-group">
+                      <div class="form-group focused">
                         <label class="form-control-label" for="input-email">Email address</label>
-                        <input type="email" id="input-email" class="form-control form-control-alternative" placeholder="{{user.email}}">
+                        <input type="email" id="input-email" class="form-control form-control-alternative" placeholder="{{user.email}}"readonly>
                       </div>
                     </div>
                   </div>
@@ -2148,13 +2149,13 @@ p {
                     <div class="col-lg-6">
                       <div class="form-group focused">
                         <label class="form-control-label" for="input-first-name">Phone Number</label>
-                        <input type="text" id="input-first-name" class="form-control form-control-alternative" placeholder="First name" value="{{user.phonenumber}}">
+                        <input type="text" id="input-first-name" class="form-control form-control-alternative" placeholder="First name" value="{{user.phonenumber}}"readonly>
                       </div>
                     </div>
                     <div class="col-lg-6">
                      <div class="form-group focused">
                         <label class="form-control-label" for="input-first-name">Second Phone Number</label>
-                        <input type="text" id="input-first-name" class="form-control form-control-alternative" placeholder="First name" value="{{user.phonenumber2}}">
+                        <input type="text" id="input-first-name" class="form-control form-control-alternative" placeholder="First name" value="{{user.phonenumber2}}"readonly>
                       </div>
                     </div>
                   </div>
@@ -2167,7 +2168,7 @@ p {
                     <div class="col-md-12">
                       <div class="form-group focused">
                         <label class="form-control-label" for="input-address">Address</label>
-                        <input id="input-address" class="form-control form-control-alternative" placeholder="Home Address" value="{{user.add1}}" type="text">
+                        <input id="input-address" class="form-control form-control-alternative" placeholder="Home Address" value="{{user.add1}}" type="text"readonly>
                       </div>
                     </div>
                   </div>
@@ -2175,7 +2176,7 @@ p {
                     <div class="col-md-12">
                       <div class="form-group focused">
                         <label class="form-control-label" for="input-address">Second Address</label>
-                        <input id="input-address" class="form-control form-control-alternative" placeholder="Second Address" value="{{user.add2}}" type="text">
+                        <input id="input-address" class="form-control form-control-alternative" placeholder="Second Address" value="{{user.add2}}" type="text"readonly>
                       </div>
                     </div>
                   </div>
@@ -2183,25 +2184,31 @@ p {
                     <div class="col-lg-4">
                       <div class="form-group focused">
                         <label class="form-control-label" for="input-city">City</label>
-                        <input type="text" id="input-city" class="form-control form-control-alternative" placeholder="City" value="{{user.city}}">
+                        <input type="text" id="input-city" class="form-control form-control-alternative" placeholder="City" value="{{user.city}}"readonly>
+                      </div>
+                    </div>
+                    <div class="col-lg-4">
+                      <div class="form-group focused">
+                        <label class="form-control-label" for="input-city">District</label>
+                        <input type="text" id="input-city" class="form-control form-control-alternative" placeholder="City" value="{{user.district}}"readonly>
                       </div>
                     </div>
                     <div class="col-lg-4">
                       <div class="form-group focused">
                         <label class="form-control-label" for="input-country">street</label>
-                        <input type="text" id="input-country" class="form-control form-control-alternative" placeholder="Country" value="{{user.street}}">
+                        <input type="text" id="input-country" class="form-control form-control-alternative" placeholder="Country" value="{{user.street}}"readonly>
                       </div>
                     </div>
                      <div class="col-lg-4">
                       <div class="form-group focused">
                         <label class="form-control-label" for="input-country">House number</label>
-                        <input type="text" id="input-country" class="form-control form-control-alternative" placeholder="Country" value="{{user.housenumber}}">
+                        <input type="text" id="input-country" class="form-control form-control-alternative" placeholder="Country" value="{{user.housenumber}}" readonly>
                       </div>
                     </div>
                     <div class="col-lg-4">
-                      <div class="form-group">
+                      <div class="form-group focused">
                         <label class="form-control-label" for="input-country">Postal code</label>
-                        <input type="number" id="input-postal-code" class="form-control form-control-alternative" placeholder="{{user.pincode}}">
+                        <input type="number" id="input-postal-code" class="form-control form-control-alternative" placeholder="{{user.pincode}}"readonly>
                       </div>
                     </div>
                   </div>
