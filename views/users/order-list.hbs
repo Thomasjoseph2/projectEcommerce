@@ -50,6 +50,9 @@
                             <th scope="col">
                                 <h6 style="color:#fe7200"> Orders</h6>
                             </th>
+                            <th scope="col">
+
+                            </th>
 
                         </tr>
                     </thead>
@@ -99,6 +102,7 @@
                                 {{else if (eq this.OrderStatus "delivered")}}
                                 <button class="quantity-btn btn-danger" 
                                 onclick="returnOrder('{{this._id}}')">Return</button>
+                                
                                 {{/if}}
 
                             </td>

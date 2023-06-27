@@ -21,11 +21,13 @@ router.post('/login', auth.verifyBlock,auth.userisVerified,user.login );
 
 router.get('/logout',user.logout);
 
-router.get('/cart', auth.userVerifyLogin,user.getCart);
+router.get('/cart', auth.userVerifyLogin,auth.userverifyBlock,user.getCart);
 
 router.get('/wishlist', auth.userVerifyLogin,user.getWishList);
 
 router.get('/add-to-cart/:id', auth.userVerifyLogin,user.addToCart);
+
+router.get('/wishlist-to-cart/:id', auth.userVerifyLogin,auth.userverifyBlock,user.wishlistToCart);
 
 router.get('/add-to-wishlist/:id', auth.userVerifyLogin,user.addToWishList);
 
@@ -42,6 +44,8 @@ router.post('/send-otp',auth.otpverifyBlock ,user.SendOtp )
 router.post('/verify-otp',user.verifyOtp );
 
 router.post('/delete-product-from-cart',auth.userVerifyLogin,user.removefromCart)
+
+router.post('/remove-product-from-wishlist',auth.userVerifyLogin,user.removefromWishList)
 
 router.get('/verify',user.verifyMail)
 

@@ -1,8 +1,22 @@
 
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.1/css/jquery.dataTables.min.css">
-<script src="https://cdn.datatables.net/1.11.1/js/jquery.dataTables.min.js"></script>
-
-
+{{!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.1/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.11.1/js/jquery.dataTables.min.js"></script> --}}
+<style>
+  .popup-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #f23434;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    display: none;
+    color: aliceblue;
+  }
+</style>
+<div class="popup-message" id="popupMessage"></div>
     <!-- Start Banner Area -->
     <section class="banner-area organic-breadcrumb">
         <div class="container">
@@ -30,7 +44,8 @@
                                 <th scope="col"> <h5>Description</h5></th>
                                 <th scope="col"> <h5>Price</h5></th>
                                 <th scope="col"> <h5>Add</h5></th>
-                                <th scope="col"> <h5>Remove</h5></th>
+                                 <th scope="col"> <h5>Remove</h5></th>
+                               
                                 
                             </tr>
                         </thead>
@@ -53,12 +68,15 @@
                                 <td>
                                     <h5>₹{{this.productPrice}}/-</h5>
                                 </td>
-                                <td>
-                                    <h5>Add To Cart</h5>
+                                <td >
+                                    <button class="quantity-btn " style="background-color: #f2ae0f;color:antiquewhite;border-color:#f2ae0f"
+                                     onclick="addToCart('{{this._id}}')">Add To Cart</button>
+                                    
                                 </td>
-                                <td>
-                                    <h5>Remove</h5>
-                                </td>
+                               <td >
+                                  <button class="quantity-btn btn-danger"
+                                    onclick="removeProductFromWishlist('{{this._id}}')">Remove Item</button>
+                               </td>
               
                             </tr>
                            {{/each}}
@@ -154,28 +172,51 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
         </div>
     </footer>
 <script>
-  document.getElementById('statusForm').addEventListener('submit', function(event) {
-  event.preventDefault(); // Prevent form submission
-  
-  var form = event.target;
-  var formData = new FormData(form);
-
-  fetch('/admin/admin-order-manage', {
-    method: 'POST',
-    body: formData
-  })
-  .then(function(response) {
-    if (response.ok) {
-      // Reload the page after successful status update
-      location.reload();
-    } else {
-      throw new Error('Error updating status');
+function addToCart(productId) {
+  $.ajax({
+    url: '/wishlist-to-cart/' + productId,
+    type: 'GET',
+    success: function(response) {
+      if (response.message === "Added to cart") {
+        showPopupMessage("Item added to cart");
+        setTimeout(function() {
+          location.reload(); // Reload the page after 2 seconds
+        }, 1000);
+      } else {
+        showPopupMessage("Please login");
+      }
+    },
+    error: function(error) {
+      console.error('Error occurred while adding to cart:', error);
+      showPopupMessage('Error adding to cart');
     }
-  })
-  .catch(function(error) {
-    console.error(error);
-    // Handle error here (e.g., show error message to the user)
   });
-});
+}
 
+function showPopupMessage(message) {
+  var popupMessage = document.getElementById('popupMessage');
+  popupMessage.innerText = message;
+  popupMessage.style.display = 'block';
+  setTimeout(function() {
+    popupMessage.style.display = 'none';
+  }, 1000);
+}
+
+function removeProductFromWishlist(proId) {
+  var confirmation = confirm("Are you sure you want to remove this product from the wishlist?");
+  if (confirmation) {
+    $.ajax({
+      url: '/remove-product-from-wishlist',
+      data: {
+        proId: proId
+      },
+      method: 'post',
+      success: function(response) {
+        if (response.wishlistProductRemoved) {
+          location.reload();
+        }
+      }
+    });
+  }
+}
 </script>

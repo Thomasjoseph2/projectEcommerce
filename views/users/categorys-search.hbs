@@ -69,36 +69,46 @@
 				
 				<div class="row ">	
 					<!-- single product -->
-					{{#each products}}
-<div class="col-lg-3 col-md-6">
-  <div class="single-product">
-    <div class="image-container">
-      <img class="img-fluid" src="/product-images/{{this._id}}.jpg" alt="Card image Cap">
-    </div>
-    <div class="product-details">
-      <h6>{{this.productName}}</h6>
-      <div style="color:black">{{this.productDescription}}</div>
-      <div class="price">
-        <h6 style="color: brown;">₹{{this.productPrice}}/-</h6>
-      </div>
-      <div class="prd-bottom">
-        <a href="#" class="social-info" onclick="addToCart('{{this._id}}'); return false;">
-          <span class="ti-bag"></span>
-          <p class="hover-text">add to bag</p>
-        </a>
-        <a href="" class="social-info">
-          <span class="lnr lnr-heart"></span>
-          <p class="hover-text">Wishlist</p>
-        </a>
-        <a href="/single-product/{{this._id}}" class="social-info">
-          <span class="lnr lnr-move"></span>
-          <p class="hover-text"> View more</p>
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-{{/each}}
+{{#each products}}
+				<div class="col-lg-3 col-md-6">
+
+					<div class="single-product">
+
+						<div class="image-container">
+							<img class="img-fluid" src="/product-images/{{this._id}}.jpg" alt="Card image Cap">
+						</div>
+						<div class="product-details">
+							<h6>{{this.productName}}</h6>
+							<div style="color:black">
+								{{this.productDescription}}
+							</div>
+							<div class="price">
+								<h6 style="color: brown;">₹{{this.productPrice}}/-</h6>
+
+							</div>
+							<div class="prd-bottom">
+
+								<a href="#" class="social-info" onclick="addToCart('{{this._id}}'); return false;">
+									<span class="ti-bag"></span>
+									<p class="hover-text">add to bag</p>
+								</a>
+
+								<a href="#" class="social-info" onclick="addToWishlist('{{this._id}}'); return false;">
+									<span class="lnr lnr-heart"></span>
+									<p class="hover-text">Wishlist</p>
+								</a>
+								<a href="/single-product/{{this._id}}" class="social-info">
+									<span class="lnr lnr-move"></span>
+									<p class="hover-text"> View more</p>
+								</a>
+
+
+							</div>
+						</div>
+					</div>
+
+				</div>
+				{{/each}}
 				</div>
 			</div>
 			<div>
@@ -144,45 +154,45 @@
 				<div class="row ">	
 					<!-- single product -->
 					{{#each products}}
-					<div class="col-lg-3 col-md-6">
-						
-						<div class="single-product">
-							
-							<div class="image-container">
-                     <img class="img-fluid" src="/product-images/{{this._id}}.jpg" alt="Card image Cap">
-                             </div>
-							<div class="product-details">
-								<h6>{{this.productName}}</h6>
-								<div style="color:black">
-                                    {{this.productDescription}}
-                                </div>
-								<div class="price">
-									<h6 style="color: brown;">₹{{this.productPrice}}/-</h6>
-									
-								</div>
-								<div class="prd-bottom">
+				<div class="col-lg-3 col-md-6">
 
-									<a href="#" class="social-info" onclick="addToCart('{{this._id}}'); return false;">
-                                    <span class="ti-bag"></span>
-                                    <p class="hover-text">add to bag</p>
-                                    </a>
+					<div class="single-product">
 
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="/single-product/{{this._id}}" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text"> View more</p>
-									</a>
-									
-									
-								</div>
+						<div class="image-container">
+							<img class="img-fluid" src="/product-images/{{this._id}}.jpg" alt="Card image Cap">
+						</div>
+						<div class="product-details">
+							<h6>{{this.productName}}</h6>
+							<div style="color:black">
+								{{this.productDescription}}
+							</div>
+							<div class="price">
+								<h6 style="color: brown;">₹{{this.productPrice}}/-</h6>
+
+							</div>
+							<div class="prd-bottom">
+
+								<a href="#" class="social-info" onclick="addToCart('{{this._id}}'); return false;">
+									<span class="ti-bag"></span>
+									<p class="hover-text">add to bag</p>
+								</a>
+
+								<a href="#" class="social-info" onclick="addToWishlist('{{this._id}}'); return false;">
+									<span class="lnr lnr-heart"></span>
+									<p class="hover-text">Wishlist</p>
+								</a>
+								<a href="/single-product/{{this._id}}" class="social-info">
+									<span class="lnr lnr-move"></span>
+									<p class="hover-text"> View more</p>
+								</a>
+
+
 							</div>
 						</div>
-				
 					</div>
-					{{/each}}
+
+				</div>
+				{{/each}}
 				</div>
 			</div>
 			<div>
@@ -452,58 +462,54 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
       <div class="modal-body">
         <p id="popupMessage"></p>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
     </div>
   </div>
 </div>
 <script>
-function showPopupMessage(message) {
-  // Set the message content
-  document.getElementById("popupMessage").textContent = message;
-  
-  // Show the modal
-  $('#popupModal').modal('show');
-}
+	function showPopupMessage(message) {
+		// Set the message content
+		document.getElementById("popupMessage").textContent = message;
 
-function addToCart(productId) {
-  // Send an AJAX request to the server
-  $.ajax({
-    url: '/add-to-cart/' + productId,
-    type: 'GET',
-    success: function(response) {
-      if (response.message === "Added to cart") {
-        showPopupMessage("Item added to cart");
-      } else {
-        showPopupMessage("please login");
-      }
-    },
-    error: function(error) {
-      console.error('Error occurred while adding to cart:', error);
-      // Show an error message if needed
-      showPopupMessage('Error adding to cart');
-    }
-  });
-  // Add an event listener for pagination links/buttons
-$('.pagination a').on('click', function (event) {
-  event.preventDefault();
+		// Show the modal
+		$('#popupModal').modal('show');
+	}
 
-  const url = $(this).attr('href');
-
-  // Make an AJAX request to fetch the updated product section content
-  $.ajax({
-    url: url,
-    type: 'GET',
-    success: function (response) {
-      // Replace the product section content with the updated content
-      $('#productSectionContainer').html(response);
-    },
-    error: function (error) {
-      console.log(error);
-    }
-  });
-});
-
-}
+	function addToCart(productId) {
+		// Send an AJAX request to the server
+		$.ajax({
+			url: '/add-to-cart/' + productId,
+			type: 'GET',
+			success: function (response) {
+				if (response.message === "Added to cart") {
+					showPopupMessage("Item added to cart");
+				} else {
+					showPopupMessage("please login");
+				}
+			},
+			error: function (error) {
+				console.error('Error occurred while adding to cart:', error);
+				// Show an error message if needed
+				showPopupMessage('Error adding to cart');
+			}
+		});
+	}
+	function addToWishlist(productId) {
+		// Send an AJAX request to the server
+		$.ajax({
+			url: '/add-to-wishlist/' + productId,
+			type: 'GET',
+			success: function (response) {
+				if (response.message === "Added to wishlist") {
+					showPopupMessage("Item added to wishlist");
+				} else {
+					showPopupMessage("Please login");
+				}
+			},
+			error: function (error) {
+				console.error('Error occurred while adding to wishlist:', error);
+				// Show an error message if needed
+				showPopupMessage('Error adding to wishlist');
+			}
+		});
+	}
 </script>

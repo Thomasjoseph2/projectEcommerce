@@ -118,8 +118,11 @@ const verifyLogin = (req, res, next) => {
       console.log(req.session.user._id);
       let blocked = await adminHelper.isUserBlocked(req.session.user._id);
       console.log(blocked,"sddddddddddd");
+      
       if (blocked) {
       req.session.blocked="you are blocked by the admin"
+      req.session.user.loggedIn=null
+      req.session.user=null
         res.redirect('/login');
       } else {
         next();

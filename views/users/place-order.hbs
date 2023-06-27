@@ -133,8 +133,8 @@
                         </div>
                         <div class="payment_item active">
                             <div class="radion_btn">
-                                <input type="radio" id="f-option6" name="payment-method" value="WALLET">
-                                <label for="f-option6">Wallet Amound</label>
+                                <input type="radio" id="f-option7" name="payment-method" value="WALLET">
+                                <label for="f-option7">Wallet Amound</label>
 
                                 <div class="check"></div>
                             </div>
@@ -308,23 +308,28 @@ $("#coupon-form").submit((e) => {
 
 
 
-    $("#checkout-form").submit((e) => {
-        e.preventDefault()
-        $.ajax({
-            url: '/place-order',
-            method: 'post',
-            data: $('#checkout-form').serialize(),
-            success: (response) => {
-                alert(response)
+ $("#checkout-form").submit((e) => {
+  e.preventDefault();
+  $.ajax({
+    url: '/place-order',
+    method: 'post',
+    data: $('#checkout-form').serialize(),
+    success: (response) => {
+        
+      if (response.codStatus) {
+        location.href = '/order-success'; // Redirect to order success page for COD payment
+      } else if (response.walletStatus) {
+        location.href = '/order-success'; // Redirect to order success page for Wallet payment
+      }else if (response.walletStatus===false) {
+        alert("not enough wallet money")
+        location.href = '/order-list'; // Redirect to order success page for Wallet payment
+      } else {
+        razorpayPayment(response); // Proceed with Razorpay payment
+      }
+    }
+  });
+});
 
-                if (response.codStatus) {
-                    location.href = '/order-success'// Modify the path here
-                } else {
-                    razorpayPayment(response)
-                }
-            }
-        })
-    })
     function razorpayPayment(order) {
         var options = {
             "key": "rzp_test_4VSqO0TCBFvtCE", // Enter the Key ID generated from the Dashboard

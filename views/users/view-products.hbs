@@ -29,6 +29,37 @@
   justify-content: center;
 }
 
+.modal-content {
+  border-radius: 4px;
+}
+
+.modal-header {
+  background-color: #f8f9fa;
+  border-bottom: none;
+}
+
+.modal-title {
+  color: #000;
+  font-size: 18px;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  border-top: none;
+}
+
+.modal-footer .btn {
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+}
+
+.modal-footer .btn-secondary {
+  background-color: #6c757d;
+}
 
 
 
@@ -286,7 +317,7 @@
 			</div>
 			<div>
 	
-</div>
+         </div>
 		</div>
 
 
@@ -551,12 +582,11 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
       <div class="modal-body">
         <p id="popupMessage"></p>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
     </div>
   </div>
 </div>
+
+
 <script>
 function showPopupMessage(message) {
   // Set the message content

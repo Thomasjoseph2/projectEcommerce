@@ -2,7 +2,7 @@ const productHelpers = require('../helpers/product-helper');
 const userHelper = require('../helpers/users-helper');
 const adminHelper = require('../helpers/admin-helper');
 const usersHelper = require('../helpers/users-helper');
-const accountSid = "AC655f2659db56c5504407570babdbd676";
+const accountSid = "AC655f2659db56c5504407570babdbd676"
 const authToken = "423f1b41a1ef5eba1980daa5b4edc5cb";
 const verifySid = "VAb8d4aa3610b51c3ee296c9e5e7209be5";
 const client = require("twilio")(accountSid, authToken);
@@ -157,6 +157,7 @@ const getWishList = async (req, res) => {
 };
 
 const addToCart = (req, res) => {
+  console.log("hiiii trying to add to the cart ",req.params.proId)
   try {
     if (!req.session.user || !req.session.user.loggedIn) {
       res.json({ message: "Please log in to add items to the cart" });
@@ -179,6 +180,30 @@ const addToCart = (req, res) => {
     console.log(err);
   }
 };
+
+const wishlistToCart=async (req,res)=>{
+  try {
+    if (!req.session.user || !req.session.user.loggedIn) {
+      res.json({ message: "Please log in to add items to the cart" });
+      return;
+    }
+
+    await userHelper
+      .addToCart(req.params.id, req.session.user._id)
+      .then(async() => {
+        await userHelper.removeItemFromWishlist(req.params.id,req.session.user._id)
+        console.log("added to wishlist");
+        res.json({ message: "Added to cart" });
+      })
+      .catch((error) => {
+        console.error("Error adding to cart:", error);
+        // Send an error response if there was an issue adding the product
+        res.status(500).json({ message: "Error adding to cart" });
+      });
+  } catch (err) {
+    console.log(err);
+  }
+}
 const addToWishList=(req,res)=>{
   try {
     if (!req.session.user || !req.session.user.loggedIn) {
@@ -353,6 +378,18 @@ const removefromCart = async (req, res, next) => {
   }
 };
 
+
+const removefromWishList = async (req, res, next) => {
+  try {
+    console.log(req.body,"hi here i am");
+   const response= await userHelper.removeItemFromWishlist(req.body.proId,req.session.user._id)
+    res.json(response);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 const cancelOrder = async (req, res) => {
   try {
     
@@ -402,31 +439,71 @@ const placeOrder = async (req, res, next) => {
 
 const doPlaceOrder = async (req, res) => {
   try {
-    console.log(req.session.user);
+
     const products = await userHelper.getcartProductList(req.body.userId);
+
     const discountedAmount = await userHelper.getDiscountedAmount(req.session.user._id);
+
     const cartTotal = await userHelper.getCartTotal(req.body.userId);
+
     let total = 0;
+
     if (discountedAmount) {
+
       total = discountedAmount;
+
     } else {
+
       total = cartTotal;
+
     }
-    console.log(req.body, products, total);
+
     const response = await userHelper.placeOrder(req.body, products, total);
+
     if (req.body['payment-method'] === 'COD') {
+
       res.json({ codStatus: true });
+
+    }else if(req.body['payment-method'] === 'WALLET'){
+
+      // Deduct the order total from the user's wallet amount
+      
+      const user = await userHelper.getUser(req.body.userId);
+
+      if (user.walletAmount >= total) {
+
+        // Sufficient wallet balance, proceed with the order
+
+        await userHelper.deductAmountFromWallet(req.body.userId, total);
+
+        await userHelper.updateOrderStatus(response.insertedId, 'walletpayment');
+
+        res.json({ walletStatus: true });
+
+      } else {
+        await userHelper.updateOrderStatus(response.insertedId, 'unpaid');
+        await userHelper.updateStatus(response.insertedId, 'cancelled');
+        // Insufficient wallet balance, handle the error
+
+        res.json({ walletStatus: false, message: 'Insufficient wallet balance' });
+
+      }
+
     } else if(req.body['payment-method'] === 'ONLINE') {
+
       const razorpayResponse = await userHelper.generateRazorpay(response.insertedId, total);
+
       res.json(razorpayResponse);
-    }else{
-      const walletPayment= await userHelper.walletPayment(req.body,total)
-      res.json(walletstatus)
+
     }
     couponCode = req.session.user.couponCode;
+
     await userHelper.updateCouponStatus(req.session.user._id, couponCode);
+
   } catch (error) {
+
     console.log(error);
+
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
@@ -505,7 +582,7 @@ const searchCategory = async (req, res) => {
   try {
     const categories = await userHelper.getCategory();
     const products = await productHelpers.getAllProducts();
-    res.render('users/categorys-search', { categories, products });
+    res.render('users/categorys-search', { categories, products,user:req.session.user });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -610,5 +687,7 @@ module.exports = {
   verifyCoupon,
   returnOrder,
   addToWishList,
-  getWishList
+  getWishList,
+  wishlistToCart,
+  removefromWishList
 };

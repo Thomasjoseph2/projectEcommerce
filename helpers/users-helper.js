@@ -909,6 +909,82 @@ console.log(coupon)
       }
     });
   }
+,
+removeItemFromWishlist: (proId, userId) => {
+  return new Promise((resolve, reject) => {
+    db.get()
+      .collection(collection.WISHLIST_COLLECTION)
+      .updateOne(
+        {
+          user: ObjectId(userId),
+        },
+        {
+          $pull: { products: { item: ObjectId(proId) } },
+        }
+      )
+      .then((data) => {
+        resolve({ wishlistProductRemoved: true });
+      })
+      .catch((err) => {
+        console.error(err);
+        reject(err);
+      });
+  });
+},  getUser: (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const user = await db.get().collection(collection.USER_COLLECTION).findOne({ _id:ObjectId(userId) });
+      console.log(user);
+      resolve(user);
+    } catch (error) {
+      reject(error);
+    }
+  });
+},
+deductAmountFromWallet: (userId, amount) => {
+  return new Promise((resolve, reject) => {
+    db.get()
+      .collection(collection.USER_COLLECTION)
+      .updateOne(
+        { _id: ObjectId(userId) },
+        { $inc: { walletAmount: -parseInt(amount) } }
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+},
+updateOrderStatus: (orderId, status) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const orderCollection = db.get().collection(collection.ORDER_COLLECTION);
+      const response = await orderCollection.updateOne(
+        { _id: ObjectId(orderId) },
+        { $set: { status: status } }
+      );
+      resolve(response);
+    } catch (error) {
+      reject(error);
+    }
+  });
+},
+updateStatus: (orderId, status) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const orderCollection = db.get().collection(collection.ORDER_COLLECTION);
+      const response = await orderCollection.updateOne(
+        { _id: ObjectId(orderId) },
+        { $set: { OrderStatus: status } }
+      );
+      resolve(response);
+    } catch (error) {
+      reject(error);
+    }
+  });
+},
 
 };
 

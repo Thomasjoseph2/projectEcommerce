@@ -277,6 +277,11 @@ const changeStatus = async (req, res) => {
      }
     else if(order.paymentMethod==='ONLINE' && order.OrderStatus==="returnrequest" && status==="returned"){
       await adminHelper.updateWallet(order.userId,order.totalAmound)
+    } 
+    else if(order.paymentMethod==='WALLET' && order.OrderStatus==="returnrequest" && status==="returned" 
+    ||
+    order.paymentMethod==='WALLET' && order.OrderStatus==="cancelrequest" && status==="cancelled"){
+      await adminHelper.updateWallet(order.userId,order.totalAmound)
     }
     res.json({ success: true }); // Send JSON response indicating success
   } catch (error) {
