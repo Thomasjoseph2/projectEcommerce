@@ -44,8 +44,8 @@ router.get('/category', auth.verifyLogin, admin.getCategory);
 
 router.post('/add-category', auth.verifyLogin, admin.addCategory);
 
+
 router.get('/remove-category', auth.verifyLogin, admin.removeCategory)
-// Add this line to your existing router file
  
 router.get('/order-list', auth.verifyLogin, admin.getOrderList)
 
@@ -61,7 +61,7 @@ router.post('/ordered-product-details',auth.verifyLogin,admin.adminOrderDetailsP
 
 router.post('/admin-order-manage',auth.verifyLogin,admin.changeStatus)
 
-//router.post('/check-products', auth.verifyLogin, admin.checkProductsExist);
+router.get('/check-products', auth.verifyLogin, admin.checkProducts);
   
 router.get('/cancel-requests', auth.verifyLogin, admin.getCancelRequests)
 

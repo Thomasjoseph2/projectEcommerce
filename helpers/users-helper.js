@@ -66,8 +66,29 @@ module.exports = {
           }
         });
     });
-  }
-  ,
+  },
+  getUserAddress: (userId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let result = await db
+          .get()
+          .collection(collection.ADDRESS_COLLECTION)
+          .aggregate([
+            { $match: { userId: userId } },
+            { $unwind: "$addresses" },
+          ])
+          .toArray();
+          
+        // Extract the addresses array from the result
+        let addresses = result.map(item => item.addresses);
+        
+        resolve(addresses);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+  
 
   addToCart: (proId, userId) => {
     const proObj = {
@@ -617,18 +638,38 @@ walletPayment:(order,total)=>{
   addUserDetails: (userId, userDetails) => {
     return new Promise(async (resolve, reject) => {
       try {
-        console.log("reached");
         await db.get().collection(collection.USER_COLLECTION).updateOne(
           { _id: ObjectId(userId) },
-          { $set: userDetails } // Set the userDetails object
+          { $set: userDetails } 
         );
-        console.log("added");
         resolve();
       } catch (error) {
         reject(error);
       }
     });
   },
+  adduserAddress: (userId, userDetails) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // Generate a new ObjectId for the address
+        const addressId = new ObjectId();
+  
+        await db
+          .get()
+          .collection(collection.ADDRESS_COLLECTION)
+          .updateOne(
+            { userId: userId }, // Filter by user ID
+            { $push: { addresses: { _id: addressId, ...userDetails } } }, // Push the address with the assigned ID into the addresses array
+            { upsert: true } // Create a new document if it doesn't exist
+          );
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+  
+  
   generateRazorpay:(orderId,total)=>{
    total=parseInt(total)
 return new Promise((resolve,reject)=>{
@@ -930,7 +971,26 @@ removeItemFromWishlist: (proId, userId) => {
         reject(err);
       });
   });
-},  getUser: (userId) => {
+},
+removeAddress: (addressId, userId) => {
+  return new Promise((resolve, reject) => {
+    db.get()
+      .collection(collection.ADDRESS_COLLECTION)
+      .updateOne(
+        { userId: userId },
+        { $pull: { addresses: { _id: ObjectId(addressId) } } }
+      )
+      .then((data) => {
+        resolve({ addressRemoved: true });
+      })
+      .catch((err) => {
+        console.error(err);
+        reject(err);
+      });
+  });
+},
+
+ getUser: (userId) => {
   return new Promise(async (resolve, reject) => {
     try {
       const user = await db.get().collection(collection.USER_COLLECTION).findOne({ _id:ObjectId(userId) });

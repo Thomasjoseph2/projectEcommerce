@@ -1,7 +1,8 @@
 var express = require('express');
 var router = express.Router();
 const auth=require('../middleware/auth')
-const user=require('../controllers/user')
+const user=require('../controllers/user');
+const { route } = require('./admin');
 // const accountSid = "AC3d28d77a88183ef2695e962fdb125248";
 // const authToken = "51a2c439c67245cefb72ab439aade4a5";
 // const verifySid = "VA4f89b10c7da39304caf987482707ea03";
@@ -47,6 +48,8 @@ router.post('/delete-product-from-cart',auth.userVerifyLogin,user.removefromCart
 
 router.post('/remove-product-from-wishlist',auth.userVerifyLogin,user.removefromWishList)
 
+router.post('/remove-address',auth.userVerifyLogin,user.removeAddress)
+
 router.get('/verify',user.verifyMail)
 
 router.get('/place-order',auth.userVerifyLogin,auth.userverifyBlock,user.placeOrder)
@@ -77,7 +80,11 @@ router.post('/list-category',user.ListCategory)
 
 router.get('/search',user.getSearchResults)
 
+router.get('/add-address',auth.userVerifyLogin,user.getAddAddress)
+
 router.post('/apply-coupon',auth.userVerifyLogin,user.verifyCoupon)
+
+router.post('/add-address',auth.userVerifyLogin,user.addAddress)
 
 router.get('/remove-product', (req, res) => {
   let proId = req.query.id

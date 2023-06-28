@@ -79,9 +79,17 @@ const signup = async (req, res) => {
 
 const addUserDetails = async (req, res) => {
   try {
-    console.log("going to add details",req.body);
+
     await userHelper.addUserDetails(req.session.user._id, req.body);
     res.redirect('/');
+  } catch (err) {
+    console.log(err);
+  }
+}
+const addAddress=async (req, res) => {
+  try {
+    await userHelper.adduserAddress(req.session.user._id,req.body);
+    res.redirect('/add-address');
   } catch (err) {
     console.log(err);
   }
@@ -191,8 +199,8 @@ const wishlistToCart=async (req,res)=>{
     await userHelper
       .addToCart(req.params.id, req.session.user._id)
       .then(async() => {
-        await userHelper.removeItemFromWishlist(req.params.id,req.session.user._id)
-        console.log("added to wishlist");
+       //await userHelper.removeItemFromWishlist(req.params.id,req.session.user._id)
+        console.log("added to cart");
         res.json({ message: "Added to cart" });
       })
       .catch((error) => {
@@ -236,7 +244,15 @@ const getSearchResults = async (req, res) => {
     console.log(err);
   }
 };
-
+const getAddAddress=async(req,res)=>{
+  try {
+    const address=await userHelper.getUserAddress(req.session.user._id);
+    console.log(address)
+    res.render('users/add-address', { user: req.session.user,address });
+  } catch (err) {
+    console.log(err);
+  }
+}
 const getHome = async function (req, res, next) {
   try {
     const user = req.session.user;
@@ -248,7 +264,7 @@ const getHome = async function (req, res, next) {
 
     userHelper.getAllProductsForHome(page, productPerPage, totalProducts).then((result) => {
       const { products, totalPages } = result;
-      console.log(totalProducts, products, totalPages);
+      console.log(totalProducts, products, totalPages,"jiiiiiiii");
       if (req.xhr) {
         res.render('users/product-section', { products, user, cartCount, currentPage: page, totalPages, layout: false });
       } else {
@@ -381,8 +397,16 @@ const removefromCart = async (req, res, next) => {
 
 const removefromWishList = async (req, res, next) => {
   try {
-    console.log(req.body,"hi here i am");
    const response= await userHelper.removeItemFromWishlist(req.body.proId,req.session.user._id)
+    res.json(response);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+const removeAddress= async (req, res, next) => {
+  try {
+   const response= await userHelper.removeAddress(req.body.addressId,req.session.user._id)
     res.json(response);
   } catch (error) {
     console.log(error);
@@ -430,7 +454,8 @@ const placeOrder = async (req, res, next) => {
     });
     req.session.user.newtotal=0;
     console.log(req.session.user.newtotal, carttotal);
-    res.render('users/place-order', { total, user: req.session.user, products, carttotal });
+    const user=await userHelper.getUser(req.session.user._id);
+    res.render('users/place-order', { total, user, products, carttotal });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -528,8 +553,9 @@ const getOrderList = async (req, res) => {
 };
 const getProfile = async(req, res) => {
   try {
-    console.log(req.session.user,"hi this is the wallet amound")
-    res.render('users/user-profile', { user: req.session.user });
+    const user=await userHelper.getUser(req.session.user._id)
+   
+    res.render('users/user-profile', { user });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -689,5 +715,9 @@ module.exports = {
   addToWishList,
   getWishList,
   wishlistToCart,
-  removefromWishList
+  removefromWishList,
+  getAddAddress,
+  addAddress,
+  removeAddress
+
 };

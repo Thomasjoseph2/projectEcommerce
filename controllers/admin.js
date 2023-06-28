@@ -206,18 +206,21 @@ const addCategory = async (req, res) => {
     res.redirect('/admin');
   }
 };
+const checkProducts = async (req, res) => {
+  let categoryId = req.query.categoryId;
+  const productExists = await productHelpers.isProductExist(categoryId);
+  console.log(productExists);
+  res.json({ productExists: productExists });
+};
 
-const removeCategory=(req, res) => {
 
-   
-    let ctId = req.query.id
-    const productExist=productHelpers.isProductExist(ctId)
-    adminHelper.removeCategory(ctId).then(() => {
-      res.redirect('/admin/category')
-    })
-  
-  }
-  
+const removeCategory = async (req, res) => {
+  let ctId = req.query.id;
+  await adminHelper.removeCategory(ctId);
+  res.redirect('/admin/category');
+};
+
+
   const getOrderList = async (req, res) => {
     try {
       const currentPage = parseInt(req.query.page) || 1;
@@ -405,7 +408,8 @@ module.exports = {
     addCoupon,
     removeCoupon,
     getCancelRequests,
-    getReturnRequests
+    getReturnRequests,
+    checkProducts
   
 
 }

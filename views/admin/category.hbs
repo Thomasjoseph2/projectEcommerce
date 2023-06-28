@@ -19,49 +19,68 @@
         <div class="mb-3">
           <label for="category-name" class="form-label">Category Name</label>
           <input type="text" class="form-control" id="category-name" name="categoryName" required>
-
-        </div>
-             
-          {{#if categoryError}}
-          <h1 class="text-danger">CATEGORY ALREADY EXISTS</h1>
+         {{#if categoryError}}
+          <p class="text-danger">CATEGORY ALREADY EXISTS</p>
           {{/if}}
-              
-        <button type="submit" class="btn btn-primary">Add Category</button>
-        <div></div>
+        </div>
+          <button type="submit" class="btn btn-primary">Add Category</button>
       </form>
     </div>
     <div class="table-responsive mt-5" id="categoryTableContainer">
-      <table id="categoryTable" class="table mt-5 mt-3 categoryTablea">
-        <thead>
-          <tr>
-            <th>Category Name</th>
-            <th>id</th>
-            <th>Remove</th>
-          </tr>
-        </thead>
+       <table class="table mt-5 usersTable " id="category-data-table" >
+      <thead>
+        <tr>
+
+          <th scope="col">Category Name</th>
+          <th scope="col">id</th>
+          <th scope="col">Remove</th>
+        
+        </tr>
+      </thead>
+      <tbody>
         {{#each categories}}
-        <tbody>
-          <tr>
-            <td>{{this.categoryName}}</td>
-            <td>{{this._id}}</td>
+        <tr>
+
+          <td>{{this.categoryName}}</td>
+          <td>{{this._id}}</td>
+
             <td>
-              <a href="/admin/remove-category?id={{this._id}}" class="btn btn-danger"
-                onclick="return confirm('Are you sure you want to remove {{this.categoryName}}?')">Remove</a>
+              {{!-- <a href="/admin/remove-category?id={{this._id}}" class="btn btn-danger"
+                onclick="return('Are you sure you want to remove {{this.categoryName}}?')">Remove</a> --}}
+                <a href="#" class="btn btn-danger remove-category" data-category-id="{{this._id}}" data-category-name="{{this.categoryName}}">Remove</a>
+
             </td>
-          </tr>
-        </tbody>
         {{/each}}
-      </table>
+
+      </tbody>
+    </table>
     </div>
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="errorModalLabel">Error</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="errorMessage"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
   </div>
 </section>
 
 <script>
-  // Event handler for remove category button
-  $('.remove-category').on('click', function (event) {
-    event.preventDefault();
-    var categoryId = $(this).data('category-id');
-    var confirmation = confirm('Are you sure you want to remove this category?');
+  // Function to confirm the removal of the category
+  function confirmRemoveCategory(categoryId, categoryName) {
+    var confirmation = confirm('Are you sure you want to remove ' + categoryName + '?');
 
     if (confirmation) {
       // Perform AJAX request to remove the category
@@ -70,14 +89,55 @@
         method: 'GET',
         success: function (response) {
           // If the category is successfully removed, update the category table
-          $('#categoryTableContainer').load('/admin/category #categoryTable');
+          $('#categoryTableContainer').load('/admin/category #category-data-table');
         },
         error: function (error) {
           console.log(error);
         }
       });
     }
-  });
+  }
+
+// Event handler for remove category button
+$('.remove-category').on('click', function (event) {
+  event.preventDefault();
+  var categoryId = $(this).data('category-id');
+  var categoryName = $(this).data('category-name');
+  var confirmation = confirm('Are you sure you want to remove ' + categoryName + '?');
+
+  if (confirmation) {
+    // Perform AJAX request to check if products exist
+    $.ajax({
+      url: '/admin/check-products?categoryId=' + categoryId,
+      method: 'GET',
+      success: function (response) {
+        if (response.productExists) {
+          // Show the error message in the modal
+          $('#errorMessage').text('Category cannot be removed. Products exist in the category.');
+          $('#errorModal').modal('show');
+        } else {
+          // Perform AJAX request to remove the category
+          $.ajax({
+            url: '/admin/remove-category?id=' + categoryId,
+            method: 'GET',
+            success: function (response) {
+              // If the category is successfully removed, update the category table
+              $('#categoryTableContainer').load('/admin/category #category-data-table');
+              location.reload();
+            },
+            error: function (error) {
+              console.log(error);
+            }
+          });
+        }
+      },
+      error: function (error) {
+        console.log(error);
+      }
+    });
+  }
+});
+
 
   $('#categoryForm').submit(function (event) {
     event.preventDefault();
@@ -90,12 +150,9 @@
       success: function (response) {
         // Reset the form fields
         $('#categoryForm')[0].reset();
-
+        location.reload();
         // If the category is successfully added, update the category table
-        $('#categoryTableContainer').load('/admin/category #categoryTable', function() {
-          // After reloading the table, initialize the DataTable plugin
-          $('.categoryTable').DataTable();
-        });
+        $('#categoryTableContainer').load('/admin/category #category-data-table');
       },
       error: function (error) {
         console.log(error);
@@ -105,8 +162,9 @@
   });
 </script>
 
+
 <script>
   $(document).ready(function () {
-    $('.categoryTablea').DataTable();
+    $('#category-data-table').DataTable();
   });
 </script>

@@ -1,10 +1,13 @@
 
+
+
+
     <!-- Start Banner Area -->
     <section class="banner-area organic-breadcrumb">
         <div class="container">
             <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
                 <div class="col-first">
-                    <h1>Order List</h1>
+                    <h1>Address Details</h1>
                     <nav class="d-flex align-items-center">
                         <a href="index.html">Home<span class="lnr lnr-arrow-right"></span></a>
                         <a href="category.html">Cart</a>
@@ -13,72 +16,90 @@
             </div>
             
         </div>
-    </section>
-    <!-- End Banner Area -->
-<section>
-  <div class="container">
-    <form id="statusForm">
-      <select class="select" name="status" id="statusSelect">
-        
-        <option value="" disabled selected>Select Status</option>
-        <option value="approved">Approved</option>
-        <option value="cancelled">Cancelled</option>
-        <option value="shipped">Shipped</option>
-        <option value="delivered">Delivered</option>
-         <option value="returned">Returned</option>
-      </select>
-      <input type="hidden" name="orderId" value="{{this.orderId}}">
-      <button style="height: 42px; background-color:#fe7200;color:aliceblue;" class="btn" type="submit">Update Status</button>
-    </form>
-  </div>
-</section>
+       
+    <div class="col-lg-3 mr-auto " style="margin-left: 25vh; margin-bottom:4vh">
+      <button style="background-color: #f2ab05;color:white;" class="btn  mr-auto" data-toggle="modal" data-target="#addAddressModal">Add Address</button>
+    </div>
 
-    <section>
-        <div class="container">
-            <div class="cart_inner">
-                <div class="table-responsive mt-3">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col"> <h5>Image</h5></th>
-                                <th scope="col"> <h5>Description</h5></th>
-                                <th scope="col"> <h5>Price</h5></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {{#each productDetails}}
-                            <tr>
-                                 <td>
-                                <div class="media">
-                                    <div class="d-flex">
-                                        <img style="width:14vh;height:10vh"
-                                            src="/product-images/{{this.product._id}}.jpg" alt="">
-                                    </div>
-                                    <div class="media-body">
-                                        <p>{{this.product.productName}}</p>
-                                    </div>
-                                </div>
-                            </td>
-                              
-                                <td>{{this.product.productDescription}}</td>
-                                <td>
-                                    <h5>₹{{this.product.productPrice}}/-</h5>
-                                </td>
-              
-                            </tr>
-                           {{/each}}
-                        </tbody>
-                    </table>
-                    
-                </div>
-            </div>
+    </section>
+    <section class="container">
+   
+
+<div class="card">
+    {{#if address}}
+  <div class="card-body">
+    <div class="row">
+         {{#each address}}
+      <div class="col-md-6">
+       
+        <div class="card mb-4">
+          <div class="card-body">
+            <h6 class="card-subtitle mb-2 text-muted">Address</h6>
+            <p class="card-text">Name:{{this.name}}</p>
+            <p class="card-text">Address:{{this.address1}}</p>
+            <p class="card-text">City:{{this.city}}</p>
+            <p class="card-text">State:{{this.state}}</p>
+            <p class="card-text">Pin:{{this.pin}}</p>
+          </div>
+             <button class="quantity-btn btn-danger"
+             onclick="removeAddress('{{this._id}}')">Remove Address</button>
         </div>
-    </section>
-    
-    <!--================End Cart Area =================-->
-
-    <!-- start footer Area -->
-    <footer class="footer-area section_gap">
+       
+      </div>
+       {{/each}}
+    </div>
+  </div>
+  {{/if}}
+</div>
+<!-- Add Address Modal -->
+<div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addAddressModalLabel">Add Address</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="addAddressForm" action="/add-address" method="post">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+          </div>
+          <div class="form-group">
+            <label for="address1">Address Line 1</label>
+            <input type="text" class="form-control" id="address1" name="address1" required>
+          </div>
+         
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="city">City</label>
+              <input type="text" class="form-control" id="city" name="city" required>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="state">State</label>
+              <input type="text" class="form-control" id="state" name="state" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="zip">pin</label>
+              <input type="text" class="form-control" id="zip" name="pin" required>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="country">Country</label>
+              <input type="text" class="form-control" id="country" name="country" required>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Save Address</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+ </section>
+    <footer class="footer-area section_gap mt-3">
         <div class="container">
             <div class="row">
                 <div class="col-lg-3  col-md-6 col-sm-6">
@@ -158,35 +179,22 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
             </div>
         </div>
     </footer>
-<script>
-  document.getElementById('statusForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent form submission
-
-    var statusSelect = document.getElementById('statusSelect');
-    if (statusSelect.value === '') {
-      alert('Please select a status');
-      return;
-    }
-
-    var form = event.target;
-    var formData = new FormData(form);
-
-    fetch('/admin/admin-order-manage', {
-      method: 'POST',
-      body: formData
-    })
-      .then(function(response) {
-        if (response.ok) {
-          // Reload the page after successful status update
-          //location.reload()
-          location.href='/admin/order-list';
-        } else {
-          throw new Error('Error updating status');
+   <script>
+    function removeAddress(addId) {
+  var confirmation = confirm("Are you sure you want to remove this product from the wishlist?");
+  if (confirmation) {
+    $.ajax({
+      url: '/remove-address',
+      data: {
+        addressId: addId
+      },
+      method: 'post',
+      success: function(response) {
+        if (response.addressRemoved) {
+          location.reload();
         }
-      })
-      .catch(function(error) {
-        console.error(error);
-        // Handle error here (e.g., show error message to the user)
-      });
-  });
-</script>
+      }
+    });
+  }
+    }
+   </script>

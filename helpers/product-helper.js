@@ -122,14 +122,15 @@ updateProductCategory: (productId, categoryId, callback) => {
 },
 isProductExist:  (ctId) => {
    return new Promise(async(resolve, reject) => {
-  await   db.get()
+   await db.get()
       .collection(collection.PRODUCT_COLLECTION)
-      .find({ _id: objectId(ctId) }).toArray()
+      .find({ productCategory: objectId(ctId) }).toArray()
       .then((product) => {
-        if (product) {
-          resolve(true); // Resolve true if product exists
+        console.log(product)
+        if (product.length > 0) {
+          resolve(true); // Resolve true if products exist
         } else {
-          resolve(false); // Resolve false if product does not exist
+          resolve(false); // Resolve false if no products exist
         }
       })
       .catch((error) => {
