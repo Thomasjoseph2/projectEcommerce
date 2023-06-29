@@ -20,6 +20,8 @@ router.post('/add-product', auth.verifyLogin, admin.addProduct)
 
 router.post('/add-offer', auth.verifyLogin, admin.addCategoryOffer)
 
+router.post('/add-product-offer', auth.verifyLogin, admin.addProductOffer)
+
 router.get('/delete-product', auth.verifyLogin, admin.deleteProduct)
 
 router.get('/edit-product/:id', auth.verifyLogin, admin.getEditProduct)

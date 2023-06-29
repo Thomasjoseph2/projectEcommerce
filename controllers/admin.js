@@ -70,13 +70,37 @@ const addProduct = (req, res) => {
     });
   };
 const addCategoryOffer= async(req, res) => {
+
   console.log(req.body);
+
   let categoryOffer =parseInt(req.body.categoryOffer)
+
   let categoryId=req.body.categoryId
-      await adminHelper.addOffer(categoryId,categoryOffer).then(() => {
-      res.redirect('/admin/category')
+
+  await adminHelper.addOffer(categoryId,categoryOffer).then(() => {
+
+  res.redirect('/admin/category')
+  
    })
 
+}
+const addProductOffer= async(req, res) => {
+  try{
+    console.log(req.body);
+
+    let productOffer =parseInt(req.body.productOffer)
+
+    let productId=req.body.productId
+
+    await adminHelper.addproductOffer(productId,productOffer)
+
+    res.redirect('/admin/')
+   
+    }catch(err){
+
+    console.log(err);
+
+   }
 }
 const deleteProduct = (req, res) => {
     let proId = req.query.id
@@ -421,7 +445,8 @@ module.exports = {
     getCancelRequests,
     getReturnRequests,
     checkProducts,
-    addCategoryOffer
+    addCategoryOffer,
+    addProductOffer
   
 
 }

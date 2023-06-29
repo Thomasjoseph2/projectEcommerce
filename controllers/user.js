@@ -145,16 +145,21 @@ const logout = (req, res) => {
 const getCart = async (req, res) => {
   try {
     const products = await userHelper.getCartProducts(req.session.user._id);
-    console.log(products,"this is cart products");
+
     products.forEach((product) => {
-      product.total = product.product.productPrice * product.quantity;
+      const offerPercentage = product.product.productOffer || 0; // Get the productOffer, defaulting to 0 if not present
+      const offerPrice = product.quantity * (1 - offerPercentage / 100) * product.product.productPrice;
+      product.total = parseInt(offerPrice);
     });
+
     const Carttotal = await userHelper.getCartTotal(req.session.user._id);
+
     res.render('users/cart', { products, user: req.session.user, Carttotal });
   } catch (err) {
     console.log(err);
   }
 }
+
 const getWishList = async (req, res) => {
   try {
     const products = await userHelper.wishlistProducts(req.session.user._id);
@@ -166,6 +171,7 @@ const getWishList = async (req, res) => {
 };
 
 const addToCart = (req, res) => {
+  console.log("hiiii trying to add to the cart ",req.params.proId)
   try {
     if (!req.session.user || !req.session.user.loggedIn) {
       res.json({ message: "Please log in to add items to the cart" });
@@ -445,6 +451,7 @@ const placeOrder = async (req, res, next) => {
     let total = 0;
     const carttotal = await userHelper.getCartTotal(req.session.user._id);
     const products = await userHelper.getCartProducts(req.session.user._id);
+    console.log(products);
     if (req.session.user.newtotal) {
       total = req.session.user.newtotal;
     } else {

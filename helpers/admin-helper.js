@@ -70,6 +70,40 @@ module.exports = {
       });
     });
   },
+  addproductOffer: (proId, offer) => {
+    return new Promise((resolve, reject) => {
+      db.get().collection(collection.PRODUCT_COLLECTION).findOne({ _id: ObjectId(proId) }, (error, product) => {
+        if (error) {
+          reject(error);
+        } else {
+          if (product) {
+            const productOffer = parseFloat(offer);
+            const productPrice = parseFloat(product.productPrice);
+  
+            // Calculate the offerPrice based on the productOffer percentage
+            const offerPrice = productPrice - (productPrice * (productOffer / 100));
+  
+            // Update the product document with the offerPrice field
+            db.get().collection(collection.PRODUCT_COLLECTION).updateOne(
+              { _id: ObjectId(proId) },
+              { $set: { productOffer: productOffer, offerPrice: Math.floor(offerPrice)} },
+              (error) => {
+                if (error) {
+                  reject(error);
+                } else {
+                  resolve();
+                }
+              }
+            );
+          } else {
+            reject(new Error('Product not found'));
+          }
+        }
+      });
+    });
+  }
+  
+  ,
   unblockUser: (userId) => {
     return new Promise((resolve, reject) => {
       db.get().collection(collection.USER_COLLECTION).updateOne({ _id: ObjectId(userId) }, { $set: { blocked: false } }, (error) => {

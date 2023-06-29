@@ -408,35 +408,29 @@ module.exports = {
               $unwind: '$products',
             },
             {
-              $project: {
-                item: '$products.item',
-                quantity: '$products.quantity',
-              },
-            },
-            {
               $lookup: {
                 from: collection.PRODUCT_COLLECTION,
-                localField: 'item',
+                localField: 'products.item',
                 foreignField: '_id',
                 as: 'product',
               },
             },
             {
-              $project: {
-                item: 1,
-                quantity: 1,
+              $addFields: {
                 product: { $arrayElemAt: ['$product', 0] },
               },
             },
             {
               $group: {
                 _id: null,
-                total: { $sum: { $multiply: ['$quantity', '$product.productPrice'] } },
+                total: {
+                  $sum: { $multiply: ['$products.quantity', '$product.offerPrice'] },
+                },
               },
             },
           ])
           .toArray();
-          
+  
         if (total.length > 0) {
           resolve(total[0].total.toFixed(2));
         } else {
@@ -446,7 +440,8 @@ module.exports = {
         reject(error);
       }
     });
-  },
+  }
+  ,
   
   
   getEachTotal: (userId) => {
