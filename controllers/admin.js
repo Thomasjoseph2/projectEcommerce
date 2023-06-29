@@ -69,7 +69,15 @@ const addProduct = (req, res) => {
       });
     });
   };
+const addCategoryOffer= async(req, res) => {
+  console.log(req.body);
+  let categoryOffer =parseInt(req.body.categoryOffer)
+  let categoryId=req.body.categoryId
+      await adminHelper.addOffer(categoryId,categoryOffer).then(() => {
+      res.redirect('/admin/category')
+   })
 
+}
 const deleteProduct = (req, res) => {
     let proId = req.query.id
     productHelpers.deleteProduct(proId).then((response) => {
@@ -184,7 +192,7 @@ const getCategory = async function (req, res) {
 
 const addCategory = async (req, res) => {
   const categoryName  = req.body.categoryName;
-  
+ 
   try {
     const categoryExists = await adminHelper.checkCategoryExists(categoryName);
 
@@ -335,6 +343,9 @@ const addCoupon = async (req, res) => {
   if(couponExists){
      req.session.admin.couponExistsError="coupon already exists"
      res.redirect('/admin/add-coupon')
+  }else if(parseInt(coupon.discount)>100){
+    req.session.admin.couponExistsError="maximum discount is 100%"
+    res.redirect('/admin/add-coupon')
   }
   else
     {  
@@ -409,7 +420,8 @@ module.exports = {
     removeCoupon,
     getCancelRequests,
     getReturnRequests,
-    checkProducts
+    checkProducts,
+    addCategoryOffer
   
 
 }

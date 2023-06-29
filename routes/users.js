@@ -68,9 +68,9 @@ router.get('/user-profile',auth.userVerifyLogin,user.getProfile)
 
 router.get('/add-details',auth.userVerifyLogin,user.getDetailsPage)
 
-router.post('/add-details',auth.userVerifyLogin,user.addUserDetails)
+router.post('/add-details',user.addUserDetails)
 
-router.post('/verify-payment',auth.userVerifyLogin,user.verifyPayment)
+router.post('/verify-payment',user.verifyPayment)
 
 router.post('/users/order-summary',user.getOrderSummary)
 

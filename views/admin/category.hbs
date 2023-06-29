@@ -11,71 +11,108 @@
 <section style="margin-top: 9rem;">
   <div class="container">
     <div class="row navuser">
-
-      
-
-
       <form action="/admin/add-category" method="POST" id="categoryForm">
         <div class="mb-3">
           <label for="category-name" class="form-label">Category Name</label>
           <input type="text" class="form-control" id="category-name" name="categoryName" required>
-         {{#if categoryError}}
+          {{#if categoryError}}
           <p class="text-danger">CATEGORY ALREADY EXISTS</p>
           {{/if}}
         </div>
-          <button type="submit" class="btn btn-primary">Add Category</button>
+        <button style="background-color: #fe7200;color:aliceblue" type="submit" class="btn ">Add Category</button>
       </form>
     </div>
     <div class="table-responsive mt-5" id="categoryTableContainer">
-       <table class="table mt-5 usersTable " id="category-data-table" >
-      <thead>
-        <tr>
+      <table class="table mt-5 usersTable " id="category-data-table">
+        <thead>
+          <tr>
 
-          <th scope="col">Category Name</th>
-          <th scope="col">id</th>
-          <th scope="col">Remove</th>
+            <th scope="col">Category Name</th>
+           
+             <th scope="col">Offer</th>
+            <th scope="col">Add Offer</th>
+            <th scope="col">Remove Offer</th>
+            <th scope="col">Remove</th>
+
+          </tr>
+        </thead>
+          {{#each categories}}
+        <tbody>
         
-        </tr>
-      </thead>
-      <tbody>
-        {{#each categories}}
-        <tr>
+          <tr>
 
-          <td>{{this.categoryName}}</td>
-          <td>{{this._id}}</td>
-
+            <td>{{this.categoryName}}</td>
+        
+            <td>{{this.categoryOffer}}%</td>
             <td>
-              {{!-- <a href="/admin/remove-category?id={{this._id}}" class="btn btn-danger"
-                onclick="return('Are you sure you want to remove {{this.categoryName}}?')">Remove</a> --}}
-                <a href="#" class="btn btn-danger remove-category" data-category-id="{{this._id}}" data-category-name="{{this.categoryName}}">Remove</a>
-
+              <button style="background-color: #fe7200; color: white;" type="button" class="btn add-offer"
+                data-category-id="{{this._id}}" data-category-name="{{this.categoryName}}"
+                data-toggle="modal" data-target="#offerModal{{this._id}}">Add Offer</button>
             </td>
-        {{/each}}
+            <td>
+              <a href="#" class="btn btn-danger remove-category" data-category-id="{{this._id}}"
+                data-category-name="{{this.categoryName}}">Remove Offer</a>
+            </td>
+            <td>
+              <a href="#" class="btn btn-danger remove-category" data-category-id="{{this._id}}"
+                data-category-name="{{this.categoryName}}">Remove</a>
+            </td>
+            </tr>
+           <div class="modal fade" id="offerModal{{this._id}}" tabindex="-1" role="dialog" aria-labelledby="offerModalLabel"
+            aria-hidden="true">
 
-      </tbody>
-    </table>
+            <div class="modal-dialog" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="offerModalLabel">Add Offer</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </div>
-    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="errorModalLabel">Error</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p id="errorMessage"></p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
+    <div class="modal-body">
+      <form action="/admin/add-offer" method="POST" id="offerForm">
+        <div class="form-group">
+          <label for="category-offer">Category Offer:</label>
+          <input type="number" class="form-control" id="category-offer" name="categoryOffer" required min="0" max="100">
+          <input type="hidden" class="form-control" id="{{this._id}}" name="categoryId" value="{{this._id}}">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
     </div>
   </div>
 </div>
 
+            </div>
+           
+
+        </tbody>
+         {{/each}}
+      </table>
+    </div>
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="errorModalLabel">Error</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p id="errorMessage"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
+
 </section>
+
 
 <script>
   // Function to confirm the removal of the category
@@ -98,45 +135,45 @@
     }
   }
 
-// Event handler for remove category button
-$('.remove-category').on('click', function (event) {
-  event.preventDefault();
-  var categoryId = $(this).data('category-id');
-  var categoryName = $(this).data('category-name');
-  var confirmation = confirm('Are you sure you want to remove ' + categoryName + '?');
+  // Event handler for remove category button
+  $('.remove-category').on('click', function (event) {
+    event.preventDefault();
+    var categoryId = $(this).data('category-id');
+    var categoryName = $(this).data('category-name');
+    var confirmation = confirm('Are you sure you want to remove ' + categoryName + '?');
 
-  if (confirmation) {
-    // Perform AJAX request to check if products exist
-    $.ajax({
-      url: '/admin/check-products?categoryId=' + categoryId,
-      method: 'GET',
-      success: function (response) {
-        if (response.productExists) {
-          // Show the error message in the modal
-          $('#errorMessage').text('Category cannot be removed. Products exist in the category.');
-          $('#errorModal').modal('show');
-        } else {
-          // Perform AJAX request to remove the category
-          $.ajax({
-            url: '/admin/remove-category?id=' + categoryId,
-            method: 'GET',
-            success: function (response) {
-              // If the category is successfully removed, update the category table
-              $('#categoryTableContainer').load('/admin/category #category-data-table');
-              location.reload();
-            },
-            error: function (error) {
-              console.log(error);
-            }
-          });
+    if (confirmation) {
+      // Perform AJAX request to check if products exist
+      $.ajax({
+        url: '/admin/check-products?categoryId=' + categoryId,
+        method: 'GET',
+        success: function (response) {
+          if (response.productExists) {
+            // Show the error message in the modal
+            $('#errorMessage').text('Category cannot be removed. Products exist in the category.');
+            $('#errorModal').modal('show');
+          } else {
+            // Perform AJAX request to remove the category
+            $.ajax({
+              url: '/admin/remove-category?id=' + categoryId,
+              method: 'GET',
+              success: function (response) {
+                // If the category is successfully removed, update the category table
+                $('#categoryTableContainer').load('/admin/category #category-data-table');
+                location.reload();
+              },
+              error: function (error) {
+                console.log(error);
+              }
+            });
+          }
+        },
+        error: function (error) {
+          console.log(error);
         }
-      },
-      error: function (error) {
-        console.log(error);
-      }
-    });
-  }
-});
+      });
+    }
+  });
 
 
   $('#categoryForm').submit(function (event) {
@@ -160,6 +197,41 @@ $('.remove-category').on('click', function (event) {
       }
     });
   });
+  <script>
+  $(document).ready(function () {
+    $('#offerForm').submit(function (event) {
+      event.preventDefault();
+
+      var offerInput = $('#category-offer');
+      var offerValue = parseInt(offerInput.val());
+
+      if (offerValue > 100) {
+        // Show error message
+        offerInput.addClass('is-invalid');
+        offerInput.siblings('.invalid-feedback').text('Offer percentage cannot be greater than 100.');
+      } else {
+        // Perform AJAX request to add the offer
+        $.ajax({
+          url: '/admin/add-offer',
+          method: 'POST',
+          data: $('#offerForm').serialize(),
+          success: function (response) {
+            // Reset the form fields
+            $('#offerForm')[0].reset();
+
+            // If the offer is successfully added, update the category table
+            $('#categoryTableContainer').load('/admin/category #category-data-table');
+          },
+          error: function (error) {
+            console.log(error);
+            location.reload(); // Refresh the page to restore the original state
+          }
+        });
+      }
+    });
+  });
+</script>
+
 </script>
 
 

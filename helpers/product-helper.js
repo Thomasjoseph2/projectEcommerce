@@ -7,6 +7,11 @@ const { resolve } = require('path');
 module.exports = {
   addProduct: (product, callback) => {
     product.productPrice = parseFloat(product.productPrice);
+    if(!product.productOffer){
+      product.productOffer=0
+    }else{
+      product.productOffer=parseInt(product.productOffer)
+    }
     db.get().collection(collection.PRODUCT_COLLECTION).insertOne(product).then((data) => {
       callback(data)
 

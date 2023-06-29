@@ -58,6 +58,18 @@ module.exports = {
       });
     });
   },
+  addOffer: (ctId,offer) => {
+    return new Promise((resolve, reject) => {
+
+      db.get().collection(collection.CATEGORY_COLLECTION).updateOne({ _id: ObjectId(ctId) }, { $set: { categoryOffer: offer } }, (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
+    });
+  },
   unblockUser: (userId) => {
     return new Promise((resolve, reject) => {
       db.get().collection(collection.USER_COLLECTION).updateOne({ _id: ObjectId(userId) }, { $set: { blocked: false } }, (error) => {
@@ -155,6 +167,7 @@ module.exports = {
   ,
 
   addCategory: (categoryData) => {
+    categoryData.categoryOffer=0;
     return new Promise((resolve, reject) => {
       db.get().collection(collection.CATEGORY_COLLECTION).insertOne(categoryData, (error, result) => {
         if (error) {

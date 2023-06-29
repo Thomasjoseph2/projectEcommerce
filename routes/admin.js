@@ -18,6 +18,8 @@ router.get('/add-product', auth.verifyLogin, admin.getAddProduct)
 
 router.post('/add-product', auth.verifyLogin, admin.addProduct)
 
+router.post('/add-offer', auth.verifyLogin, admin.addCategoryOffer)
+
 router.get('/delete-product', auth.verifyLogin, admin.deleteProduct)
 
 router.get('/edit-product/:id', auth.verifyLogin, admin.getEditProduct)
@@ -43,7 +45,6 @@ router.get('/unblock-user', admin.unblockUser)
 router.get('/category', auth.verifyLogin, admin.getCategory);
 
 router.post('/add-category', auth.verifyLogin, admin.addCategory);
-
 
 router.get('/remove-category', auth.verifyLogin, admin.removeCategory)
  

@@ -145,6 +145,7 @@ const logout = (req, res) => {
 const getCart = async (req, res) => {
   try {
     const products = await userHelper.getCartProducts(req.session.user._id);
+    console.log(products,"this is cart products");
     products.forEach((product) => {
       product.total = product.product.productPrice * product.quantity;
     });
@@ -165,7 +166,6 @@ const getWishList = async (req, res) => {
 };
 
 const addToCart = (req, res) => {
-  console.log("hiiii trying to add to the cart ",req.params.proId)
   try {
     if (!req.session.user || !req.session.user.loggedIn) {
       res.json({ message: "Please log in to add items to the cart" });
@@ -263,8 +263,9 @@ const getHome = async function (req, res, next) {
     const totalProducts = await userHelper.getTotalProductCount();
 
     userHelper.getAllProductsForHome(page, productPerPage, totalProducts).then((result) => {
+      
       const { products, totalPages } = result;
-      console.log(totalProducts, products, totalPages,"jiiiiiiii");
+      console.log(totalProducts, products, totalPages);
       if (req.xhr) {
         res.render('users/product-section', { products, user, cartCount, currentPage: page, totalPages, layout: false });
       } else {
@@ -428,9 +429,9 @@ const cancelOrder = async (req, res) => {
 };
 const returnOrder= async (req, res) => {
   try {
-    console.log(req.body);
+   // console.log(req.body);
     const orderId = req.body.orderId;
-    console.log(orderId);
+   // console.log(orderId);
     const response = await userHelper.returnOrder(orderId);
     res.json(response);
   } catch (error) {
@@ -453,7 +454,7 @@ const placeOrder = async (req, res, next) => {
       product.total = product.product.productPrice * product.quantity;
     });
     req.session.user.newtotal=0;
-    console.log(req.session.user.newtotal, carttotal);
+   // console.log(req.session.user.newtotal, carttotal);
     const user=await userHelper.getUser(req.session.user._id);
     res.render('users/place-order', { total, user, products, carttotal });
   } catch (error) {
@@ -573,7 +574,7 @@ const getDetailsPage = (req, res) => {
 
 const verifyPayment = (req, res) => {
   try {
-    console.log(req.body);
+    //console.log(req.body);
     userHelper.verifyPayment(req.body)
       .then(() => {
         userHelper.changePaymentStatus(req.body['order[receipt]'])
@@ -594,9 +595,9 @@ const verifyPayment = (req, res) => {
 const getOrderSummary = async (req, res) => {
   try {
     let orderId = req.body.orderId;
-    console.log(orderId);
+    //console.log(orderId);
     let productDetails = await adminHelper.getProductsInOrder(orderId);
-    console.log(productDetails);
+    //console.log(productDetails);
     res.render('users/order-summary', { productDetails, user: req.session.user, orderId });
   } catch (error) {
     console.log(error);
@@ -630,34 +631,57 @@ const ListCategory = async (req, res) => {
 const verifyCoupon = async (req, res) => {
   try {
     let couponExist = await userHelper.couponExist(req.body.couponCode);
+    
     req.session.user.couponCode = req.body.couponCode;
+
     if (couponExist) {
 
-      console.log(couponExist, "the coupon");
+      //console.log(couponExist, "the coupon");
+
       if(couponExist.removed===false){
+
       const Carttotal = await userHelper.getCartTotal(req.session.user._id);
-      console.log(Carttotal, couponExist.purchaseamound);
-      console.log(couponExist.expiryDate, couponExist.createdAt);
+
+     // console.log(Carttotal, couponExist.purchaseamound);
+
+      //console.log(couponExist.expiryDate, couponExist.createdAt);
+
       const currentDate = new Date();
+
       if (currentDate <= couponExist.expiryDate) {
+
         if (Carttotal >= couponExist.purchaseamound) {
+
           let alreadyUsed = await userHelper.isAlreadyUsed(req.session.user._id, req.body.couponCode);
+          
           if (alreadyUsed) {
-            console.log(req.session.user._id);
+           
             const discount = Math.floor(couponExist.discount);
+            
             let total = parseInt(Carttotal);
+           
             const discounted = total * (discount / 100);
+            
             const discountedTotal = Math.floor(total - discounted);
+            
             req.session.user.newtotal = discountedTotal;
+           
             await userHelper.addDiscountedTotal(req.session.user._id, discountedTotal)
-              .then(async (updated) => {
-                console.log(updated);
-                userHelper.addToUsedCoupon(req.session.user._id, req.body.couponCode);
-              });
+              
+            .then(async (updated) => {
+                
+              userHelper.addToUsedCoupon(req.session.user._id, req.body.couponCode);
+              
+            });
+            
             res.json({ couponExist: true });
+          
           } else {
+            
             res.json({ couponExist: false, alreadyUsed: true });
+          
           }
+        
         } else {
           res.json({ couponExist: false, notApplicable: true });
         }
