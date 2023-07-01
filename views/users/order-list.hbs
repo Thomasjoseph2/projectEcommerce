@@ -24,11 +24,12 @@
 <!--================Cart Area =================-->
 <section class="cart_area">
     <div class="container">
-        <div class="cart_inner">
-            <div class="table-responsive">
-                <table class="table" id="mytable">
+
+        <div class="cart_inner ">
+            <div class="">
+                <table class="table  " id="mytable">
                     <thead>
-                        <tr>
+                        <tr class="text-center">
                             <th scope="col">
                                 <h6 style="color:#fe7200">Date</h6>
                             </th>
@@ -48,15 +49,15 @@
                                 <h6 style="color:#fe7200">Adminstatus</h6>
                             </th>
                             <th scope="col">
-                                <h6 style="color:#fe7200"> Orders</h6>
+                                <h6 style="color:#fe7200">Orders</h6>
                             </th>
                             <th scope="col">
-
+                                <h6 style="color:#fe7200">Options</h6>
                             </th>
 
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="text-center">
                         {{#each orderdetails}}
                         <tr>
                             <td>
@@ -80,9 +81,9 @@
                             <td>
                                 <form method="POST" action="/users/order-summary">
                                     <button
-                                        style="width:8vh;color:aliceblue;background-color:#fe7200;border-color:#fe7200"
+                                        style="color:aliceblue;background-color:#fe7200;border-color:#fe7200"
                                         name="orderId" value="{{this._id}}" type="submit"
-                                        class="quantity-btn  ">View</button>
+                                        class="quantity-btn">View</button>
                                 </form>
                             </td>
                             <td>

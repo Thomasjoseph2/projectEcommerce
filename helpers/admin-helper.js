@@ -367,7 +367,7 @@ getOrdersByPage: (page, perPage) => {
       const orders = await db
         .get()
         .collection(collection.ORDER_COLLECTION)
-        .find({ OrderStatus: { $ne: "cancelrequest" } })
+        .find({ OrderStatus: { $nin: ["returnrequest", "cancelrequest"] } }) // Exclude orders with OrderStatus as "returnrequest" or "cancelrequest"
         .sort({ date: -1 }) // Sort by date in descending order (newest first)
         .skip((page - 1) * perPage)
         .limit(perPage)
@@ -377,7 +377,8 @@ getOrdersByPage: (page, perPage) => {
       reject(error);
     }
   });
-},
+}
+,
 
 getCancelRequests: () => {
   return new Promise(async (resolve, reject) => {

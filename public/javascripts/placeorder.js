@@ -109,3 +109,76 @@ $("#coupon-form").submit((e) => {
           }
          })
       }
+  function redirectToAddAddress() {
+    window.location.href = '/add-address'; // Replace '/add-address' with the actual URL of the address addition page
+  }
+
+  // JavaScript function to populate the address modal with data
+function populateAddressModal() {
+  var addressList = []; // Replace with your actual address list data
+
+  var modalBody = document.querySelector("#addressModal .modal-body");
+  modalBody.innerHTML = ""; // Clear previous content
+
+  // Loop through the address list and create a list item for each address
+  addressList.forEach(function (address) {
+    var addressItem = document.createElement("div");
+    addressItem.classList.add("address-item");
+    addressItem.innerHTML = `
+      <input type="radio" id="addressOption${address.id}" name="address-option" value="${address.id}">
+      <label for="addressOption${address.id}">${address.address}</label>
+    `;
+    modalBody.appendChild(addressItem);
+  });
+}
+
+// Event listener to populate the address modal when it is opened
+document.querySelector("#addressModal").addEventListener("shown.bs.modal", function () {
+  populateAddressModal();
+});
+
+// Get all the 'Choose Address' buttons
+var chooseAddressBtns = document.querySelectorAll(".make-primary-btn");
+
+// Add event listener to each button
+chooseAddressBtns.forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    var addressId = this.getAttribute("data-address-id");
+    makePrimaryAddress(addressId);
+  });
+});
+function makePrimaryAddress(addressId) {
+  $.ajax({
+    url: '/make-primary-address',
+    method: 'post',
+    data: { addressId },
+    success: function (response) {
+      if (response.addressMadePrimary) {
+        // Display success message
+        Swal.fire({
+          icon: 'success',
+          title: 'Address Made Primary',
+          text: 'Address made primary successfully!',
+        }).then(() => {
+          location.reload();
+        });
+      } else {
+        // Display error message
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to Make Address Primary',
+          text: 'Failed to make address primary: ' + response.error,
+        });
+      }
+    },
+    error: function (xhr, status, error) {
+      // Display error message
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error: ' + error,
+      });
+    }
+  });
+}
+

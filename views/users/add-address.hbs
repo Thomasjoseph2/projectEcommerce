@@ -28,27 +28,39 @@
 <div class="card">
     {{#if address}}
   <div class="card-body">
-    <div class="row">
-         {{#each address}}
-      <div class="col-md-6">
-       
-        <div class="card mb-4">
-          <div class="card-body">
-            <h6 class="card-subtitle mb-2 text-muted">Address</h6>
-            <p class="card-text">Name:{{this.name}}</p>
-            <p class="card-text">Address:{{this.address1}}</p>
-            <p class="card-text">City:{{this.city}}</p>
-            <p class="card-text">State:{{this.state}}</p>
-            <p class="card-text">Pin:{{this.pin}}</p>
+  <div class="row">
+    {{#each address}}
+        <div class="col-md-6">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h6 class="card-subtitle mb-2 text-muted">Address</h6>
+              <p class="card-text">Name: {{this.name}}</p>
+              <p class="card-text">Email: {{this.email}}</p>
+              <p class="card-text">Phone: {{this.phoneNumber}}</p>
+              <p class="card-text">Address: {{this.address1}}</p>
+              <p class="card-text">City: {{this.city}}</p>
+              <p class="card-text">Pin: {{this.pin}}</p>
+              {{#if this.primary}}
+              <button class="quantity-btn btn-success make-primary-btn ">Primary</button>
+              {{else}}
+              <button class="quantity-btn btn-primary make-primary-btn"
+                onclick="makePrimary('{{this._id}}')">Make Primary</button>
+                <button class="quantity-btn btn-danger" onclick="removeAddress('{{this._id}}')">Remove Address</button>
+              {{/if}}
+              
+            </div>
           </div>
-             <button class="quantity-btn btn-danger"
-             onclick="removeAddress('{{this._id}}')">Remove Address</button>
         </div>
+        {{/each}}
+      
        
-      </div>
-       {{/each}}
-    </div>
+         
+       
   </div>
+</div>
+{{else}}
+<h1>Add your address here..</h1>
+
   {{/if}}
 </div>
 <!-- Add Address Modal -->
@@ -66,6 +78,18 @@
           <div class="form-group">
             <label for="name">Full Name</label>
             <input type="text" class="form-control" id="name" name="name" required>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input type="tel" class="form-control" id="phone" name="phoneNumber" required>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone 2</label>
+            <input type="tel" class="form-control" id="phone" name="phoneNumber2" required>
+          </div>
+          <div class="form-group">
+            <label for="name">Email</label>
+            <input type="text" class="form-control" id="email" name="email" required>
           </div>
           <div class="form-group">
             <label for="address1">Address Line 1</label>
@@ -181,7 +205,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
     </footer>
    <script>
     function removeAddress(addId) {
-  var confirmation = confirm("Are you sure you want to remove this product from the wishlist?");
+  var confirmation = confirm("Are you sure you want to remove this address?");
   if (confirmation) {
     $.ajax({
       url: '/remove-address',
@@ -197,4 +221,26 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
     });
   }
     }
+
+
+  function makePrimary(addressId) {
+    $.ajax({
+      url: '/make-primary-address',
+      data: {
+        addressId: addressId
+      },
+      method: 'post',
+      success: function(response) {
+        if (response.addressMadePrimary) {
+          location.reload();
+        } else {
+          console.log(response.error);
+        }
+      },
+      error: function(err) {
+        console.log(err);
+      }
+    });
+  }
+
    </script>

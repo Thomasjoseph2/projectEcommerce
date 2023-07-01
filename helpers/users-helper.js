@@ -532,20 +532,22 @@ module.exports = {
 
 },
 
-placeOrder: (order, products, total) => {
+placeOrder: (order, products, total,userId) => {
   return new Promise((resolve, reject) => {
     let status = order['payment-method'] === 'COD' ? 'placed' : 'pending';
     let currentDate = moment().format('DD/MM/YYYY HH:mm:ss');
 
     let orderObj = {
       address: {
-        mobile: order.phonenumber,
+        phone1: order.phoneNumber,
+        phone2: order.phoneNumber2,
         address1: order.address,
         city: order.city,
-        pincode: order.pincode
+        pincode: order.pincode,
+        state:order.state
       },
-      userName: order.firstname + ' ' + order.lastname,
-      userId: ObjectId(order.userId),
+      userName: order.fullname,
+      userId: ObjectId(userId),
       paymentMethod: order['payment-method'],
       products: products,
       totalAmound: parseInt(total),
@@ -560,7 +562,7 @@ placeOrder: (order, products, total) => {
       .then((response) => {
         db.get()
           .collection(collection.CART_COLLECTION)
-          .deleteOne({ user: ObjectId(order.userId) });
+          .deleteOne({ user: ObjectId(userId) });
         resolve(response);
       })
       .catch((error) => {
@@ -630,40 +632,73 @@ walletPayment:(order,total)=>{
       }
     });
   },
-  addUserDetails: (userId, userDetails) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        await db.get().collection(collection.USER_COLLECTION).updateOne(
-          { _id: ObjectId(userId) },
-          { $set: userDetails } 
-        );
-        resolve();
-      } catch (error) {
-        reject(error);
-      }
-    });
-  },
+  // addUserDetails: (userId, userDetails) => {
+  //   return new Promise(async (resolve, reject) => {
+  //     try {
+  //       await db.get().collection(collection.USER_COLLECTION).updateOne(
+  //         { _id: ObjectId(userId) },
+  //         { $set: userDetails } 
+  //       );
+  //       resolve();
+  //     } catch (error) {
+  //       reject(error);
+  //     }
+  //   });
+  // },
   adduserAddress: (userId, userDetails) => {
     return new Promise(async (resolve, reject) => {
       try {
         // Generate a new ObjectId for the address
         const addressId = new ObjectId();
   
+        // Check if the user already has a primary address
+        const user = await db.get().collection(collection.ADDRESS_COLLECTION).findOne({ userId });
+        const hasPrimaryAddress = user && user.addresses.some(address => address.primary);
+  
+        // Set the primary flag of the new address
+        const address = { _id: addressId, ...userDetails };
+        if (!hasPrimaryAddress) {
+          address.primary = true;
+        }
+  
         await db
           .get()
           .collection(collection.ADDRESS_COLLECTION)
           .updateOne(
             { userId: userId }, // Filter by user ID
-            { $push: { addresses: { _id: addressId, ...userDetails } } }, // Push the address with the assigned ID into the addresses array
+            { $push: { addresses: address } }, // Push the address with the assigned ID into the addresses array
             { upsert: true } // Create a new document if it doesn't exist
           );
+  
         resolve();
       } catch (error) {
         reject(error);
       }
     });
-  },
-  
+  }
+  ,
+  makePrimaryAddress: (userId, addressId) => {
+    return new Promise((resolve, reject) => {
+      // Set all addresses as primary=false
+      db.get().collection(collection.ADDRESS_COLLECTION).updateMany(
+        { userId: userId },
+        { $set: { "addresses.$[].primary": false } }
+      ).then(() => {
+        // Set the specified addressId as primary=true
+        db.get().collection(collection.ADDRESS_COLLECTION).updateOne(
+          { userId: userId, "addresses._id": ObjectId(addressId) },
+          { $set: { "addresses.$.primary": true } }
+        ).then(() => {
+          resolve();
+        }).catch((err) => {
+          reject(err);
+        });
+      }).catch((err) => {
+        reject(err);
+      });
+    });
+  }
+  ,
   
   generateRazorpay:(orderId,total)=>{
    total=parseInt(total)
@@ -700,7 +735,7 @@ return new Promise((resolve,reject)=>{
 
   },
   changePaymentStatus:(orderId)=>{
-    console.log(orderId);
+  
     return new Promise((resolve,reject)=>{
       db.get().collection(collection.ORDER_COLLECTION).updateOne({_id:ObjectId(orderId)},{
         $set:{

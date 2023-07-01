@@ -1,43 +1,8 @@
-{{!-- <div style="margin-top: 9rem;" class="row container ">
-  <form action="/admin/add-product" method="post" class="col-md-6 ml-5 mt-5" enctype="multipart/form-data">
-    <div class="form-group">
-      <label for="product-name">Product Name</label>
-      <input type="text" class="form-control" id="product-name" name="productName" placeholder="Enter product name">
-    </div>
-    <div class="form-group">
-      <label for="product-description">Product Description</label>
-      <input type="text" class="form-control" id="product-description" name="productDescription"
-        placeholder="Enter product Description">
-    </div>
-    <div class="form-group">
-      <label for="product-price">Product Price</label>
-      <input type="number" class="form-control" id="product-price" name="productPrice"
-        placeholder="Enter product price">
-    </div>
-    <div class="form-group mt-2"> <!-- Remove the 'row' and 'align-items-center' classes -->
-      <label for="product-category">Category</label>
-      <div> <!-- Remove the 'col-md-9' class -->
-        <select class="form-control mt-1" id="product-category" name="productCategory">
-          {{#each categories}}
-          <option>{{this.categoryName}}</option>
-          {{/each}}
-        </select>
-      </div>
-    </div>
-    <div style="margin-top: 4rem;" class="form-group">
-      <label for="product-image">Product Image</label>
-      <input type="file" class="form-control-file" id="product-image" name="productImage">
-    </div>
-    <button style="background-color: #f2ae0f;color:antiquewhite;" type="submit" class="btn ">Add Product</button>
-  </form>
-</div> --}}
-
-
 <div style="margin-top: 9rem;" class="row container">
   <form action="/admin/add-product" method="post" class="col-md-6 ml-5 mt-5" enctype="multipart/form-data" onsubmit="return validateForm()">
     <div class="form-group">
       <label for="product-name">Product Name</label>
-      <input type="text" class="form-control" id="product-name" name="productName" placeholder="Enter product name" required>
+      <input type="text" class="form-control" id="product-name" name="productName" placeholder="Enter product name" maxlength="30" required>
       <div id="product-name-error" class="error-message"></div>
     </div>
     
@@ -49,9 +14,10 @@
     
     <div class="form-group">
       <label for="product-price">Product Price</label>
-      <input type="number" class="form-control" id="product-price" name="productPrice" placeholder="Enter product price" required>
+      <input type="number" class="form-control" id="product-price" name="productPrice" placeholder="Enter product price" min="0" required>
       <div id="product-price-error" class="error-message"></div>
     </div>
+    
     <div class="form-group mt-2">
       <label for="product-category">Category</label>
       <div>
@@ -94,6 +60,10 @@
       document.getElementById('product-name-error').textContent = 'Product Name is required';
       return false;
     }
+    if (productNameInput.value.length > 30) {
+      document.getElementById('product-name-error').textContent = 'Product Name cannot exceed 25 characters';
+      return false;
+    }
     
     // Validate product description
     if (productDescriptionInput.value.trim() === '') {
@@ -104,6 +74,10 @@
     // Validate product price
     if (productPriceInput.value.trim() === '') {
       document.getElementById('product-price-error').textContent = 'Product Price is required';
+      return false;
+    }
+    if (parseFloat(productPriceInput.value) < 0) {
+      document.getElementById('product-price-error').textContent = 'Product Price cannot be negative';
       return false;
     }
     

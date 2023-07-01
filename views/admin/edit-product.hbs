@@ -1,22 +1,23 @@
 <style>
- .edititem{
+  .edititem {
     margin-top: 22vh;
- }
+  }
 
   body {
     background-image: url('/img/banner/banner-bg.jpg');
-  }
   
+  }
+
   .form-group {
     display: flex;
     flex-direction: column;
     margin-bottom: 20px;
   }
-  
+
   label {
     margin-bottom: 5px;
   }
-  
+
   input[type="text"],
   input[type="number"],
   select {
@@ -26,46 +27,106 @@
     border-radius: 4px;
     box-sizing: border-box;
   }
-  
+
   button[type="submit"] {
     margin-top: 20px;
   }
 </style>
 
 <h1 style="color:#fe7200;" class="text-center edititem ml-auto">Edit product</h1>
-<div class="row container ml-5">
-    <form action="/admin/edit-product/{{product._id}}" method="post" class="col-md-6 ml-5 mt-5" enctype="multipart/form-data">
-        <div class="form-group">
-            <label style="color:#fe7200;" for="product-name">Product Name</label>
-            <input type="text" class="form-control" id="product-name" name="productName" value="{{product.productName}}">
-        </div>
-        <div class="form-group">
-            <label style="color:#fe7200;" for="product-description">Product Description</label>
-            <input type="text" class="form-control" id="product-Description" name="productDescription" value="{{product.productDescription}}">
-        </div>
-        <div class="form-group">
-            <label style="color:#fe7200;" for="product-price">Product Price</label>
-            <input type="number" class="form-control" id="product-price" name="productPrice" value="{{product.productPrice}}">
-        </div>
-        <div class="form-group">
-            <label style="color:#fe7200;" for="product-category">Category</label>
-            <select class="form-control" id="product-category" name="productCategory">
-                {{#each categories}}
-                <option>{{this.categoryName}}</option>
-                {{/each}}
-            </select>
-        </div>
-        <div class="form-group">
-            <label style="color:#fe7200;" for="product-image">Product Image</label>
-            <img class="mb-1"  src="/product-images/{{product._id}}.jpg" alt="" style="width: 150px; height: 150px " id="product-image">
-            <input type="file" class="form-control-file" id="product-image" name="productImage" onchange="viewImage(event)">
-        </div>
-        <button  style="width:17vh;background-color:#fe7200;color:aliceblue" type="submit" class="btn  mb-2">Update</button>
-    </form>
+<div class="row container ">
+  <form action="/admin/edit-product/{{product._id}}" method="post" class="col-md-6 ml-5 mt-5" enctype="multipart/form-data" onsubmit="return validateForm()">
+    <div class="form-group">
+      <label style="color:#fe7200;" for="product-name">Product Name</label>
+      <input type="text" class="form-control" id="product-name" name="productName" value="{{product.productName}}" maxlength="25" required>
+      <div id="product-name-error" class="error-message"></div>
+    </div>
+    <div class="form-group">
+      <label style="color:#fe7200;" for="product-description">Product Description</label>
+      <input type="text" class="form-control" id="product-description" name="productDescription" value="{{product.productDescription}}" required>
+      <div id="product-description-error" class="error-message"></div>
+    </div>
+    <div class="form-group">
+      <label style="color:#fe7200;" for="product-price">Product Price</label>
+      <input type="number" class="form-control" id="product-price" name="productPrice" value="{{product.productPrice}}" min="0" required>
+      <div id="product-price-error" class="error-message"></div>
+    </div>
+    <div class="form-group">
+      <label style="color:#fe7200;" for="product-category">Category</label>
+      <select class="form-control" id="product-category" name="productCategory" required>
+        {{#each categories}}
+        <option>{{this.categoryName}}</option>
+        {{/each}}
+      </select>
+      <div id="product-category-error" class="error-message"></div>
+    </div>
+    <div class="form-group">
+      <label style="color:#fe7200;" for="product-image">Product Image</label>
+      <img class="mb-1" src="/product-images/{{product._id}}.jpg" alt="" style="width: 150px; height: 150px " id="product-image">
+      <input type="file" class="form-control-file" id="product-image" name="productImage" onchange="viewImage(event)">
+      <div id="product-image-error" class="error-message"></div>
+    </div>
+    <button style="width:17vh;background-color:#fe7200;color:aliceblue" type="submit" class="btn mb-2">Update</button>
+  </form>
 </div>
 
 <script>
-    function viewImage(event) {
-        document.getElementById('product-image').src = URL.createObjectURL(event.target.files[0]);
+  function viewImage(event) {
+    document.getElementById('product-image').src = URL.createObjectURL(event.target.files[0]);
+  }
+
+  function validateForm() {
+    var productNameInput = document.getElementById('product-name');
+    var productDescriptionInput = document.getElementById('product-description');
+    var productPriceInput = document.getElementById('product-price');
+    var productCategoryInput = document.getElementById('product-category');
+    var productImageInput = document.getElementById('product-image');
+
+    // Reset error messages
+    document.getElementById('product-name-error').textContent = '';
+    document.getElementById('product-description-error').textContent = '';
+    document.getElementById('product-price-error').textContent = '';
+    document.getElementById('product-category-error').textContent = '';
+    document.getElementById('product-image-error').textContent = '';
+
+    // Validate product name
+    if (productNameInput.value.trim() === '') {
+      document.getElementById('product-name-error').textContent = 'Product Name is required';
+      return false;
     }
+    if (productNameInput.value.trim().length > 25) {
+      document.getElementById('product-name-error').textContent = 'Product Name should be at most 25 characters';
+      return false;
+    }
+
+    // Validate product description
+    if (productDescriptionInput.value.trim() === '') {
+      document.getElementById('product-description-error').textContent = 'Product Description is required';
+      return false;
+    }
+
+    // Validate product price
+    if (productPriceInput.value.trim() === '') {
+      document.getElementById('product-price-error').textContent = 'Product Price is required';
+      return false;
+    }
+    if (parseFloat(productPriceInput.value) < 0) {
+      document.getElementById('product-price-error').textContent = 'Product Price cannot be negative';
+      return false;
+    }
+
+    // Validate product category
+    if (productCategoryInput.value.trim() === '') {
+      document.getElementById('product-category-error').textContent = 'Category is required';
+      return false;
+    }
+
+    // Validate product image
+    if (productImageInput.value.trim() === '') {
+      document.getElementById('product-image-error').textContent = 'Product Image is required';
+      return false;
+    }
+
+    return true; // Allow form submission
+  }
 </script>

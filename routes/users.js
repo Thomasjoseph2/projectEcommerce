@@ -66,13 +66,13 @@ router.post('/return-order',user.returnOrder)
 
 router.get('/user-profile',auth.userVerifyLogin,user.getProfile)
 
-router.get('/add-details',auth.userVerifyLogin,user.getDetailsPage)
+//router.get('/add-details',auth.userVerifyLogin,user.getDetailsPage)
 
-router.post('/add-details',user.addUserDetails)
+//router.post('/add-details',user.addUserDetails)
 
 router.post('/verify-payment',user.verifyPayment)
 
-router.post('/users/order-summary',user.getOrderSummary)
+router.post('/users/order-summary',auth.userVerifyLogin,user.getOrderSummary)
 
 router.get('/search-category',user.searchCategory )
 
@@ -85,6 +85,8 @@ router.get('/add-address',auth.userVerifyLogin,user.getAddAddress)
 router.post('/apply-coupon',auth.userVerifyLogin,user.verifyCoupon)
 
 router.post('/add-address',auth.userVerifyLogin,user.addAddress)
+
+router.post('/make-primary-address',auth.userVerifyLogin,user.makePrimaryAddress)
 
 router.get('/remove-product', (req, res) => {
   let proId = req.query.id

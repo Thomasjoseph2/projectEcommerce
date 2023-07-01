@@ -27,7 +27,7 @@ const sendVerifyMail = async (name, email, userId) => {
     const mailOptions = {
       from: 'smtp.ethereal.email',
       to: email,
-      subject: "For veridication mail",
+      subject: "For verification mail",
       html: '<p>Hi ' + name + ' ,please click here to <a href="http://localhost:3000/verify?id=' + userId + '">Verify </a>  your mail.</p> '
     }
     transporter.sendMail(mailOptions, function (error, info) {
@@ -40,6 +40,7 @@ const sendVerifyMail = async (name, email, userId) => {
 
   } catch (err) {
     console.log(err);
+    
   }
 }
 
@@ -69,6 +70,7 @@ const signup = async (req, res) => {
     sendVerifyMail(req.body.name, req.body.email, response.insertedId)
     if (response) {
       res.render('users/signup', { message: "Your registration has been successful, Please verify your email" })
+     
     } else {
       res.render('users/signup', { message: "Your registration has failed" })
     }
@@ -77,23 +79,41 @@ const signup = async (req, res) => {
   }
 }
 
-const addUserDetails = async (req, res) => {
-  try {
+// const addUserDetails = async (req, res) => {
+//   try {
 
-    await userHelper.addUserDetails(req.session.user._id, req.body);
-    res.redirect('/');
-  } catch (err) {
-    console.log(err);
-  }
-}
+//     await userHelper.addUserDetails(req.session.user._id, req.body);
+//     res.redirect('/');
+//   } catch (err) {
+//     console.log(err);
+//     res.redirect('/');
+
+//   }
+// }
 const addAddress=async (req, res) => {
   try {
     await userHelper.adduserAddress(req.session.user._id,req.body);
     res.redirect('/add-address');
   } catch (err) {
     console.log(err);
+    res.redirect('/')
+  } 
+}
+
+const makePrimaryAddress = async (req, res) => {
+  try {
+    const userId = req.session.user._id;
+    const addressId = req.body.addressId;
+
+    await userHelper.makePrimaryAddress(userId, addressId);
+
+    res.json({ addressMadePrimary: true });
+  } catch (err) {
+    console.log(err);
+    res.json({ addressMadePrimary: false, error: err.message });
   }
 }
+
 
 const getLogin = (req, res) => {
   try {
@@ -451,7 +471,9 @@ const placeOrder = async (req, res, next) => {
     let total = 0;
     const carttotal = await userHelper.getCartTotal(req.session.user._id);
     const products = await userHelper.getCartProducts(req.session.user._id);
-    console.log(products);
+    const address=await userHelper.getUserAddress(req.session.user._id);
+
+    console.log(address,"hi");
     if (req.session.user.newtotal) {
       total = req.session.user.newtotal;
     } else {
@@ -461,9 +483,8 @@ const placeOrder = async (req, res, next) => {
       product.total = product.product.productPrice * product.quantity;
     });
     req.session.user.newtotal=0;
-   // console.log(req.session.user.newtotal, carttotal);
     const user=await userHelper.getUser(req.session.user._id);
-    res.render('users/place-order', { total, user, products, carttotal });
+    res.render('users/place-order', { total, user, products, carttotal,address});
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -472,12 +493,16 @@ const placeOrder = async (req, res, next) => {
 
 const doPlaceOrder = async (req, res) => {
   try {
-
-    const products = await userHelper.getcartProductList(req.body.userId);
+    
+    console.log(req.body);
+   
+    const products = await userHelper.getcartProductList(req.session.user._id);
 
     const discountedAmount = await userHelper.getDiscountedAmount(req.session.user._id);
 
-    const cartTotal = await userHelper.getCartTotal(req.body.userId);
+    const cartTotal = await userHelper.getCartTotal(req.session.user._id);
+
+   
 
     let total = 0;
 
@@ -491,7 +516,7 @@ const doPlaceOrder = async (req, res) => {
 
     }
 
-    const response = await userHelper.placeOrder(req.body, products, total);
+    const response = await userHelper.placeOrder(req.body, products, total,req.session.user._id);
 
     if (req.body['payment-method'] === 'COD') {
 
@@ -501,13 +526,13 @@ const doPlaceOrder = async (req, res) => {
 
       // Deduct the order total from the user's wallet amount
       
-      const user = await userHelper.getUser(req.body.userId);
+      const user = await userHelper.getUser(req.session.user._id);
 
       if (user.walletAmount >= total) {
 
         // Sufficient wallet balance, proceed with the order
 
-        await userHelper.deductAmountFromWallet(req.body.userId, total);
+        await userHelper.deductAmountFromWallet(req.session.user._id, total);
 
         await userHelper.updateOrderStatus(response.insertedId, 'walletpayment');
 
@@ -570,14 +595,14 @@ const getProfile = async(req, res) => {
   }
 };
 
-const getDetailsPage = (req, res) => {
-  try {
-    res.render('users/add-details', { user: req.session.user });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
+// const getDetailsPage = (req, res) => {
+//   try {
+//     res.render('users/add-details', { user: req.session.user });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// };
 
 const verifyPayment = (req, res) => {
   try {
@@ -649,9 +674,6 @@ const verifyCoupon = async (req, res) => {
 
       const Carttotal = await userHelper.getCartTotal(req.session.user._id);
 
-     // console.log(Carttotal, couponExist.purchaseamound);
-
-      //console.log(couponExist.expiryDate, couponExist.createdAt);
 
       const currentDate = new Date();
 
@@ -734,8 +756,8 @@ module.exports = {
   getOrderList,
   cancelOrder,
   getProfile,
-  getDetailsPage,
-  addUserDetails,
+  //getDetailsPage,
+  //addUserDetails,
   verifyPayment,
   getOrderSummary,
   searchCategory,
@@ -749,6 +771,7 @@ module.exports = {
   removefromWishList,
   getAddAddress,
   addAddress,
-  removeAddress
+  removeAddress,
+  makePrimaryAddress
 
 };

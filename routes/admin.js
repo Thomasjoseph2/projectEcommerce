@@ -22,6 +22,8 @@ router.post('/add-offer', auth.verifyLogin, admin.addCategoryOffer)
 
 router.post('/add-product-offer', auth.verifyLogin, admin.addProductOffer)
 
+router.post('/Remove-product-offer', auth.verifyLogin, admin.removeProductOffer)
+
 router.get('/delete-product', auth.verifyLogin, admin.deleteProduct)
 
 router.get('/edit-product/:id', auth.verifyLogin, admin.getEditProduct)

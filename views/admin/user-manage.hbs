@@ -32,9 +32,10 @@
             <td>{{this.phonenumber}}</td>
             <td>{{this._id}}</td>
             <td>
-              <a href="/admin/block-user?id={{this._id}}" class="btn btn-danger"
-                onclick="return confirm('Are you sure you want to block {{this.name}}?')">Block</a>
+              <a href="/admin/block-user?id={{this._id}}" class="btn btn-danger block-user"
+               data-name="{{this.name}}" >Block</a>
             </td>
+  
           </tr>
           {{/each}}
         </tbody>
@@ -47,4 +48,28 @@
   $(document).ready(function () {
     $('.userTable').DataTable();
   });
+  $(document).ready(function() {
+  $('.block-user').on('click', function(event) {
+    event.preventDefault();
+    var userId = $(this).attr('href');
+    var userName = $(this).data('name');
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Are you sure you want to block ' + userName + '?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, block',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Redirect to the unblock URL
+        window.location.href = userId;
+      }
+    });
+  });
+});
+
 </script>

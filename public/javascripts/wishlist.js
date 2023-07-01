@@ -7,7 +7,7 @@ function addToCart(productId) {
       if (response.message === "Added to cart") {
         showPopupMessage("Item added to cart");
         setTimeout(function() {
-          location.reload(); // Reload the page after 2 seconds
+          //location.reload(); // Reload the page after 2 seconds
         }, 1000);
       } else {
         showPopupMessage("Please login");
