@@ -5,7 +5,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var hbs = require('express-handlebars')
 const handlebarsHelpers = require('handlebars-helpers');
-var fileUpload = require('express-fileupload')
 var db=require('./model/connection')
 var session=require('express-session')
 var mongodb=require('mongodb')
@@ -25,7 +24,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(fileUpload())
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static('public'));
 app.use(session({

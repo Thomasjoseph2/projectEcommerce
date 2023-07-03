@@ -5,7 +5,7 @@
   }
 
   .img_zoom:hover {
-    transform: scale(1.2);
+    transform: scale(1.1);
   }
 </style>
 
@@ -16,15 +16,12 @@
 			<div class="row s_product_inner">
 				<div class="col-lg-6">
 					<div  style="margin-top:4rem;" class="s_Product_carousel img_zoom">
+						{{#each product.images}}
 						<div class="single-prd-item">
-							<img class="img-fluid" src="/product-images/{{product._id}}.jpg" alt="Image">
+							<img class="img-fluid" src="/product-images/{{this}}" alt="Image">
 						</div>
-						<div class="single-prd-item">
-							<img class="img-fluid" src="/product-images/{{product._id}}.jpg" alt="Image">
-						</div>
-						<div class="single-prd-item">
-							<img class="img-fluid" src="/product-images/{{product._id}}.jpg" alt="Image">
-						</div>
+						{{/each}}
+
 					</div>
 				</div>
 				<div class="col-lg-5 offset-lg-1">

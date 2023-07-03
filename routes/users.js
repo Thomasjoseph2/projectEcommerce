@@ -8,9 +8,25 @@ const { route } = require('./admin');
 // const verifySid = "VA4f89b10c7da39304caf987482707ea03";
 // const client = require("twilio")(accountSid, authToken);
 
+const multer=require('multer')
+const path=require('path')
 
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      const directory = path.join(__dirname, '../public/images');
+      cb(null, directory);
+    },
+    filename: (req, file, cb) => {
+      const name = Date.now() + '-' + file.originalname;
+      cb(null, name);
+    }
+  });
+  
+  
+const upload = multer({ storage: storage })
 
 let phone = "";
+router.post('/add-user-image',upload.single('userImage'), user.addUserImage)
 
 router.get('/signup', user.getSignup);
 
@@ -65,6 +81,8 @@ router.post('/cancel-order',user.cancelOrder)
 router.post('/return-order',user.returnOrder)
 
 router.get('/user-profile',auth.userVerifyLogin,user.getProfile)
+
+router.post('/edit-profile',auth.userVerifyLogin,user.editProfile)
 
 //router.get('/add-details',auth.userVerifyLogin,user.getDetailsPage)
 

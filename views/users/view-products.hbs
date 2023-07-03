@@ -194,7 +194,8 @@
 						<div class="single-product">
 							
 							<div class="image-container">
-                     <img class="img-fluid" src="/product-images/{{this._id}}.jpg" alt="Card image Cap">
+                     <img class="img-fluid" src="/product-images/{{images.[0]}}" alt="Card image Cap">
+					  {{!-- <td><img style="width:50px;height:50px" src="/product-images/{{images.[0]}}" alt="" ></td> --}}
                              </div>
 							<div class="product-details">
 								<h6>{{this.productName}}</h6>
@@ -204,11 +205,15 @@
 								<div class="price">
 									<h6 style="color: brown;">₹{{this.productPrice}}/-</h6>
 								</div>
-								{{#if this.productOffer}}
+								
 								<div class="price">
+									{{#if this.productOffer}}
 									<h6 style="color: red;">{{this.productOffer}}% offer</h6>
+									{{else}}
+									<h6 style="color: red;">Buy now</h6>
+									{{/if}}
 								</div>
-								{{/if}}
+								
 								<div class="prd-bottom">
 
 									<a href="#" class="social-info" onclick="addToCart('{{this._id}}'); return false;">
@@ -283,7 +288,7 @@
 						<div class="single-product">
 							
 							<div class="image-container">
-                     <img class="img-fluid" src="/product-images/{{this._id}}.jpg" alt="Card image Cap">
+                     <img class="img-fluid" src="/product-images/{{images.[0]}}" alt="Card image Cap">
                              </div>
 							<div class="product-details">
 								<h6>{{this.productName}}</h6>
@@ -293,6 +298,13 @@
 								<div class="price">
 									<h6 style="color: brown;">₹{{this.productPrice}}/-</h6>
 									
+								</div>
+								<div class="price">
+									{{#if this.productOffer}}
+									<h6 style="color: red;">{{this.productOffer}}% offer</h6>
+									{{else}}
+									<h6 style="color: red;">Buy now</h6>
+									{{/if}}
 								</div>
 								<div class="prd-bottom">
 

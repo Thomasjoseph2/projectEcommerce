@@ -22,11 +22,11 @@
         <button style="background-color: #fe7200;color:aliceblue" type="submit" class="btn ">Add Category</button>
       </form>
     </div>
-    {{!-- <div class="table-responsive mt-5" id="categoryTableContainer">
-      <table class="table mt-5 usersTable " id="category-data-table">
+
+    <div class="mt-5">
+      <table class="table mt-1" id="myTable">
         <thead>
           <tr>
-
             <th scope="col">Category Name</th>
             <th scope="col">Offer</th>
             <th scope="col">Add Offer</th>
@@ -35,13 +35,12 @@
 
           </tr>
         </thead>
-        {{#each categories}}
         <tbody>
-
+          {{#each categories}}
           <tr>
 
-            <td>{{this.categoryName}}</td>
-
+            <td style="max-width: 10em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              {{this.categoryName}}</td>
             <td>{{this.categoryOffer}}%</td>
             <td>
               <button style="background-color: #fe7200; color: white;" type="button" class="btn add-offer"
@@ -49,10 +48,13 @@
                 data-target="#offerModal{{this._id}}">Add Offer</button>
             </td>
             <td>
-                <a href="#" class="btn btn-danger remove-category">Remove Offer</a>
+              <a href="#" class="btn btn-danger remove-offer" data-category-id="{{this._id}}"
+                data-category-name="{{this.categoryName}}">Remove Offer</a>
             </td>
+
+
             <td>
-                <a href="#" class="btn btn-danger remove-category" data-category-id="{{this._id}}"
+              <a href="#" class="btn btn-danger remove-category" data-category-id="{{this._id}}"
                 data-category-name="{{this.categoryName}}">Remove category</a>
             </td>
           </tr>
@@ -83,71 +85,8 @@
             </div>
 
           </div>
-
-
+          {{/each}}
         </tbody>
-        {{/each}}
-      </table>
-    </div> --}}
-    <div class="mt-5">
-      <table class="table mt-1" id="myTable">
-        <thead>
-          <tr>
-           <th scope="col">Category Name</th>
-            <th scope="col">Offer</th>
-            <th scope="col">Add Offer</th>
-            <th scope="col">Remove Offer</th>
-            <th scope="col">Remove</th>
-             
-          </tr>
-        </thead>
-    <tbody>
-  {{#each categories}}
-  <tr>
-     
-     <td style="max-width: 10em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{this.categoryName}}</td>
-    <td>{{this.categoryOffer}}%</td>
-    <td>
-              <button style="background-color: #fe7200; color: white;" type="button" class="btn add-offer"
-                data-category-id="{{this._id}}" data-category-name="{{this.categoryName}}" data-toggle="modal"
-                data-target="#offerModal{{this._id}}">Add Offer</button>
-            </td>
-    <td><a href="#" class="btn btn-danger remove-category">Remove Offer</a></td>
-   
-    <td>
-       <a href="#" class="btn btn-danger remove-category" data-category-id="{{this._id}}"
-        data-category-name="{{this.categoryName}}">Remove category</a>
-    </td>
-  </tr>
-    <div class="modal fade" id="offerModal{{this._id}}" tabindex="-1" role="dialog"
-            aria-labelledby="offerModalLabel" aria-hidden="true">
-
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="offerModalLabel">Add Offer</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <form action="/admin/add-offer" method="POST" id="offerForm">
-                    <div class="form-group">
-                      <label for="category-offer">Category Offer:</label>
-                      <input type="number" class="form-control" id="category-offer" name="categoryOffer" required
-                        min="0" max="100">
-                      <input type="hidden" class="form-control" id="{{this._id}}" name="categoryId"
-                        value="{{this._id}}">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                  </form>
-                </div>
-              </div>
-            </div>
-
-          </div>
-  {{/each}}
-</tbody>
 
       </table>
     </div>
@@ -177,64 +116,99 @@
 
 
 <script>
+ function showAlert(title, text, type) {
+  Swal.fire({
+    title: title,
+    text: text,
+    icon: type,
+    confirmButtonColor: '#3085d6',
+    confirmButtonText: 'OK'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      location.reload();
+    }
+  });
+}
+
+
   // Function to confirm the removal of the category
   function confirmRemoveCategory(categoryId, categoryName) {
-    var confirmation = confirm('Are you sure you want to remove ' + categoryName + '?');
-
-    if (confirmation) {
-      // Perform AJAX request to remove the category
-      $.ajax({
-        url: '/admin/remove-category?id=' + categoryId,
-        method: 'GET',
-        success: function (response) {
-          // If the category is successfully removed, update the category table
-          $('#categoryTableContainer').load('/admin/category #category-data-table');
-        },
-        error: function (error) {
-          console.log(error);
-        }
-      });
-    }
+    Swal.fire({
+      title: 'Confirmation',
+      text: 'Are you sure you want to remove ' + categoryName + '?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, remove it'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Perform AJAX request to remove the category
+        $.ajax({
+          url: '/admin/remove-category?id=' + categoryId,
+          method: 'GET',
+          success: function (response) {
+            // If the category is successfully removed, update the category table
+            $('#categoryTableContainer').load('/admin/category #category-data-table');
+            showAlert('Success', 'Category ' + categoryName + ' has been removed.', 'success');
+          },
+          error: function (error) {
+            console.log(error);
+          }
+        });
+      }
+    });
   }
 
   $('.remove-category').on('click', function (event) {
     event.preventDefault();
     var categoryId = $(this).data('category-id');
     var categoryName = $(this).data('category-name');
-    var confirmation = confirm('Are you sure you want to remove ' + categoryName + '?');
 
-    if (confirmation) {
-      // Perform AJAX request to check if products exist
-      $.ajax({
-        url: '/admin/check-products?categoryId=' + categoryId,
-        method: 'GET',
-        success: function (response) {
-          if (response.productExists) {
-            // Show the error message in the modal
-            $('#errorMessage').text('Category cannot be removed. Products exist in the category.');
-            $('#errorModal').modal('show');
-          } else {
-            // Perform AJAX request to remove the category
-            $.ajax({
-              url: '/admin/remove-category?id=' + categoryId,
-              method: 'GET',
-              success: function (response) {
-                // If the category is successfully removed, update the category table
-                $('#categoryTableContainer').load('/admin/category #category-data-table');
-                location.reload();
-              },
-              error: function (error) {
-                console.log(error);
-              }
-            });
+    Swal.fire({
+      title: 'Confirmation',
+      text: 'Are you sure you want to remove ' + categoryName + '?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, remove it'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Perform AJAX request to check if products exist
+        $.ajax({
+          url: '/admin/check-products?categoryId=' + categoryId,
+          method: 'GET',
+          success: function (response) {
+            if (response.productExists) {
+              // Show the error message in the modal
+              $('#errorMessage').text('Category cannot be removed. Products exist in the category.');
+              $('#errorModal').modal('show');
+            } else {
+              // Perform AJAX request to remove the category
+              $.ajax({
+                url: '/admin/remove-category?id=' + categoryId,
+                method: 'GET',
+                success: function (response) {
+                  // If the category is successfully removed, update the category table
+                  $('#categoryTableContainer').load('/admin/category #category-data-table');
+                  showAlert('Success', 'Category ' + categoryName + ' has been removed.', 'success');
+                  
+                },
+                error: function (error) {
+                  console.log(error);
+                }
+              });
+            }
+          },
+          error: function (error) {
+            console.log(error);
           }
-        },
-        error: function (error) {
-          console.log(error);
-        }
-      });
-    }
+        });
+      }
+    });
   });
+
   $('#categoryForm').submit(function (event) {
     event.preventDefault();
 
@@ -246,9 +220,10 @@
       success: function (response) {
         // Reset the form fields
         $('#categoryForm')[0].reset();
-        location.reload();
+      
         // If the category is successfully added, update the category table
         $('#categoryTableContainer').load('/admin/category #category-data-table');
+        showAlert('Success', 'Category has been added.', 'success');
       },
       error: function (error) {
         console.log(error);
@@ -277,10 +252,11 @@
           success: function (response) {
             // Reset the form fields
             $('#offerForm')[0].reset();
-            location.reload()
+            
 
             // If the offer is successfully added, update the category table
             $('#categoryTableContainer').load('/admin/category #category-data-table');
+            showAlert('Success', 'Offer has been added.', 'success');
           },
           error: function (error) {
             console.log(error);
@@ -289,8 +265,40 @@
         });
       }
     });
+
+    $('.remove-offer').on('click', function (event) {
+      event.preventDefault();
+      var categoryId = $(this).data('category-id');
+      var categoryName = $(this).data('category-name');
+
+      Swal.fire({
+        title: 'Confirmation',
+        text: 'Are you sure you want to remove the offer for ' + categoryName + '?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, remove it'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Perform AJAX request to remove the offer
+          $.ajax({
+            url: '/admin/remove-offer',
+            method: 'POST',
+            data: { categoryId: categoryId },
+            success: function (response) {
+              // If the offer is successfully removed, update the category table
+              $('#categoryTableContainer').load('/admin/category #category-data-table');
+              showAlert('Success', 'Offer for ' + categoryName + ' has been removed.', 'success');
+             
+            },
+            error: function (error) {
+              console.log(error);
+            }
+          });
+
+        }
+      });
+    });
   });
-
-
 </script>
-

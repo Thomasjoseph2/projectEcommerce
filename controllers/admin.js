@@ -68,30 +68,21 @@ const getAddProduct = async function (req, res) {
 };
 
 const addProduct = (req, res) => {
-  try {
-    productHelpers.addProduct(req.body, (data) => {
-      const productId = data.insertedId;
-      const categoryName = req.body.productCategory;
-
-      // Retrieve the category ID based on the category name
-      productHelpers.getCategoryId(categoryName, (categoryId) => {
-        // Update the product document with the category ID
-        productHelpers.updateProductCategory(productId, categoryId, () => {
-          const image = req.files.productImage;
-          image.mv('./public/product-images/' + productId + '.jpg', (err, done) => {
-            if (err) {
-              console.log(err);
-            } else {
-              res.redirect('/admin/add-product');
-            }
-          });
-        });
-      });
-    });
-  } catch (error) {
-    console.error(error);
-    res.redirect('/admin');
+  let arrayImage=[]
+  for(let i=0;i<req.files.length;i++){
+   arrayImage[i]=req.files[i].filename;
   }
+  productHelpers.addProduct(req.body,arrayImage,(data) => {
+   const productId = data.insertedId;
+   let categoryName = req.body.productCategory;
+
+   productHelpers.getCategoryId(categoryName, (categoryId) => {
+     productHelpers.updateProductCategory(productId, categoryId, () => {
+       // Updated code: Added callback parameter
+       res.redirect('/admin/add-product');
+     });
+   });
+ });
 };
 
 const addCategoryOffer = async (req, res) => {
@@ -133,6 +124,18 @@ const removeProductOffer = async (req, res) => {
     res.redirect('/admin');
   }
 };
+const removeCategoryOffer = async (req, res) => {
+  try {
+    const categoryId = req.body.categoryId;
+    const categoryOffer = 0;
+     await adminHelper.addOffer(categoryId,categoryOffer)
+    res.send({ message: 'Offer removed successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: 'An error occurred' });
+  }
+};
+
 
 const deleteProduct = (req, res) => {
   try {
@@ -161,24 +164,23 @@ const editProduct = (req, res) => {
   try {
     const productId = req.params.id;
     const categoryName = req.body.productCategory;
+    const filenames = req.files.map((file) => file.filename);
+    const updatedProduct = {
+      productName: req.body.productName,
+      productDescription: req.body.productDescription,
+      productPrice: parseInt(req.body.productPrice),
+    };
+    if (req.files && req.files.length > 0) {
+      updatedProduct.images = req.files.map((file) => file.filename); // Update with the new image filenames
+    }
+    console.log(updatedProduct, "hi here i am");
 
     // Retrieve the category ID based on the category name
     productHelpers.getCategoryId(categoryName, (categoryId) => {
-      req.body.productPrice = parseInt(req.body.productPrice);
       if (categoryId) {
-        productHelpers.updateProduct(productId, req.body, categoryId).then(() => {
-          if (req.files) {
-            let image = req.files.productImage;
-            image.mv('./public/product-images/' + productId + '.jpg', (err) => {
-              if (err) {
-                console.log(err);
-              } else {
-                res.redirect('/admin');
-              }
-            });
-          } else {
-            res.redirect('/admin');
-          }
+        productHelpers.updateProduct(productId, updatedProduct, categoryId, req).then(() => {
+         
+          res.redirect('/admin')
         });
       } else {
         // Handle the case when the category ID is not found
@@ -327,9 +329,10 @@ const removeCategory = async (req, res) => {
   try {
     const ctId = req.query.id;
     await adminHelper.removeCategory(ctId);
-    res.redirect('/admin/category');
+    res.json({response:true})
   } catch (error) {
     console.error(error);
+    res.json({response:false})
     res.redirect('/admin');
   }
 };
@@ -530,7 +533,8 @@ module.exports = {
   checkProducts,
   addCategoryOffer,
   addProductOffer,
-  removeProductOffer
+  removeProductOffer,
+  removeCategoryOffer
 
 
 }

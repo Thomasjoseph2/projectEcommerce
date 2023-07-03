@@ -7,6 +7,7 @@ const { promises } = require('nodemailer/lib/xoauth2');
 const { resolve } = require('promise');
 const Razorpay = require('razorpay');
 const moment = require('moment');
+const fs = require('fs');
 var instance = new Razorpay({
  key_id: 'rzp_test_4VSqO0TCBFvtCE',
  key_secret: '4iUcWrjuqM0RKejSrKHisBif' 
@@ -193,28 +194,60 @@ module.exports = {
               $unwind: '$products',
             },
             {
-              $project: {
-                item: '$products.item',
-                quantity: '$products.quantity',
-              },
-            },
-            {
               $lookup: {
                 from: collection.PRODUCT_COLLECTION,
-                localField: 'item',
+                localField: 'products.item',
                 foreignField: '_id',
                 as: 'product',
               },
             },
             {
+              $unwind: '$product',
+            },
+            {
+              $lookup: {
+                from: collection.CATEGORY_COLLECTION,
+                localField: 'product.productCategory',
+                foreignField: '_id',
+                as: 'category',
+              },
+            },
+            {
+              $unwind: '$category',
+            },
+            {
+              $addFields: {
+                productOffer: '$product.productOffer',
+                categoryOffer: '$category.categoryOffer',
+              },
+            },
+            {
+              $addFields: {
+                appliedOffer: {
+                  $cond: {
+                    if: { $gt: ['$productOffer', '$categoryOffer'] },
+                    then: 'Product Offer',
+                    else: 'Category Offer',
+                  },
+                },
+                appliedOfferValue: {
+                  $cond: {
+                    if: { $gt: ['$productOffer', '$categoryOffer'] },
+                    then: '$productOffer',
+                    else: '$categoryOffer',
+                  },
+                },
+              },
+            },
+            {
               $project: {
-                item: 1,
-                quantity: 1,
-                product: { $arrayElemAt: ['$product', 0] },
-               
-              
-              }
-            }
+                item: '$products.item',
+                quantity: '$products.quantity',
+                product: 1,
+                appliedOffer: 1,
+                appliedOfferValue: 1,
+              },
+            },
           ])
           .toArray();
   
@@ -223,7 +256,9 @@ module.exports = {
         reject(error);
       }
     });
-  },
+  }
+  ,
+
   wishlistProducts: (userId) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -280,7 +315,21 @@ module.exports = {
       }
     });
   },
-
+  
+  editProfile: (userId,details) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await db.get().collection(collection.USER_COLLECTION).updateOne({ _id: ObjectId(userId)},{$set:{
+          name:details.name,
+          phonenumber:details.phonenumber,
+          email:details.email
+        }});
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
   changeProductQuantity: (details) => {
     const count = parseInt(details.count);
     console.log(count)
@@ -334,8 +383,40 @@ module.exports = {
       }
     });
   },
+  addUserImage: (userId, image) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const userCollection = db.get().collection(collection.USER_COLLECTION);
+        const user = await userCollection.findOne({ _id: ObjectId(userId) });
   
-  
+        if (!user.image) {
+          await userCollection.updateOne(
+            { _id: ObjectId(userId) }, // Filter criteria to find the user
+            { $set: { image: image } } // Update the image field with the new value
+          );
+          resolve();
+        } else {
+          await userCollection.updateOne(
+            { _id: ObjectId(userId) }, // Filter criteria to find the user
+            { $set: { image: image } } // Update the image field with the new value
+          );
+          
+          let imagePath = './public/images/' + user.image;
+          fs.unlink(imagePath, (err) => {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log('Image deleted successfully hlo');
+            }
+          });
+          resolve();
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+  ,
   isVerified:(searchTerm) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -421,10 +502,39 @@ module.exports = {
               },
             },
             {
+              $lookup: {
+                from: collection.CATEGORY_COLLECTION,
+                localField: 'product.productCategory',
+                foreignField: '_id',
+                as: 'category',
+              },
+            },
+            {
+              $addFields: {
+                category: { $arrayElemAt: ['$category', 0] },
+              },
+            },
+            {
+              $addFields: {
+                finalPrice: {
+                  $cond: {
+                    if: { $gt: ['$product.productOffer', '$category.categoryOffer'] },
+                    then: '$product.offerPrice',
+                    else: {
+                      $multiply: [
+                        '$product.productPrice',
+                        { $subtract: [1, { $divide: ['$category.categoryOffer', 100] }] },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+            {
               $group: {
                 _id: null,
                 total: {
-                  $sum: { $multiply: ['$products.quantity', '$product.offerPrice'] },
+                  $sum: { $multiply: ['$products.quantity', '$finalPrice'] },
                 },
               },
             },
@@ -441,6 +551,7 @@ module.exports = {
       }
     });
   }
+  
   ,
   
   

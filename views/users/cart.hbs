@@ -21,10 +21,10 @@
                     <thead>
                         <tr>
                             <th scope="col">Product</th>
-                            <th scope="col">Price</th>
+                            <th scope="col">Price</th> 
                             <th scope="col">Quantity</th>
-                            <th scope="col">Total</th>
-
+                           <th scope="col">Offer</th>
+                           <th scope="col">Remove</th>
 
                         </tr>
                     </thead>
@@ -35,16 +35,18 @@
                                 <div class="media">
                                     <div class="d-flex">
                                         <img style="width:14vh;height:10vh"
-                                            src="/product-images/{{this.product._id}}.jpg" alt="">
+                                            src="/product-images/{{product.images.[0]}}" alt="">
                                     </div>
                                     <div class="media-body">
                                         <p>{{this.product.productName}}</p>
                                     </div>
                                 </div>
                             </td>
+                           
                             <td>
-                                <h5>₹{{this.product.offerPrice}}/-</h5>
+                                <h5>₹{{this.product.productPrice}}/-</h5>
                             </td>
+                            
 
 
                             <td>
@@ -62,13 +64,13 @@
                                             class="lnr lnr-chevron-down"></i></button>
                                 </div>
                             </td>
+                             <td>
+                                <h5 class="text-success">{{this.appliedOfferValue}}%</h5>
+                            </td>
 
 
 
-
-                           <td>
-                      <h5>₹<span id="{{this.product._id}}">{{this.total}}</span>/-</h5>
-</td>
+   
 
                             <td><button class="quantity-btn btn-danger"
                                     onclick="removeProductFromCart('{{this._id}}','{{this.product._id}}')">Remove</button>

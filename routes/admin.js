@@ -5,8 +5,22 @@ const { render } = require('../app')
 var router = express.Router();
 const auth = require('../middleware/auth')
 const admin = require('../controllers/admin')
+const multer=require('multer')
+const path=require('path')
 
-
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      const directory = path.join(__dirname, '../public/product-images');
+      cb(null, directory);
+    },
+    filename: (req, file, cb) => {
+      const name = Date.now() + '-' + file.originalname;
+      cb(null, name);
+    }
+  });
+  
+  
+const upload = multer({ storage: storage })
 
 router.get('/login', admin.adminLoadLogin);
 
@@ -16,7 +30,7 @@ router.get('/', auth.verifyLogin, admin.productList);
 
 router.get('/add-product', auth.verifyLogin, admin.getAddProduct)
 
-router.post('/add-product', auth.verifyLogin, admin.addProduct)
+router.post('/add-product',upload.array('productImage'), admin.addProduct)
 
 router.post('/add-offer', auth.verifyLogin, admin.addCategoryOffer)
 
@@ -28,7 +42,7 @@ router.get('/delete-product', auth.verifyLogin, admin.deleteProduct)
 
 router.get('/edit-product/:id', auth.verifyLogin, admin.getEditProduct)
 
-router.post('/edit-product/:id', auth.verifyLogin, admin.editProduct)
+router.post('/edit-product/:id', auth.verifyLogin,upload.array('productImage'), admin.editProduct)
 
 router.get('/view-user/:id', auth.verifyLogin, admin.viewUser);
 
@@ -51,6 +65,9 @@ router.get('/category', auth.verifyLogin, admin.getCategory);
 router.post('/add-category', auth.verifyLogin, admin.addCategory);
 
 router.get('/remove-category', auth.verifyLogin, admin.removeCategory)
+
+router.post('/remove-offer', auth.verifyLogin, admin.removeCategoryOffer);
+
  
 router.get('/order-list', auth.verifyLogin, admin.getOrderList)
 

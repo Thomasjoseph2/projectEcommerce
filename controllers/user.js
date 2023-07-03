@@ -99,6 +99,17 @@ const addAddress=async (req, res) => {
     res.redirect('/')
   } 
 }
+const addUserImage=async (req, res) => {
+  try {
+    console.log(req.file)
+    let image=req.file.filename;
+    await userHelper.addUserImage(req.session.user._id,image);
+    res.redirect('/user-profile');
+  } catch (err) {
+    console.log(err);
+    res.redirect('/')
+  } 
+}
 
 const makePrimaryAddress = async (req, res) => {
   try {
@@ -134,7 +145,6 @@ const getLogin = (req, res) => {
 const login = (req, res) => {
   try {
     userHelper.doLogin(req.body).then((response) => {
-      console.log(response);
       if (response.status) {
         req.session.user = response.user;
         req.session.user.loggedIn = true;
@@ -165,12 +175,12 @@ const logout = (req, res) => {
 const getCart = async (req, res) => {
   try {
     const products = await userHelper.getCartProducts(req.session.user._id);
-
-    products.forEach((product) => {
-      const offerPercentage = product.product.productOffer || 0; // Get the productOffer, defaulting to 0 if not present
-      const offerPrice = product.quantity * (1 - offerPercentage / 100) * product.product.productPrice;
-      product.total = parseInt(offerPrice);
-    });
+    console.log(products,"kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+    //   products.forEach((product) => {
+    //   const offerPercentage = product.product.productOffer || 0; // Get the productOffer, defaulting to 0 if not present
+    //   const offerPrice = product.quantity * (1 - offerPercentage / 100) * product.product.productPrice;
+    //   product.total = parseInt(offerPrice);
+    // });
 
     const Carttotal = await userHelper.getCartTotal(req.session.user._id);
 
@@ -183,7 +193,6 @@ const getCart = async (req, res) => {
 const getWishList = async (req, res) => {
   try {
     const products = await userHelper.wishlistProducts(req.session.user._id);
-    console.log(products);
     res.render('users/wishlist', { products, user: req.session.user });
   } catch (err) {
     console.log(err);
@@ -473,7 +482,6 @@ const placeOrder = async (req, res, next) => {
     const products = await userHelper.getCartProducts(req.session.user._id);
     const address=await userHelper.getUserAddress(req.session.user._id);
 
-    console.log(address,"hi");
     if (req.session.user.newtotal) {
       total = req.session.user.newtotal;
     } else {
@@ -595,14 +603,16 @@ const getProfile = async(req, res) => {
   }
 };
 
-// const getDetailsPage = (req, res) => {
-//   try {
-//     res.render('users/add-details', { user: req.session.user });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ error: 'Internal Server Error' });
-//   }
-// };
+const editProfile= async (req, res) => {
+  try {
+    console.log(req.body)
+     await userHelper.editProfile(req.session.user._id,req.body)
+     res.redirect('/user-profile')
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 
 const verifyPayment = (req, res) => {
   try {
@@ -772,6 +782,8 @@ module.exports = {
   getAddAddress,
   addAddress,
   removeAddress,
-  makePrimaryAddress
+  makePrimaryAddress,
+  addUserImage,
+  editProfile
 
 };
