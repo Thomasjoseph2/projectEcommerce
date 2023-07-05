@@ -41,28 +41,52 @@ $("#coupon-form").submit((e) => {
   
   
   
-  
-   $("#checkout-form").submit((e) => {
+  $("#checkout-form").submit((e) => {
     e.preventDefault();
     $.ajax({
       url: '/place-order',
       method: 'post',
       data: $('#checkout-form').serialize(),
       success: (response) => {
-          
         if (response.codStatus) {
-          location.href = '/order-success'; // Redirect to order success page for COD payment
+          Swal.fire({
+            icon: 'success',
+            title: 'Order Placed',
+            text: 'Your order has been placed successfully!',
+          }).then(() => {
+            location.href = '/order-success';
+          });
         } else if (response.walletStatus) {
-          location.href = '/order-success'; // Redirect to order success page for Wallet payment
-        }else if (response.walletStatus===false) {
-          alert("not enough wallet money")
-          location.href = '/order-list'; // Redirect to order success page for Wallet payment
+          Swal.fire({
+            icon: 'success',
+            title: 'Order Placed',
+            text: 'Your order has been placed successfully!',
+          }).then(() => {
+            location.href = '/order-success';
+          });
+        } else if (response.walletStatus === false) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Insufficient Wallet Balance',
+            text: 'You do not have enough balance in your wallet.',
+          }).then(() => {
+            location.href = '/order-list';
+          });
         } else {
-          razorpayPayment(response); // Proceed with Razorpay payment
+          razorpayPayment(response);
         }
+      },
+      error: function (error) {
+        console.error('Error occurred while placing order:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error placing order: ' + error,
+        });
       }
     });
   });
+  
   
       function razorpayPayment(order) {
           var options = {
@@ -154,7 +178,6 @@ function makePrimaryAddress(addressId) {
     data: { addressId },
     success: function (response) {
       if (response.addressMadePrimary) {
-        // Display success message
         Swal.fire({
           icon: 'success',
           title: 'Address Made Primary',
@@ -163,7 +186,6 @@ function makePrimaryAddress(addressId) {
           location.reload();
         });
       } else {
-        // Display error message
         Swal.fire({
           icon: 'error',
           title: 'Failed to Make Address Primary',
@@ -172,7 +194,6 @@ function makePrimaryAddress(addressId) {
       }
     },
     error: function (xhr, status, error) {
-      // Display error message
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -181,4 +202,3 @@ function makePrimaryAddress(addressId) {
     }
   });
 }
-

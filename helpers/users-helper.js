@@ -13,13 +13,14 @@ var instance = new Razorpay({
  key_secret: '4iUcWrjuqM0RKejSrKHisBif' 
 })
 module.exports = {
-  doSignup: (userData) => {
+  doSignup: (userData,referalCode,walletAmount) => {
     return new Promise(async (resolve, reject) => {
       try {
         userData.password = await bcrypt.hash(userData.password, 10);
+        userData.referalCode=referalCode;
         userData.blocked = false;
         userData.isVerified=false;
-        userData.walletAmount=0;
+        userData.walletAmount=parseInt(walletAmount);
         const response = await db.get().collection(collection.USER_COLLECTION).insertOne(userData);
         resolve(response);
       } catch (error) {
@@ -315,7 +316,51 @@ module.exports = {
       }
     });
   },
-  
+  isReferalExist: (referalCode) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const user = await db.get().collection(collection.USER_COLLECTION).findOne({ referalCode: referalCode});
+        console.log(user);
+        if(user){
+          resolve(user._id);
+        }else{
+          resolve(false);
+        }
+        
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+  updateWallet: (userId,referalAmound) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const user = await db
+          .get()
+          .collection(collection.USER_COLLECTION)
+          .findOne({ _id: ObjectId(userId) });
+        
+        if (user) {
+          const currentAmount = user.walletAmount;
+          const updatedAmount = currentAmount + referalAmound;
+          
+          await db
+            .get()
+            .collection(collection.USER_COLLECTION)
+            .updateOne(
+              { _id: ObjectId(userId) },
+              { $set: { walletAmount: updatedAmount } }
+            );
+          
+          resolve();
+        } else {
+          reject(new Error('User not found'));
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
   editProfile: (userId,details) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -680,9 +725,6 @@ placeOrder: (order, products, total,userId) => {
         reject(error);
       });
   });
-},
-walletPayment:(order,total)=>{
-   
 }
   ,
   getcartProductList:(userId)=>{
@@ -994,7 +1036,7 @@ console.log(coupon)
   //     }
   //   });
   // },
-  addDiscountedTotal: (userId, discountedTotal) => {
+  addDiscountedTotal: (userId, discountedTotal,total) => {
     return new Promise(async (resolve, reject) => {
       try {
         let updated = await db
@@ -1002,7 +1044,9 @@ console.log(coupon)
           .collection(collection.CART_COLLECTION)
           .updateOne(
             { user: ObjectId(userId) },
-            { $set: { discountedAmount: discountedTotal } }
+            { $set: {
+               discountedAmount: discountedTotal,
+               checkCartTotl:total} }
           );
         resolve(updated);
       } catch (error) {
@@ -1029,6 +1073,7 @@ console.log(coupon)
     });
   }
   ,
+  
   addToUsedCoupon:(userId,couponcode)=>{
 
   },

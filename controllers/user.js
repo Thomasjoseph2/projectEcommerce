@@ -2,6 +2,7 @@ const productHelpers = require('../helpers/product-helper');
 const userHelper = require('../helpers/users-helper');
 const adminHelper = require('../helpers/admin-helper');
 const usersHelper = require('../helpers/users-helper');
+const { v4: uuidv4 } = require('uuid');
 const accountSid = "AC655f2659db56c5504407570babdbd676"
 const authToken = "423f1b41a1ef5eba1980daa5b4edc5cb";
 const verifySid = "VAb8d4aa3610b51c3ee296c9e5e7209be5";
@@ -11,6 +12,7 @@ const { log } = require('handlebars/runtime');
 const e = require('express');
 const { use } = require('../app');
 let phone = "";
+//const env=require('dotenv')
 
 const sendVerifyMail = async (name, email, userId) => {
   try {
@@ -64,9 +66,19 @@ const getSignup = (req, res) => {
   }
 }
 
+
 const signup = async (req, res) => {
   try {
-    const response = await userHelper.doSignup(req.body)
+    let walletAmount=0;
+    const referralCode = uuidv4().slice(0, 6);
+    if(req.body.referalCode){
+      const referalExist=await userHelper.isReferalExist(req.body.referalCode)
+      if(referalExist){
+         walletAmount=500
+         await userHelper.updateWallet(referalExist,walletAmount)
+      }
+    }
+    const response = await userHelper.doSignup(req.body,referralCode,walletAmount)
     sendVerifyMail(req.body.name, req.body.email, response.insertedId)
     if (response) {
       res.render('users/signup', { message: "Your registration has been successful, Please verify your email" })
@@ -300,12 +312,7 @@ const getHome = async function (req, res, next) {
     userHelper.getAllProductsForHome(page, productPerPage, totalProducts).then((result) => {
       
       const { products, totalPages } = result;
-      console.log(totalProducts, products, totalPages);
-      if (req.xhr) {
-        res.render('users/product-section', { products, user, cartCount, currentPage: page, totalPages, layout: false });
-      } else {
-        res.render('users/view-products', { products, user, cartCount, currentPage: page, totalPages });
-      }
+     res.render('users/view-products', { products, user, cartCount, currentPage: page, totalPages });
     });
   } catch (err) {
     console.log(err);
@@ -478,12 +485,15 @@ const returnOrder= async (req, res) => {
 const placeOrder = async (req, res, next) => {
   try {
     let total = 0;
-    const carttotal = await userHelper.getCartTotal(req.session.user._id);
     const products = await userHelper.getCartProducts(req.session.user._id);
     const address=await userHelper.getUserAddress(req.session.user._id);
+    const carttotal = await userHelper.getCartTotal(req.session.user._id);
+    console.log(carttotal,"checking cart total");
+    const discountedAmount = await userHelper.getDiscountedAmount(req.session.user._id);
+    //const checkCartTotl = await userHelper.getCheckCartTotl(req.session.user._id);
 
-    if (req.session.user.newtotal) {
-      total = req.session.user.newtotal;
+    if (discountedAmount ) {
+      total = discountedAmount ;
     } else {
       total = carttotal;
     }
@@ -502,7 +512,7 @@ const placeOrder = async (req, res, next) => {
 const doPlaceOrder = async (req, res) => {
   try {
     
-    console.log(req.body);
+    console.log(req.body,"jgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg");
    
     const products = await userHelper.getcartProductList(req.session.user._id);
 
@@ -510,7 +520,7 @@ const doPlaceOrder = async (req, res) => {
 
     const cartTotal = await userHelper.getCartTotal(req.session.user._id);
 
-   
+      
 
     let total = 0;
 
@@ -705,7 +715,7 @@ const verifyCoupon = async (req, res) => {
             
             req.session.user.newtotal = discountedTotal;
            
-            await userHelper.addDiscountedTotal(req.session.user._id, discountedTotal)
+            await userHelper.addDiscountedTotal(req.session.user._id, discountedTotal,total)
               
             .then(async (updated) => {
                 

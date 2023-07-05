@@ -1,6 +1,4 @@
 <style>
-
-
   body {
     background-image: url('/img/banner/banner-bg.jpg');
   }
@@ -8,8 +6,7 @@
 <section style="margin-top: 6rem;" class="section-margin ">
   <div class="container mt-4">
     <div class="row mt-5">
-      <a href="/admin/add-product" class="btn btn-success mr-auto mt-5"
-        style="background-color: #FFAD01;color:aliceblue;">Add Products</a>
+      <a href="/admin/add-product" class="btn btn-success mr-auto mt-5" style="background-color: #FFAD01;color:aliceblue;">Add Products</a>
     </div>
     <div class="mt-5">
       <table class="table mt-1" id="myTable">
@@ -24,67 +21,55 @@
             <th scope="col">Remove</th>
             <th scope="col">Edit</th>
             <th scope="col">Delete</th>
-            
-
-             
           </tr>
         </thead>
-    <tbody>
-  {{#each products}}
-  <tr>
-         <td><img style="width:50px;height:50px" src="/product-images/{{images.[0]}}" alt="" ></td>
-     <td style="max-width: 10em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{this.productName}}</td>
-    <td>{{this.categoryName}}</td>
-    <td>{{this.productDescription}}</td>
-    <td>{{this.productPrice}}</td>
-   
-    <td>
-        <button style="background-color: #fe7200; color: white;" type="button" class="btn add-offer"
-                data-product-id="{{this._id}}" data-product-name="{{this.productName}}"
-                data-toggle="modal" data-target="#offerModal{{this._id}}">Offer</button>
-      </td>
-      <td>
-        <button type="button" class="btn add-offer btn-danger remove-offer"
-        data-product-id="{{this._id}}" data-product-name="{{this.productName}}">Remove Offer</button>
-</td>
-
-        <td>
-      <a href="/admin/edit-product/{{this._id}}" class="btn " style="background-color: #FFAD01;color:aliceblue;"><i class="fa-solid fa-pen-to-square"></i></a>
-      </td>
-      <td>
-      <a href="/admin/delete-product?id={{this._id}}" class="btn btn-danger "
-        onclick="return confirm('Are you sure you want to delete {{this.name}}?')"><i class="fa-sharp fa-solid fa-xmark" style="color: #f7f7f7;"></i></a>
-         
-    </td>
-  </tr>
-         <div class="modal fade" id="offerModal{{this._id}}" tabindex="-1" role="dialog" aria-labelledby="offerModalLabel"
-            aria-hidden="true">
-
+        <tbody>
+          {{#each products}}
+          <tr>
+            <td><img style="width:50px;height:50px" src="/product-images/{{images.[0]}}" alt=""></td>
+            <td style="max-width: 10em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{this.productName}}</td>
+            <td>{{this.categoryName}}</td>
+            <td>{{this.productDescription}}</td>
+            <td>{{this.productPrice}}</td>
+            <td>
+              <button style="background-color: #fe7200; color: white;" type="button" class="btn add-offer" data-product-id="{{this._id}}" data-product-name="{{this.productName}}" data-toggle="modal" data-target="#offerModal{{this._id}}">Offer</button>
+            </td>
+            <td>
+              <button type="button" class="btn add-offer btn-danger remove-offer" data-product-id="{{this._id}}" data-product-name="{{this.productName}}">Remove Offer</button>
+            </td>
+            <td>
+              <a href="/admin/edit-product/{{this._id}}" class="btn" style="background-color: #FFAD01;color:aliceblue;"><i class="fa-solid fa-pen-to-square"></i></a>
+            </td>
+            <td>
+              <a href="#" class="btn btn-danger delete-product-btn" onclick="confirmDelete('{{this.productName}}', '{{this._id}}')">
+                <i class="fa-sharp fa-solid fa-xmark" style="color: #f7f7f7;"></i>
+              </a>
+            </td>
+          </tr>
+          <div class="modal fade" id="offerModal{{this._id}}" tabindex="-1" role="dialog" aria-labelledby="offerModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h5 class="modal-title" id="offerModalLabel">Add Offer</h5>
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    <div class="modal-body">
-      <form action="/admin/add-product-offer" method="POST" id="offerForm">
-        <div class="form-group">
-          <label for="category-offer">Product Offer:</label>
-          <input type="number" class="form-control" id="category-offer" name="productOffer" required min="0" max="100">
-          <input type="hidden" class="form-control" id="{{this._id}}" name="productId" value="{{this._id}}">
-        </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </form>
-    </div>
-  </div>
-</div>
-
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="offerModalLabel">Add Offer</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form action="/admin/add-product-offer" method="POST" id="offerForm">
+                    <div class="form-group">
+                      <label for="category-offer">Product Offer:</label>
+                      <input type="number" class="form-control" id="category-offer" name="productOffer" required min="0" max="100">
+                      <input type="hidden" class="form-control" id="{{this._id}}" name="productId" value="{{this._id}}">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                  </form>
+                </div>
+              </div>
             </div>
-  {{/each}}
-</tbody>
-
+          </div>
+          {{/each}}
+        </tbody>
       </table>
     </div>
   </div>
@@ -114,10 +99,7 @@
           success: function (response) {
             // Reset the form fields
             $('#offerForm')[0].reset();
-            location.reload()
-
-            // If the offer is successfully added, update the category table
-            $('#categoryTableContainer').load('/admin/category #category-data-table');
+            location.reload();
           },
           error: function (error) {
             console.log(error);
@@ -127,58 +109,78 @@
       }
     });
   });
+
   // Display a confirmation dialog using SweetAlert2
-function showConfirmation(message, confirmCallback) {
-  Swal.fire({
-    title: 'Confirmation',
-    text: message,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Confirm',
-    cancelButtonText: 'Cancel'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      confirmCallback();
-    }
-  });
-}
+  function showConfirmation(message, confirmCallback) {
+    Swal.fire({
+      title: 'Confirmation',
+      text: message,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Confirm',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        confirmCallback();
+      }
+    });
+  }
 
-// Display an alert message using SweetAlert2
-function showAlert(message) {
-  Swal.fire({
-    title: 'Alert',
-    text: message,
-    icon: 'info',
-    confirmButtonColor: '#3085d6',
-    confirmButtonText: 'OK'
-  });
-}
+  // Display an alert message using SweetAlert2
+  function showAlert(message) {
+    Swal.fire({
+      title: 'Alert',
+      text: message,
+      icon: 'info',
+      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'OK'
+    });
+  }
 
-// Usage example
-$(document).ready(function() {
-  $('.remove-offer').click(function() {
-    var productId = $(this).data('product-id');
-    var productName = $(this).data('product-name');
-
-    showConfirmation('Are you sure you want to remove the offer for ' + productName + '?', function() {
-      // Perform AJAX request to remove the offer
+  // Confirm and delete the product
+  function confirmDelete(productName, productId) {
+    showConfirmation('Are you sure you want to delete ' + productName + '?', function () {
+      // Perform AJAX request to delete the product
       $.ajax({
-        url: '/admin/remove-product-offer',
-        method: 'POST',
-        data: { productId: productId, productOffer: 0 },
-        success: function(response) {
-          location.reload(); // Refresh the page
+        url: '/admin/delete-product?id=' + productId,
+        method: 'GET',
+          success: function (response) {
+          showAlert('Product deleted successfully.');
+          setTimeout(function () {
+            location.reload(); // Refresh the page after 1 second
+          }, 1000);
         },
-        error: function(error) {
+        error: function (error) {
+          showAlert('Failed to delete the product. Please try again.');
           console.log(error);
-          location.reload(); // Refresh the page to restore the original state
         }
       });
     });
-  });
-});
+  }
 
-  
+  // Remove the offer for the product
+  $(document).ready(function () {
+    $('.remove-offer').click(function () {
+      var productId = $(this).data('product-id');
+      var productName = $(this).data('product-name');
+
+      showConfirmation('Are you sure you want to remove the offer for ' + productName + '?', function () {
+        // Perform AJAX request to remove the offer
+        $.ajax({
+          url: '/admin/remove-product-offer',
+          method: 'POST',
+          data: { productId: productId, productOffer: 0 },
+          success: function (response) {
+            location.reload(); // Refresh the page
+          },
+          error: function (error) {
+            console.log(error);
+            location.reload(); // Refresh the page to restore the original state
+          }
+        });
+      });
+    });
+  });
 </script>

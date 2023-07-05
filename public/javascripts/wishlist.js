@@ -1,48 +1,58 @@
-
 function addToCart(productId) {
   $.ajax({
     url: '/wishlist-to-cart/' + productId,
     type: 'GET',
     success: function(response) {
       if (response.message === "Added to cart") {
-        showPopupMessage("Item added to cart");
+        showPopupMessage("Item added to cart", 'success');
         setTimeout(function() {
           //location.reload(); // Reload the page after 2 seconds
         }, 1000);
       } else {
-        showPopupMessage("Please login");
+        showPopupMessage("Please login", 'error');
       }
     },
     error: function(error) {
       console.error('Error occurred while adding to cart:', error);
-      showPopupMessage('Error adding to cart');
+      showPopupMessage('Error adding to cart', 'error');
     }
   });
 }
 
-function showPopupMessage(message) {
-  var popupMessage = document.getElementById('popupMessage');
-  popupMessage.innerText = message;
-  popupMessage.style.display = 'block';
-  setTimeout(function() {
-    popupMessage.style.display = 'none';
-  }, 1000);
+function showPopupMessage(message, type) {
+  Swal.fire({
+    text: message,
+    icon: type,
+    timer: 1000,
+    showConfirmButton: false
+  });
 }
 
 function removeProductFromWishlist(proId) {
-  var confirmation = confirm("Are you sure you want to remove this product from the wishlist?");
-  if (confirmation) {
-    $.ajax({
-      url: '/remove-product-from-wishlist',
-      data: {
-        proId: proId
-      },
-      method: 'post',
-      success: function(response) {
-        if (response.wishlistProductRemoved) {
-          location.reload();
+  Swal.fire({
+    title: 'Remove Product',
+    text: 'Are you sure you want to remove this product from the wishlist?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, remove it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        url: '/remove-product-from-wishlist',
+        data: {
+          proId: proId
+        },
+        method: 'post',
+        success: function(response) {
+          if (response.wishlistProductRemoved) {
+            showPopupMessage('Product removed from wishlist', 'success');
+            setTimeout(function(){location.reload()},1000)
+            
+          }
         }
-      }
-    });
-  }
+      });
+    }
+  });
 }

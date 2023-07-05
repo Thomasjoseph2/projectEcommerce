@@ -285,8 +285,7 @@ const unblockUser = (req, res) => {
 const getCategory = async function (req, res) {
   try {
     const categories = await adminHelper.getCategory();
-    res.render('admin/category', { admin: true, categories: categories, categoryError: req.session.admin.categoryExistsErr });
-    req.session.admin.categoryExistsErr = false;
+    res.render('admin/category', { admin: true, categories: categories, adminLoggedIn: true  });
   } catch (error) {
     console.error(error);
     res.redirect('/admin');
@@ -298,9 +297,8 @@ const addCategory = async (req, res) => {
     const categoryName = req.body.categoryName;
     const categoryExists = await adminHelper.checkCategoryExists(categoryName);
     if (categoryExists) {
-      req.session.admin.categoryExistsErr = true;
-      console.log(req.session.admin.categoryExistsErr);
-      res.redirect('/admin/category');
+      res.status(400).json({ response: "Category already exists" });
+
     } else {
       await adminHelper.addCategory({ categoryName }).then((result) => {
         console.log(result);
@@ -385,7 +383,7 @@ const changeStatus = async (req, res) => {
   try {
     const orderId = req.body.orderId;
     const status = req.body.status;
-    console.log(status);
+    
     const order = await adminHelper.getOrder(orderId);
     await adminHelper.changeStatusOrder(orderId, status);
 
