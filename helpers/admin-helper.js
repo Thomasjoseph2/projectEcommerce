@@ -238,6 +238,22 @@ module.exports = {
   }
   
   ,
+  getDeleveredOrders: () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const orders = await db
+          .get()
+          .collection(collection.ORDER_COLLECTION)
+          .find({OrderStatus: 'delivered'})
+          .toArray();
+        resolve(orders);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+  
+  ,
   getProductsInOrder: (orderId) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -275,6 +291,26 @@ module.exports = {
     });
   }
 
+  ,
+  getOrderAddress: (orderId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let order = await db.get().collection(collection.ORDER_COLLECTION).findOne(
+          { _id: ObjectId(orderId) },
+          { projection: { _id: 0, 'address': 1 } }
+        );
+  
+        if (order) {
+          const { address } = order;
+          resolve(address);
+        } else {
+          reject(new Error('Order not found'));
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
   ,
 
   changeStatusOrder: (orderId, orderStatus) => {

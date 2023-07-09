@@ -68,6 +68,9 @@ router.get('/remove-category', auth.verifyLogin, admin.removeCategory)
 
 router.post('/remove-offer', auth.verifyLogin, admin.removeCategoryOffer);
 
+router.get('/sales-report',auth.verifyLogin,admin.getSalesReport)
+
+router.get('/yearly-sales-table',auth.verifyLogin,admin.getSalesTable)
  
 router.get('/order-list', auth.verifyLogin, admin.getOrderList)
 

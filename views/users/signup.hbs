@@ -31,6 +31,8 @@
                 <input type="text" class="form-control" id="Email" name="email" placeholder="Email"
                   onfocus="this.placeholder = ''" onblur="this.placeholder = 'Email'">
                 <span id="emailError" class="error"></span>
+                {{#if emailError}}<h7 class="text-danger text-center">{{ emailError}} </h7>{{/if}}
+              
               </div>
               <div class="col-md-12 form-group">
                 <input type="text" class="form-control" id="phoneNumber" name="phonenumber" placeholder="Phone Number"
@@ -46,7 +48,9 @@
                   onfocus="this.placeholder = ''" onblur="this.placeholder = 'Password'">
                 <span id="passwordError" class="error"></span>
               </div>
+
                 {{#if message}} <p class="text-success">{{message}}</p>{{/if}}
+                  
               <div class="col-md-12 form-group">
                 <button type="submit" value="submit" class="primary-btn">Sign Up</button>
                 <a href="#">Forgot Password?</a>

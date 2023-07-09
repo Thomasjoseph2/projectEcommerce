@@ -30,7 +30,7 @@ router.post('/add-user-image',upload.single('userImage'), user.addUserImage)
 
 router.get('/signup', user.getSignup);
 
-router.post('/signup',user.signup);
+router.post('/signup',auth.userverifyEmail,user.signup);
 
 router.get('/login',user.getLogin );
 
@@ -105,6 +105,18 @@ router.post('/apply-coupon',auth.userVerifyLogin,user.verifyCoupon)
 router.post('/add-address',auth.userVerifyLogin,user.addAddress)
 
 router.post('/make-primary-address',auth.userVerifyLogin,user.makePrimaryAddress)
+
+router.get('/reset-password',auth.userVerifyLogin,user.getResetForm)
+
+router.post('/change-password',auth.userVerifyLogin,user.changePasswordController)
+
+router.get('/forgot-password',user.getForgotPassword)
+
+router.post('/verify-change-password-email',user.verifyPasswordEmail)
+
+router.get('/change-password',user.verifyToken)
+
+router.post('/change-forgot-password',user.changeForgotPassword)
 
 router.get('/remove-product', (req, res) => {
   let proId = req.query.id

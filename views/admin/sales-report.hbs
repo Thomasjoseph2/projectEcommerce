@@ -1,0 +1,117 @@
+   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ <style>
+
+    #growthChartContainer {
+      height: 400px; /* Set a fixed height for the chart container */
+      max-height: 400px; /* Specify a maximum height to prevent the chart from growing */
+      overflow: auto; /* Add scrollbars when needed */
+    }
+    
+  </style>
+
+  <div class="container mt-5">
+    <h1 >Sales Report</h1>
+
+  <div class="row">
+  <div class="col-md-4">
+    <div class="card mt-5">
+        <a style="text-decoration: none;" href="/admin/yearly-sales-table">
+      <div class="card-body" style="background-color:#fe7200;color:yellow">
+         {{#each yearlySales}}
+        <h2 class="card-title" style="color:aliceblue">Yearly Sales : {{@key}}</h2>
+        <p class="card-text"> ₹ {{this}}/-</p>
+        {{/each}}
+      </div>
+      </a>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card mt-5">
+      <div class="card-body" style="background-color:#fe7200;color:yellow">
+         {{#each monthlySales}}
+        <h2 class="card-title" style="color:aliceblue">This Month</h2>
+        <p class="card-text"> ₹ {{this}}/-</p>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card mt-5">
+      <div class="card-body" style="background-color:#fe7200;color:yellow">
+        <h2 class="card-title" style="color:aliceblue">This Week</h2>
+         {{#each weeklySales}}
+        <p class="card-text">₹ {{this}}/-</p>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <div class="row">
+      <div class="col-md-12 mt-5">
+        <h2 style="color:#fe7200">Monthly Sales</h2>
+        <hr>
+        <table class="table " id="myTable">
+          <thead>
+            <tr>
+              <th style="color:#fe7200">Month</th>
+              <th style="color:#fe7200">Sales</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each monthlyAllSales}}
+            <tr>
+              <td>{{@key}}</td>
+              <td>₹ {{this}}/-</td>
+            </tr>
+            {{/each}}
+           
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+     <div class="row">
+      <div class="col-md-12">
+        <h2 style="color:#fe7200">Growth Chart</h2>
+        <hr class="text-success">
+        <div id="growthChartContainer">
+          <canvas id="growthChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var ctx = document.getElementById('growthChart').getContext('2d');
+    var growthChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+        datasets: [{
+          label: 'Sales Growth',
+          data: [1000, 5000, 20000, 35000, 50000, 80000],
+          backgroundColor: 'rgba(0, 123, 255, 0.5)',
+          borderColor: 'rgba(0, 123, 255, 1)',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function (value) {
+                return '$' + value.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
+  </script>
+

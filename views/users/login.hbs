@@ -19,6 +19,10 @@
 					{{#if signupMessage}}
 					<h5 class="text-success">OTP verification successful!!!</h5>
 					{{/if}}
+
+					{{#if passwordReset}}
+					<h5 class="text-success">Password Changed successfully!!!</h5>
+					{{/if}}
 					<form class="row login_form" action="/login" method="post" id="loginForm">
 						<div class="col-md-12 form-group">
 							<input type="text" class="form-control" id="username" name="email" placeholder="Username"
@@ -49,7 +53,7 @@
 						<div class="col-md-12 form-group">
 							<button type="submit" value="submit" class="primary-btn">Log In</button>
 							<a href="/otp">OTP Login</a>
-							<a href="#">Forgot Password?</a>
+							<a href="/forgot-password">Forgot Password?</a>
 						</div>
 					</form>
 				</div>

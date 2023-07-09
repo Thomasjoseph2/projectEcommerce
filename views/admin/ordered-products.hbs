@@ -43,6 +43,7 @@
                                 <th scope="col"> <h5>Image</h5></th>
                                 <th scope="col"> <h5>Description</h5></th>
                                 <th scope="col"> <h5>Price</h5></th>
+                                <th scope="col"> <h5>Address</h5></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -64,7 +65,15 @@
                                 <td>
                                     <h5>₹{{this.product.productPrice}}/-</h5>
                                 </td>
-              
+                                 
+                                <td>{{this.address.address1}}
+                                    <br>
+                                    city:{{this.address.city}}
+                                    <br>
+                                    pin:{{this.address.pincode}}
+                                    <br>
+                                    phone:{{this.address.phone1}}
+                                </td>
                             </tr>
                            {{/each}}
                         </tbody>

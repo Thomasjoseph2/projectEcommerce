@@ -25,6 +25,10 @@
     <input type="text" name="couponCode" id="couponCode" placeholder="Enter coupon code">
     <div id="couponMessage"></div>
     <button class="btn" type="submit" id="applyCouponButton">Apply Coupon</button>
+      {{#if cancelled}}
+      <h4 class="text-danger ">Coupon Cancelled!!!! Apply again...</h4>
+      {{/if}}
+
 </form>
 <hr>
  {{#if address}}
@@ -106,7 +110,9 @@
                             </ul>
                             <ul class="list list_2">
                                 <li><a href="#">Subtotal <span>₹{{this.carttotal}}/-</span></a></li>
-                             
+                                {{#if this.coupon}}
+                               <li><span class="text-success text-center">Coupon Applied</span></li>
+                               {{/if}}
                                 <li><a href="#">Total <span>₹{{this.total}}/-</span></a></li>
                             </ul>
                             <div class="payment_item">

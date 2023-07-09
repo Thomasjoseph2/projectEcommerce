@@ -8,7 +8,7 @@ const handlebarsHelpers = require('handlebars-helpers');
 var db=require('./model/connection')
 var session=require('express-session')
 var mongodb=require('mongodb')
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcrypt');
 var usersRouter = require('./routes/users');
 var adminRouter = require('./routes/admin');
 
@@ -58,5 +58,6 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
 
 module.exports = app;

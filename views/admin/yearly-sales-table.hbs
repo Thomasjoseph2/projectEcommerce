@@ -1,0 +1,44 @@
+
+    <!-- Start Banner Area -->
+    <section class="banner-area organic-breadcrumb">
+        <div class="container">
+            <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+                <div class="col-first">
+                    <h1>Yearly Sales</h1>
+                    <nav class="d-flex align-items-center">
+                        
+                    </nav>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <section>
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive mt-3">
+                    <table class="table"  id="myTable">
+                        <thead>
+                            <tr>
+                                
+                                <th scope="col"> <h5>Year</h5></th>
+                                <th scope="col"> <h5>Sales </h5></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {{#each yearlySales}}
+                            <tr>
+                                <td>{{@key}}</td>
+                                <td>
+                                    <h5>₹{{this}}/-</h5>
+                                </td>
+                            </tr>
+                           {{/each}}
+                        </tbody>
+                    </table>
+                    
+                </div>
+            </div>
+        </div>
+    </section>

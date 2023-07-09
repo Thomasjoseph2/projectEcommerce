@@ -114,10 +114,10 @@ const verifyLogin = (req, res, next) => {
    }
    const userverifyBlock = async (req, res, next) => {
     try {
-      console.log("ivide vannitt ond");
+
       console.log(req.session.user._id);
-      let blocked = await adminHelper.isUserBlocked(req.session.user._id);
-      console.log(blocked,"sddddddddddd");
+      const blocked = await adminHelper.isUserBlocked(req.session.user._id);
+
       
       if (blocked) {
       req.session.blocked="you are blocked by the admin"
@@ -131,8 +131,23 @@ const verifyLogin = (req, res, next) => {
       console.error('Error occurred during block verification:', error);
       res.redirect('/error-page'); // Handle the error appropriately
     }
-  };
-  
+   
+}
+const userverifyEmail=async (req, res, next) => {
+  try {
+    console.log(req.body);
+    const emailExists = await userHelper.isemailExists(req.body.email);
+    if (emailExists) {
+      req.session.emailExistErr="email already exists"
+      res.redirect('/signup');
+    } else {
+      next();
+    }
+  } catch (error) {
+    console.error('Error occurred during block verification:', error);
+    res.redirect('/error-page'); // Handle the error appropriately
+  }
+};
   module.exports={
     verifyLogin,
     userVerifyLogin,
@@ -142,5 +157,6 @@ const verifyLogin = (req, res, next) => {
     isuserVerified,
     otpverifyBlock,
     otpuserisVerified,
-    userverifyBlock
+    userverifyBlock,
+    userverifyEmail
   }
