@@ -48,11 +48,24 @@ function removeProductFromWishlist(proId) {
         success: function(response) {
           if (response.wishlistProductRemoved) {
             showPopupMessage('Product removed from wishlist', 'success');
-            setTimeout(function(){location.reload()},1000)
-            
+            setTimeout(function() {
+              location.reload();
+            }, 1000);
+          } else {
+            showPopupMessage('Failed to remove product from wishlist', 'error');
+            setTimeout(function() {
+            window.location.href = '/'; // Redirect to the home page
+          }, 1000);
           }
+        },
+        error: function() {
+          showPopupMessage('Error occurred while removing product from wishlist', 'error');
+          setTimeout(function() {
+          window.location.href = '/'; // Redirect to the home page
+        }, 1000);
         }
       });
     }
   });
 }
+

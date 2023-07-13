@@ -113,6 +113,9 @@
                                 {{#if this.coupon}}
                                <li><span class="text-success text-center">Coupon Applied</span></li>
                                {{/if}}
+                               {{#if declined}}
+                               <li><span class="text-danger text-center">Coupon Declined apply again...</span></li>
+                               {{/if}}
                                 <li><a href="#">Total <span>₹{{this.total}}/-</span></a></li>
                             </ul>
                             <div class="payment_item">

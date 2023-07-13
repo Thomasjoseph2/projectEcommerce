@@ -18,10 +18,15 @@
     <div class="card mt-5">
         <a style="text-decoration: none;" href="/admin/yearly-sales-table">
       <div class="card-body" style="background-color:#fe7200;color:yellow">
+         {{#if yearlySales}}
          {{#each yearlySales}}
         <h2 class="card-title" style="color:aliceblue">Yearly Sales : {{@key}}</h2>
         <p class="card-text"> ₹ {{this}}/-</p>
+        {{else}}
+        <h2 class="card-title" style="color:aliceblue">Yearly Sales :</h2>
+            <p class="card-text">₹ 0/-</p>
         {{/each}}
+        {{/if}}
       </div>
       </a>
     </div>
@@ -29,10 +34,15 @@
   <div class="col-md-4">
     <div class="card mt-5">
       <div class="card-body" style="background-color:#fe7200;color:yellow">
-         {{#each monthlySales}}
         <h2 class="card-title" style="color:aliceblue">This Month</h2>
+         {{#if monthlySales}}
+         {{#each monthlySales}}
+        
         <p class="card-text"> ₹ {{this}}/-</p>
+        {{else}}
+            <p class="card-text">₹ 0/-</p>
         {{/each}}
+        {{/if}}
       </div>
     </div>
   </div>
@@ -40,9 +50,15 @@
     <div class="card mt-5">
       <div class="card-body" style="background-color:#fe7200;color:yellow">
         <h2 class="card-title" style="color:aliceblue">This Week</h2>
+        {{#if weeklySales}}
          {{#each weeklySales}}
         <p class="card-text">₹ {{this}}/-</p>
+         {{else}}
+            <p class="card-text">₹ 0/-</p>
         {{/each}}
+     
+       
+        {{/if}}
       </div>
     </div>
   </div>
@@ -83,35 +99,44 @@
       </div>
     </div>
   </div>
+<input type="hidden" id="yearlySalesData" value="{{yearlySalesData}}">
+<input type="hidden" id="yearlyLabels" value="{{yearlyLabels}}">
 
-  <script>
-    var ctx = document.getElementById('growthChart').getContext('2d');
-    var growthChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-        datasets: [{
-          label: 'Sales Growth',
-          data: [1000, 5000, 20000, 35000, 50000, 80000],
-          backgroundColor: 'rgba(0, 123, 255, 0.5)',
-          borderColor: 'rgba(0, 123, 255, 1)',
-          borderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: function (value) {
-                return '$' + value.toLocaleString();
-              }
+<script>
+  var yearlySalesData = document.getElementById('yearlySalesData').value;
+  var yearlyLabels = document.getElementById('yearlyLabels').value;
+
+  // Convert the yearlySalesData and yearlyLabels to an array
+  var yearlySalesDataArray = yearlySalesData.split(',');
+  var yearlyLabelsArray = yearlyLabels.split(',');
+
+  // Pass the array to the chart
+  var ctx = document.getElementById('growthChart').getContext('2d');
+  var growthChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: yearlyLabelsArray,
+      datasets: [{
+        label: 'Sales Growth',
+        data: yearlySalesDataArray,
+        backgroundColor: 'rgba(0, 123, 255, 0.5)',
+        borderColor: 'rgba(0, 123, 255, 1)',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function (value) {
+              return '₹' + value.toLocaleString();
             }
           }
         }
       }
-    });
-  </script>
-
+    }
+  });
+</script>

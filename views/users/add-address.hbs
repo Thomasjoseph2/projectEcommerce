@@ -124,23 +124,50 @@
 </div>
  </section>
    <script>
-    function removeAddress(addId) {
-  var confirmation = confirm("Are you sure you want to remove this address?");
-  if (confirmation) {
-    $.ajax({
-      url: '/remove-address',
-      data: {
-        addressId: addId
-      },
-      method: 'post',
-      success: function(response) {
-        if (response.addressRemoved) {
-          location.reload();
+function removeAddress(addId) {
+  Swal.fire({
+    title: 'Remove Address',
+    text: 'Are you sure you want to remove this address?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, remove it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        url: '/remove-address',
+        data: {
+          addressId: addId
+        },
+        method: 'post',
+        success: function(response) {
+          if (response.addressRemoved) {
+            showPopupMessage('Address removed', 'success');
+            setTimeout(function() {
+              location.reload();
+            }, 1000);
+          } else {
+            showPopupMessage('Failed to remove address', 'error');
+          }
+        },
+        error: function() {
+          showPopupMessage('Error occurred while removing address', 'error');
         }
-      }
-    });
-  }
+      });
     }
+  });
+}
+
+function showPopupMessage(message, type) {
+  Swal.fire({
+    text: message,
+    icon: type,
+    timer: 3000,
+    showConfirmButton: false
+  });
+}
+
 
 
   function makePrimary(addressId) {
@@ -152,9 +179,14 @@
       method: 'post',
       success: function(response) {
         if (response.addressMadePrimary) {
-          location.reload();
+             showPopupMessage('Primary address added', 'success');
+            setTimeout(function() {
+              location.reload();
+            }, 1000);
+       
         } else {
           console.log(response.error);
+          location.href='/error-page'
         }
       },
       error: function(err) {
@@ -162,5 +194,6 @@
       }
     });
   }
+
 
    </script>

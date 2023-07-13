@@ -1,7 +1,5 @@
 
-module.exports = router;
 var express = require('express');
-const { render } = require('../app')
 var router = express.Router();
 const auth = require('../middleware/auth')
 const admin = require('../controllers/admin')
@@ -23,6 +21,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 router.get('/login', admin.adminLoadLogin);
+
+router.get('/error-page',admin.getError)
 
 router.post('/login', admin.adminCheck);
 

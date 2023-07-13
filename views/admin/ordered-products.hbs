@@ -19,19 +19,29 @@
   <div class="container">
     <form action="/admin-order-manage" method="post" id="statusForm">
       <select class="select" name="status" id="statusSelect">
-        
         <option value="" disabled selected>Select Status</option>
-        <option value="approved">Approved</option>
-        <option value="cancelled">Cancelled</option>
-        <option value="shipped">Shipped</option>
-        <option value="delivered">Delivered</option>
-         <option value="returned">Returned</option>
+        {{#if (eq orderStatus "returnrequest")}}
+          <option value="returned">Approve</option>
+          <option value="approved">Cancel</option>
+        {{else if (eq orderStatus "cancelrequest")}}
+          <option value="cancelled">Approve</option>
+          <option value="approved">Cancel</option>
+        {{else}}
+          <option value="approved">Approved</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="returned">Returned</option>
+        {{/if}}
       </select>
       <input type="hidden" name="orderId" value="{{this.orderId}}">
       <button style="height: 42px; background-color:#fe7200;color:aliceblue;" class="btn" type="submit">Update Status</button>
     </form>
   </div>
 </section>
+
+
+
 
     <section>
         <div class="container">

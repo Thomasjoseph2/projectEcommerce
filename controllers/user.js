@@ -1,19 +1,14 @@
 const productHelpers = require('../helpers/product-helper');
-const userHelper = require('../helpers/users-helper');
 const adminHelper = require('../helpers/admin-helper');
-const usersHelper = require('../helpers/users-helper');
-const randomstring= require('randomstring')
+const userHelper = require('../helpers/users-helper');
+const randomstring = require('randomstring')
 const nodemailer = require('nodemailer');
 const { v4: uuidv4 } = require('uuid');
-const { log } = require('handlebars/runtime');
-const express = require('express');
-const { use } = require('../app');
 require('dotenv').config()
 const accountSid = process.env.ACCOUNT_SID
 const authToken = process.env.AUTH_TOCKEN
 const verifySid = process.env.VERIFY_SID;
 const client = require("twilio")(accountSid, authToken);
-
 let phone = "";
 
 const sendVerifyMail = async (name, email, userId) => {
@@ -22,7 +17,7 @@ const sendVerifyMail = async (name, email, userId) => {
 
     const transporter = nodemailer.createTransport({
 
-      host: 'smtp.ethereal.email',
+      host: 'smtp.gmail.com',
 
       port: 587,
 
@@ -41,7 +36,7 @@ const sendVerifyMail = async (name, email, userId) => {
 
     const mailOptions = {
 
-      from: 'smtp.ethereal.email',
+      from: 'smtp.gmail.com',
 
       to: email,
 
@@ -69,6 +64,8 @@ const sendVerifyMail = async (name, email, userId) => {
 
     console.log(err);
 
+    res.redirect('/error-page')
+
   }
 }
 
@@ -88,6 +85,7 @@ const verifyMail = async (req, res) => {
 
     console.log(err);
 
+    res.redirect('/error-page')
   }
 
 }
@@ -106,6 +104,8 @@ const getSignup = (req, res) => {
   } catch (err) {
 
     console.log(err);
+
+    res.redirect('/error-page')
 
   }
 
@@ -153,6 +153,8 @@ const signup = async (req, res) => {
 
     console.log(err);
 
+    res.redirect('/error-page')
+
   }
 
 }
@@ -180,7 +182,7 @@ const addAddress = async (req, res) => {
 
     console.log(err);
 
-    res.redirect('/')
+    res.redirect('/error-page')
 
   }
 
@@ -242,10 +244,10 @@ const getLogin = (req, res) => {
 
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
 
-      res.render('users/login', { loginErr: req.session.userLogginErr, notVerified: req.session.verificationErr, blocked: req.session.blocked ,passwordReset:req.session. passwordReset});
-      
-      req.session. passwordReset=false;
-      
+      res.render('users/login', { loginErr: req.session.userLogginErr, notVerified: req.session.verificationErr, blocked: req.session.blocked, passwordReset: req.session.passwordReset });
+
+      req.session.passwordReset = false;
+
       req.session.userLogginErr = false;
 
       req.session.verificationErr = false;
@@ -256,6 +258,9 @@ const getLogin = (req, res) => {
   } catch (err) {
 
     console.log(err);
+
+    res.redirect('/error-page')
+
   }
 
 };
@@ -288,6 +293,8 @@ const login = (req, res) => {
 
     console.log(err);
 
+    res.redirect('/error-page')
+
   }
 
 }
@@ -312,6 +319,8 @@ const logout = (req, res) => {
 
     console.log(err);
 
+    res.redirect('/error-page')
+
   }
 
 }
@@ -322,12 +331,6 @@ const getCart = async (req, res) => {
 
     const products = await userHelper.getCartProducts(req.session.user._id);
 
-    //   products.forEach((product) => {
-    //   const offerPercentage = product.product.productOffer || 0; // Get the productOffer, defaulting to 0 if not present
-    //   const offerPrice = product.quantity * (1 - offerPercentage / 100) * product.product.productPrice;
-    //   product.total = parseInt(offerPrice);
-    // });
-
     const Carttotal = await userHelper.getCartTotal(req.session.user._id);
 
     res.render('users/cart', { products, user: req.session.user, Carttotal });
@@ -336,6 +339,7 @@ const getCart = async (req, res) => {
 
     console.log(err);
 
+    res.redirect('/error-page')
   }
 
 }
@@ -351,6 +355,8 @@ const getWishList = async (req, res) => {
   } catch (err) {
 
     console.log(err);
+
+    res.redirect('/error-page')
 
   }
 
@@ -389,11 +395,16 @@ const addToCart = (req, res) => {
 
         res.status(500).json({ message: "Error adding to cart" });
 
+
+
+
       });
   }
   catch (err) {
 
     console.log(err);
+
+    res.redirect('/error-page')
 
   }
 };
@@ -440,6 +451,8 @@ const wishlistToCart = async (req, res) => {
 
     console.log(err);
 
+    res.redirect('/error-page')
+
   }
 
 }
@@ -484,6 +497,8 @@ const addToWishList = (req, res) => {
 
     console.log(err);
 
+    res.redirect('/error-page')
+
   }
 }
 
@@ -501,6 +516,8 @@ const getSearchResults = async (req, res) => {
 
     console.log(err);
 
+    res.redirect('/error-page')
+
   }
 
 };
@@ -517,6 +534,8 @@ const getAddAddress = async (req, res) => {
   } catch (err) {
 
     console.log(err);
+
+    res.redirect('/error-page')
 
   }
 
@@ -547,6 +566,8 @@ const getHome = async function (req, res, next) {
   } catch (err) {
 
     console.log(err);
+
+    res.redirect('/error-page')
 
   }
 
@@ -579,6 +600,9 @@ const changeProductQuantity = (req, res, next) => {
 
     console.log(err);
 
+
+    res.redirect('/error-page')
+
   }
 
 }
@@ -591,7 +615,9 @@ const getSingleProduct = async (req, res) => {
 
     const product = await productHelpers.getProductById(productId);
 
-    res.render('users/single-product', { product, user: req.session.user });
+    const category = await productHelpers.getCategoryById(product.productCategory)
+
+    res.render('users/single-product', { product, user: req.session.user, category });
 
   } catch (error) {
 
@@ -623,12 +649,26 @@ const getResetForm = async (req, res) => {
 
     console.error('Error occurred while fetching product:', error);
 
-    res.redirect('/error-page'); // Handle the error appropriately
+    res.redirect('/users/error-page') // Handle the error appropriately
 
   }
 
 }
+const getError = function (req, res) {
 
+  try {
+
+    res.render('users/error-page');
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.redirect('/');
+
+  }
+
+};
 
 
 
@@ -641,7 +681,7 @@ const changePasswordController = async (req, res) => {
     const currentPassword = req.body.currentpassword;
 
     const passwordMatch = await userHelper.passwordMatch(currentPassword, req.session.user._id);
-  
+
 
     if (passwordMatch) {
 
@@ -661,7 +701,7 @@ const changePasswordController = async (req, res) => {
 
     console.error('Error occurred', error);
 
-    res.redirect('users/error-page'); // Handle the error appropriately
+    res.redirect('/error-page'); // Handle the error appropriately
 
   }
 
@@ -672,44 +712,44 @@ const changePasswordController = async (req, res) => {
 const getForgotPassword = (req, res) => {
 
   try {
-    if(req.session.message){
-      res.render('users/forgot-password',{emailMessage:req.session.message});
-      req.session.message=false;
+    if (req.session.message) {
+      res.render('users/forgot-password', { emailMessage: req.session.message });
+      req.session.message = false;
     } else {
       res.render('users/forgot-password');
     }
-    
+
 
   } catch (error) {
 
     console.error('Error occurred while fetching product:', error);
 
-    res.redirect('users/error-page'); // Handle the error appropriately
+    res.redirect('/error-page'); // Handle the error appropriately
 
   }
 }
 
 const verifyPasswordEmail = async (req, res) => {
   try {
-      const email=req.body.email
+    const email = req.body.email
 
-      let emailExists=await userHelper.isemailExists(email)
-      
-      if (emailExists) {
+    let emailExists = await userHelper.isemailExists(email)
 
-        const userRandomstring=randomstring.generate();
+    if (emailExists) {
 
-        await usersHelper.addToken(email,userRandomstring)
+      const userRandomstring = randomstring.generate();
 
-        await  sendForgotPasswordMail(emailExists.name,email,userRandomstring)
+      await userHelper.addToken(email, userRandomstring)
 
-        req.session.message="verification email send check your mail and verify "
+      await sendForgotPasswordMail(emailExists.name, email, userRandomstring)
 
-        res.redirect('/forgot-password')
+      req.session.message = "verification email send check your mail and verify "
+
+      res.redirect('/forgot-password')
 
 
-      }
-      
+    }
+
   } catch (error) {
 
     console.error('Error occurred while fetching product:', error);
@@ -725,7 +765,7 @@ sendForgotPasswordMail = async (name, email, token) => {
 
     const transporter = nodemailer.createTransport({
 
-      host: 'smtp.ethereal.email',
+      host: 'smtp.gmail.com',
 
       port: 587,
 
@@ -744,7 +784,7 @@ sendForgotPasswordMail = async (name, email, token) => {
 
     const mailOptions = {
 
-      from: 'smtp.ethereal.email',
+      from: 'smtp.gmail.com',
 
       to: email,
 
@@ -772,23 +812,25 @@ sendForgotPasswordMail = async (name, email, token) => {
 
     console.log(err);
 
+    res.redirect('/error-page')
+
   }
 }
 
 const verifyToken = async (req, res) => {
 
   try {
-  
+
     const token = await userHelper.isTokenExist(req.query.token);
 
-  
-    if(token){
+
+    if (token) {
 
       res.render("users/set-password", { email: token.email });
 
 
-    }else{
-       res.redirect('/login')
+    } else {
+      res.redirect('/login')
     }
 
   } catch (err) {
@@ -802,26 +844,26 @@ const verifyToken = async (req, res) => {
 }
 
 
-const changeForgotPassword= async (req, res) => {
+const changeForgotPassword = async (req, res) => {
 
   try {
 
     const token = await userHelper.isTokenExist(req.body.email);
 
 
-     const result=await userHelper.changeForgotPassword(req.body.newPassword,req.body.email);
+    const result = await userHelper.changeForgotPassword(req.body.newPassword, req.body.email);
 
 
-     await usersHelper.addToken(req.body.email,"");
+    await userHelper.addToken(req.body.email, "");
 
-     req.session. passwordReset=true
+    req.session.passwordReset = true
 
     res.redirect('/login')
-    
+
   } catch (error) {
 
     console.error('Error occurred', error);
-   
+
     res.redirect('/error-page'); // Handle the error appropriately
   }
 }
@@ -852,6 +894,9 @@ const getOtp = (req, res) => {
   } catch (err) {
 
     console.log(err);
+
+
+    res.redirect('/error-page')
 
   }
 
@@ -887,6 +932,8 @@ const SendOtp = async (req, res) => {
   } catch (err) {
 
     console.log(err);
+
+    res.redirect('/otp')
 
   }
 };
@@ -937,6 +984,7 @@ const verifyOtp = async (req, res) => {
         } else {
 
           req.session.otpError = "Invalid OTP";
+
           res.redirect('/otp');
 
         }
@@ -965,7 +1013,7 @@ const removefromCart = async (req, res, next) => {
 
   try {
 
-    const response = await usersHelper.deleteProductFromCart(req.body);
+    const response = await userHelper.deleteProductFromCart(req.body);
 
     res.json(response);
 
@@ -973,7 +1021,7 @@ const removefromCart = async (req, res, next) => {
 
     console.log(error);
 
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.redirect('/error-page')
 
   }
 
@@ -1071,15 +1119,12 @@ const placeOrder = async (req, res, next) => {
 
     carttotal = parseInt(carttotal)
 
-    console.log(carttotal, "new cartotal");
-
     const discountedAmount = await userHelper.getDiscountedAmount(req.session.user._id);
 
     const checkCartTotl = await userHelper.getCheckCartTotal(req.session.user._id);
 
-    console.log(checkCartTotl, "primary cart total")
-
     if (carttotal === checkCartTotl) {
+
 
       if (discountedAmount) {
 
@@ -1088,8 +1133,8 @@ const placeOrder = async (req, res, next) => {
       } else {
 
         total = carttotal;
-        
-       req.session.couponapplyed = false
+
+        req.session.couponapplyed = false
 
         await userHelper.addDiscountedTotalChange(req.session.user._id, total)
 
@@ -1103,31 +1148,59 @@ const placeOrder = async (req, res, next) => {
 
       await userHelper.checkCartTotalChange(req.session.user._id);
 
-      await userHelper.changeCouponStatus(req.session.user._id,req.session.user.couponCode)
+      console.log(req.session.user.couponCode);
+
+      const alreadyUsed = await userHelper.isAlreadyUsedCoupon(req.session.user._id, req.session.user.couponCode);
+      
+
+      if (alreadyUsed === false) {
+
+        await userHelper.changeCouponStatus(req.session.user._id, req.session.user.couponCode)
+
+      }
+
+      const changed = await userHelper.isChanged(req.session.user._id, req.session.user.couponCode);
 
       await userHelper.addDiscountedTotalChange(req.session.user._id, total)
+
+      if (changed) {
+
+        req.session.couponDeclined = true
+
+      }
+      else {
+
+        req.session.couponDeclined = false
+
+      }
 
     }
 
     products.forEach((product) => {
-
-      product.total = product.product.productPrice * product.quantity;
-
+      if (product.appliedOffer === 'Product Offer') {
+        product.total = product.product.offerPrice * product.quantity;
+      } else if (product.appliedOffer === 'Category Offer') {
+        const discountPercentage = product.appliedOfferValue / 100;
+        const discountedPrice = product.product.productPrice * (1 - discountPercentage);
+        product.total = discountedPrice * product.quantity;
+      }
     });
+
 
     req.session.user.newtotal = 0;
 
     const user = await userHelper.getUser(req.session.user._id);
 
-    res.render('users/place-order', { total, user, products, carttotal, address, coupon: req.session.couponapplyed});
+    console.log(req.session.couponDeclined,"hi");
 
-    
+    res.render('users/place-order', { total, user, products, carttotal, address, coupon: req.session.couponapplyed, declined: req.session.couponDeclined });
+
 
   } catch (error) {
 
     console.log(error);
 
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.redirect('/error-page')
 
   }
 };
@@ -1136,6 +1209,7 @@ const doPlaceOrder = async (req, res) => {
 
   try {
 
+    req.session.couponDeclined = false;
 
     const products = await userHelper.getcartProductList(req.session.user._id);
 
@@ -1219,7 +1293,9 @@ const getOrderPlaced = (req, res) => {
 
     console.log(error);
 
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.redirect('/error-page')
+
+
 
   }
 
@@ -1237,7 +1313,7 @@ const getOrderList = async (req, res) => {
 
     console.log(error);
 
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.redirect('/error-page')
 
   }
 
@@ -1255,7 +1331,7 @@ const getProfile = async (req, res) => {
 
     console.log(error);
 
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.redirect('/error-page')
 
   }
 
@@ -1273,10 +1349,53 @@ const editProfile = async (req, res) => {
 
     console.log(error);
 
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.redirect('/error-page')
   }
 
 };
+
+
+const changeImage = async (req, res) => {
+  try {
+    // Retrieve the image data from the request body
+    const imageData = req.body.image;
+
+    console.log(imageData,"hiii");
+
+    // Generate a unique filename for the image (e.g., using a UUID library)
+    const filename = generateUniqueFilename();
+
+    // Extract the base64 data from the image data
+    const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
+
+    // Convert the base64 data to a buffer
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    // Save the image buffer to a file
+    fs.writeFile(`/images/${filename}.png`, buffer, (err) => {
+      if (err) {
+        console.error('Error saving image:', err);
+        res.status(500).send('Error saving image');
+      } else {
+        console.log('Image saved successfully');
+
+        // Update the user's image field in the database
+        User.findByIdAndUpdate(req.user._id, { image: filename }, (err, user) => {
+          if (err) {
+            console.error('Error updating user:', err);
+            res.status(500).send('Error updating user');
+          } else {
+            res.sendStatus(200);
+          }
+        });
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    res.redirect('/error-page');
+  }
+};
+
 
 const verifyPayment = (req, res) => {
 
@@ -1329,7 +1448,7 @@ const getOrderSummary = async (req, res) => {
 
     console.log(error);
 
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.redirect('/error-page')
 
   }
 
@@ -1350,7 +1469,7 @@ const searchCategory = async (req, res) => {
 
     console.log(error);
 
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.redirect('/error-page')
 
   }
 
@@ -1374,7 +1493,7 @@ const ListCategory = async (req, res) => {
 
     console.log(error);
 
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.redirect('/error-page')
 
   }
 
@@ -1420,6 +1539,12 @@ const verifyCoupon = async (req, res) => {
               req.session.user.newtotal = discountedTotal;
 
               req.session.couponapplyed = true;
+
+              if (req.session.couponDeclined) {
+
+                req.session.couponDeclined = false
+
+              }
 
               await userHelper.addDiscountedTotal(req.session.user._id, discountedTotal, total)
 
@@ -1513,6 +1638,8 @@ module.exports = {
   getForgotPassword,
   verifyPasswordEmail,
   verifyToken,
-  changeForgotPassword
+  changeForgotPassword,
+  getError,
+  changeImage
 
 };

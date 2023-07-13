@@ -15,17 +15,17 @@ const adminLoadLogin = function (req, res) {
     } else {
 
       res.render('admin/login', { adminLoginErr: req.session.adminLoginErr, admin: true });
-      
+
       req.session.adminLoginErr = false;
     }
 
-  } 
+  }
   catch (error) {
-  
+
     console.error(error);
-  
+
     res.redirect('/admin');
-  
+
   }
 };
 
@@ -95,13 +95,18 @@ const productList = function (req, res, next) {
 
       res.render('admin/view-products', { admin: true, products, adminLoggedIn: true });
 
+    }).catch((error) => {
+
+      console.error(error);
+
+      res.redirect('/admin/sales-report'); // Redirect to the sales-report page if an error occurs
     });
 
   } catch (error) {
 
     console.error(error);
 
-    res.redirect('/admin');
+    res.redirect('/admin/error-page');
 
   }
 
@@ -121,7 +126,7 @@ const getAddProduct = async function (req, res) {
 
     console.error(error);
 
-    res.redirect('/admin');
+    res.redirect('/admin/error-page');
 
   }
 
@@ -130,34 +135,34 @@ const getAddProduct = async function (req, res) {
 
 const addProduct = (req, res) => {
 
-  let arrayImage=[]
+  let arrayImage = []
 
-  for(let i=0;i<req.files.length;i++){
+  for (let i = 0; i < req.files.length; i++) {
 
-    arrayImage[i]=req.files[i].filename;
+    arrayImage[i] = req.files[i].filename;
 
   }
 
-  productHelpers.addProduct(req.body,arrayImage,(data) => {
+  productHelpers.addProduct(req.body, arrayImage, (data) => {
 
     const productId = data.insertedId;
 
     let categoryName = req.body.productCategory;
 
 
-   productHelpers.getCategoryId(categoryName, (categoryId) => {
-    
-    productHelpers.updateProductCategory(productId, categoryId, () => {
-    
-      // Updated code: Added callback parameter
-    
-      res.redirect('/admin/add-product');
-    
+    productHelpers.getCategoryId(categoryName, (categoryId) => {
+
+      productHelpers.updateProductCategory(productId, categoryId, () => {
+
+        // Updated code: Added callback parameter
+
+        res.redirect('/admin/add-product');
+
+      });
+
     });
-   
+
   });
- 
-});
 
 };
 
@@ -165,24 +170,22 @@ const addCategoryOffer = async (req, res) => {
 
   try {
 
-    console.log(req.body);
-    
     const categoryOffer = parseInt(req.body.categoryOffer);
-    
+
     const categoryId = req.body.categoryId;
-    
+
     await adminHelper.addOffer(categoryId, categoryOffer).then(() => {
-    
+
       res.redirect('/admin/category');
-    
+
     });
-  
+
   } catch (error) {
-  
+
     console.error(error);
-  
-    res.redirect('/admin');
-  
+
+    res.redirect('/admin/error-page');
+
   }
 };
 
@@ -190,8 +193,6 @@ const addCategoryOffer = async (req, res) => {
 const addProductOffer = async (req, res) => {
 
   try {
-
-    console.log(req.body);
 
     const productOffer = parseInt(req.body.productOffer);
 
@@ -214,8 +215,6 @@ const addProductOffer = async (req, res) => {
 const removeProductOffer = async (req, res) => {
 
   try {
-
-    console.log(req.body);
 
     const productOffer = parseInt(req.body.productOffer);
 
@@ -243,7 +242,7 @@ const removeCategoryOffer = async (req, res) => {
 
     const categoryOffer = 0;
 
-    await adminHelper.addOffer(categoryId,categoryOffer)
+    await adminHelper.addOffer(categoryId, categoryOffer)
 
     res.send({ message: 'Offer removed successfully' });
 
@@ -252,6 +251,8 @@ const removeCategoryOffer = async (req, res) => {
     console.error(error);
 
     res.status(500).send({ error: 'An error occurred' });
+
+
 
   }
 
@@ -327,7 +328,7 @@ const editProduct = (req, res) => {
 
     }
 
-    console.log(updatedProduct, "hi here i am");
+
 
     // Retrieve the category ID based on the category name
 
@@ -336,7 +337,7 @@ const editProduct = (req, res) => {
       if (categoryId) {
 
         productHelpers.updateProduct(productId, updatedProduct, categoryId, req).then(() => {
-         
+
           res.redirect('/admin')
 
         });
@@ -533,7 +534,7 @@ const getCategory = async function (req, res) {
 
     const categories = await adminHelper.getCategory();
 
-    res.render('admin/category', { admin: true, categories: categories, adminLoggedIn: true  });
+    res.render('admin/category', { admin: true, categories: categories, adminLoggedIn: true });
 
   } catch (error) {
 
@@ -544,7 +545,21 @@ const getCategory = async function (req, res) {
   }
 
 };
+const getError = function (req, res) {
 
+  try {
+
+    res.render('admin/error-page', { admin: true, adminLoggedIn: true });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.redirect('/admin');
+
+  }
+
+};
 const addCategory = async (req, res) => {
 
   try {
@@ -592,11 +607,11 @@ const checkProducts = async (req, res) => {
     res.json({ productExists: productExists });
 
   } catch (error) {
-  
+
     console.error(error);
-  
+
     res.redirect('/admin');
-  
+
   }
 };
 
@@ -609,13 +624,13 @@ const removeCategory = async (req, res) => {
 
     await adminHelper.removeCategory(ctId);
 
-    res.json({response:true})
+    res.json({ response: true })
 
   } catch (error) {
 
     console.error(error);
 
-    res.json({response:false})
+    res.json({ response: false })
 
     res.redirect('/admin');
   }
@@ -668,7 +683,7 @@ const getOrderList = async (req, res) => {
 
     console.error(error);
     // Send JSON response with error message
-
+    res.redirect('/admin/error-page');
   }
 
 };
@@ -689,7 +704,7 @@ const adminOrderDetailsPOST = async (req, res) => {
 
     const productDetails = await adminHelper.getProductsInOrder(orderId);
 
-    const orderAddress=await adminHelper.getOrderAddress(orderId)
+    const orderAddress = await adminHelper.getOrderAddress(orderId)
 
     productDetails.forEach((product) => {
 
@@ -697,11 +712,11 @@ const adminOrderDetailsPOST = async (req, res) => {
 
     });
 
-    console.log(productDetails,"product details");
-
     const orderStatus = await adminHelper.getOrderStatus(orderId); // Assuming you have a function to get the order status
- 
-    res.render('admin/ordered-products', { productDetails, admin: true, orderId, isReturnRequestOrCancelRequest: isReturnRequestOrCancelRequest(orderStatus) });
+
+    console.log(orderStatus, 'koli');
+
+    res.render('admin/ordered-products', { productDetails, admin: true, orderId, isReturnRequestOrCancelRequest: isReturnRequestOrCancelRequest(orderStatus), orderStatus });
 
   } catch (error) {
 
@@ -720,14 +735,11 @@ const changeStatus = async (req, res) => {
     const orderId = req.body.orderId;
 
     const status = req.body.status;
-    
+
 
     const order = await adminHelper.getOrder(orderId);
 
     await adminHelper.changeStatusOrder(orderId, status);
-
-
-    console.log(order, "this is the order");
 
     if (order.paymentMethod === 'COD' && order.OrderStatus === "returnrequest" && status === "returned") {
 
@@ -743,7 +755,7 @@ const changeStatus = async (req, res) => {
 
     } else if ((order.paymentMethod === 'WALLET' && order.OrderStatus === "returnrequest" && status === "returned") ||
 
-    (order.paymentMethod === 'WALLET' && order.OrderStatus === "cancelrequest" && status === "cancelled")) {
+      (order.paymentMethod === 'WALLET' && order.OrderStatus === "cancelrequest" && status === "cancelled")) {
 
       await adminHelper.updateWallet(order.userId, order.totalAmound);
 
@@ -755,7 +767,10 @@ const changeStatus = async (req, res) => {
 
     console.error(error);
 
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.redirect('/admin/error-page');
+    //res.status(500).json({ error: 'Internal Server Error' });
+
+
 
   }
 
@@ -780,14 +795,14 @@ const getCoupon = async (req, res) => {
 
     });
 
-   
+
     res.render('admin/coupon-manage', { admin: true, coupons });
   } catch (error) {
-  
+
     console.error(error);
-  
+
     res.redirect('/admin');
-  
+
   }
 };
 
@@ -810,53 +825,53 @@ const getCreateCoupon = (req, res) => {
 };
 
 const addCoupon = async (req, res) => {
-  
+
   try {
-  
+
     const coupon = req.body;
-  
+
     const couponExists = await adminHelper.couponExists(coupon.couponcode);
-  
+
     if (couponExists) {
-  
+
       req.session.admin.couponExistsError = "coupon already exists";
-  
+
       res.redirect('/admin/add-coupon');
-  
+
     } else if (parseInt(coupon.discount) > 100) {
-  
+
       req.session.admin.couponExistsError = "maximum discount is 100%";
-  
+
       res.redirect('/admin/add-coupon');
-  
+
     } else {
-  
+
       coupon.purchaseamound = parseInt(coupon.purchaseamound);
-  
+
       coupon.expiary = parseInt(coupon.expiary);
-  
+
       coupon.discount = parseInt(coupon.discount);
-  
+
       coupon.removed = false;
-  
+
       const currentDate = new Date();
-  
+
       const expiryDate = moment().add(coupon.expiary, 'days').toDate();
-  
+
       coupon.expiryDate = expiryDate;
-  
+
       coupon.createdAt = currentDate;
-  
+
       const coupons = await adminHelper.addCoupon(coupon);
-  
+
       res.redirect('/admin/add-coupon');
-  
+
     }
-  
+
   } catch (error) {
-  
+
     console.error(error);
-  
+
     res.redirect('/admin');
   }
 };
@@ -870,19 +885,19 @@ const removeCoupon = (req, res) => {
 
     adminHelper.removeCoupon(couponId)
 
-    .then(() => {
+      .then(() => {
 
-      res.redirect('/admin/coupon-manage');
+        res.redirect('/admin/coupon-manage');
 
-    })
+      })
 
-    .catch((error) => {
+      .catch((error) => {
 
-      console.log(error);
+        console.log(error);
 
-      res.redirect('/admin/coupon-manage');
+        res.redirect('/admin/coupon-manage');
 
-    });
+      });
 
   } catch (error) {
 
@@ -935,7 +950,7 @@ const getSalesReport = async (req, res) => {
 
   try {
 
-    const salesData = await  adminHelper.getDeleveredOrders();
+    const salesData = await adminHelper.getDeleveredOrders();
 
     const currentDate = moment(); // Get the current date
 
@@ -966,117 +981,148 @@ const getSalesReport = async (req, res) => {
     }, {});
 
     // Calculate current month's sales
-     const currentMonth = currentDate.month() + 1; // Months are zero-based
-    
-     const monthlySales = salesData.reduce((acc, sale) => {
-    
+    const currentMonth = currentDate.month() + 1; // Months are zero-based
+
+    const monthlySales = salesData.reduce((acc, sale) => {
+
       const saleDate = moment(sale.date, 'DD/MM/YYYY HH:mm:ss');
-    
+
       const year = saleDate.year();
-    
+
       const month = saleDate.month() + 1; // Months are zero-based
-    
+
       if (year === currentYear && month === currentMonth) {
-    
+
         const key = `${year}-${month}`;
-    
+
         if (!acc[key]) {
-    
+
           acc[key] = 0;
-    
+
         }
-    
+
         acc[key] += sale.totalAmound;
-    
+
       }
-    
+
       return acc;
-    
+
     }, {});
 
 
-            const monthlyAllSales = salesData.reduce((acc, sale) => {
-          
-            const saleDate = moment(sale.date, 'DD/MM/YYYY HH:mm:ss');
-          
-            const year = saleDate.year();
-          
-            const month = saleDate.month() + 1; // Months are zero-based
-          
-            const key = `${year}-${month}`;
-          
-            
-            if (!acc[key]) {
-            
-              acc[key] = 0;
-          }
+    const monthlyAllSales = salesData.reduce((acc, sale) => {
 
-          
-          acc[key] += sale.totalAmound;
-          
-          return acc;
-        },{});
-      
-
-    
-    const currentWeek = currentDate.isoWeek();
-    
-    const weeklySales = salesData.reduce((acc, sale) => {
-    
       const saleDate = moment(sale.date, 'DD/MM/YYYY HH:mm:ss');
-    
+
       const year = saleDate.year();
-    
-      const week = saleDate.isoWeek();
-    
-      if (year === currentYear && week === currentWeek) {
-    
-        const key = `${year}-${week}`;
-    
-        if (!acc[key]) {
-    
-          acc[key] = 0;
-    
-        }
-    
-        acc[key] += sale.totalAmound;
-    
+
+      const month = saleDate.month() + 1; // Months are zero-based
+
+      const key = `${year}-${month}`;
+
+
+      if (!acc[key]) {
+
+        acc[key] = 0;
       }
-    
+
+
+      acc[key] += sale.totalAmound;
+
       return acc;
-    
     }, {});
-    
+
+
+
+    const currentWeek = currentDate.isoWeek();
+
+    const weeklySales = salesData.reduce((acc, sale) => {
+
+      const saleDate = moment(sale.date, 'DD/MM/YYYY HH:mm:ss');
+
+      const year = saleDate.year();
+
+      const week = saleDate.isoWeek();
+
+      if (year === currentYear && week === currentWeek) {
+
+        const key = `${year}-${week}`;
+
+        if (!acc[key]) {
+
+          acc[key] = 0;
+
+        }
+
+        acc[key] += sale.totalAmound;
+
+      }
+
+      return acc;
+
+    }, {});
+
+    const yearlyData = salesData.reduce((acc, sale) => {
+
+      const saleDate = moment(sale.date, 'DD/MM/YYYY HH:mm:ss');
+
+      const year = saleDate.year();
+
+
+      if (!acc[year]) {
+
+        acc[year] = 0;
+
+      }
+
+      acc[year] += sale.totalAmound;
+
+      return acc;
+
+    }, {});
+
+
+    let yearlyLabels = Object.keys(yearlyData);
+
+    const yearlySalesData = yearlyLabels.map(year => yearlyData[year].toString());
+
     res.render('admin/sales-report', {
-    
+
       admin: true,
-    
+
       yearlySales,
-    
+
       monthlySales,
-    
+
       weeklySales,
-    
-      monthlyAllSales
-    
+
+      monthlyAllSales,
+
+      yearlyData,
+
+      yearlySalesData,
+
+      yearlyLabels
+
+
     });
-  } 
+  }
   catch (error) {
-  
+
     console.error(error);
-  
+
     res.redirect('/admin');
-  
+
   }
 };
 
 
 
-const getSalesTable= async (req, res) => {
+const getSalesTable = async (req, res) => {
 
   try {
 
-    const salesData = await  adminHelper.getDeleveredOrders();
+    const salesData = await adminHelper.getDeleveredOrders();
 
     // Calculate yearly sales
 
@@ -1099,9 +1145,8 @@ const getSalesTable= async (req, res) => {
 
     }, {});
 
-    console.log(yearlySales,"hii");
-    
-    res.render('admin/yearly-sales-table', {yearlySales,admin:true});
+
+    res.render('admin/yearly-sales-table', { yearlySales, admin: true });
 
   } catch (error) {
 
@@ -1148,7 +1193,8 @@ module.exports = {
   removeProductOffer,
   removeCategoryOffer,
   getSalesReport,
-  getSalesTable
+  getSalesTable,
+  getError
 
 
 }

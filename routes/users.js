@@ -3,11 +3,6 @@ var router = express.Router();
 const auth=require('../middleware/auth')
 const user=require('../controllers/user');
 const { route } = require('./admin');
-// const accountSid = "AC3d28d77a88183ef2695e962fdb125248";
-// const authToken = "51a2c439c67245cefb72ab439aade4a5";
-// const verifySid = "VA4f89b10c7da39304caf987482707ea03";
-// const client = require("twilio")(accountSid, authToken);
-
 const multer=require('multer')
 const path=require('path')
 
@@ -50,6 +45,8 @@ router.get('/add-to-wishlist/:id', auth.userVerifyLogin,user.addToWishList);
 
 router.get('/', user.getHome);
 
+router.get('/error-page',user.getError)
+
 router.post( '/change-product-quantity',user.changeProductQuantity);
 
 router.get('/single-product/:id',user.getSingleProduct);
@@ -83,6 +80,8 @@ router.post('/return-order',user.returnOrder)
 router.get('/user-profile',auth.userVerifyLogin,user.getProfile)
 
 router.post('/edit-profile',auth.userVerifyLogin,user.editProfile)
+
+router.post('/save-image',auth.userVerifyLogin,user.changeImage)
 
 //router.get('/add-details',auth.userVerifyLogin,user.getDetailsPage)
 
