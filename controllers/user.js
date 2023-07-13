@@ -331,6 +331,8 @@ const getCart = async (req, res) => {
 
     const products = await userHelper.getCartProducts(req.session.user._id);
 
+    console.log(products,"jii");
+
     const Carttotal = await userHelper.getCartTotal(req.session.user._id);
 
     res.render('users/cart', { products, user: req.session.user, Carttotal });
