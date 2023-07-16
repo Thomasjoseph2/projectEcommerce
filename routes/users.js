@@ -1,31 +1,28 @@
 var express = require('express');
 var router = express.Router();
-const auth=require('../middleware/auth')
-const user=require('../controllers/user');
-const { route } = require('./admin');
-const multer=require('multer')
-const path=require('path')
+const auth = require('../middleware/auth');
+const user = require('../controllers/user');
+const multer = require('multer');
+const path = require('path');
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      const directory = path.join(__dirname, '../public/images');
-      cb(null, directory);
-    },
-    filename: (req, file, cb) => {
-      const name = Date.now() + '-' + file.originalname;
-      cb(null, name);
-    }
-  });
-  
-  
-const upload = multer({ storage: storage })
+  destination: (req, file, cb) => {
+    const directory = path.join(__dirname, '../public/images');
+    cb(null, directory);
+  },
+  filename: (req, file, cb) => {
+    const name = Date.now() + '-' + file.originalname;
+    cb(null, name);
+  }
+});
 
-let phone = "";
-router.post('/add-user-image',upload.single('userImage'), user.addUserImage)
+const upload = multer({ storage: storage });
+
+router.post('/add-user-image', upload.single('userImage'), user.addUserImage);
 
 router.get('/signup', user.getSignup);
 
-router.post('/signup',auth.userverifyEmail,user.signup);
+router.post('/signup',auth.userverifyEmail,auth.userverifyPhone,user.signup);
 
 router.get('/login',user.getLogin );
 
@@ -38,6 +35,8 @@ router.get('/cart', auth.userVerifyLogin,auth.userverifyBlock,user.getCart);
 router.get('/wishlist', auth.userVerifyLogin,user.getWishList);
 
 router.get('/add-to-cart/:id', auth.userVerifyLogin,user.addToCart);
+
+router.get('/check-cart/:id',auth.userVerifyLogin,user.checkCart)
 
 router.get('/wishlist-to-cart/:id', auth.userVerifyLogin,auth.userverifyBlock,user.wishlistToCart);
 
@@ -82,10 +81,6 @@ router.get('/user-profile',auth.userVerifyLogin,user.getProfile)
 router.post('/edit-profile',auth.userVerifyLogin,user.editProfile)
 
 router.post('/save-image',auth.userVerifyLogin,user.changeImage)
-
-//router.get('/add-details',auth.userVerifyLogin,user.getDetailsPage)
-
-//router.post('/add-details',user.addUserDetails)
 
 router.post('/verify-payment',user.verifyPayment)
 

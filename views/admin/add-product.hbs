@@ -17,7 +17,11 @@
       <input type="number" class="form-control" id="product-price" name="productPrice" placeholder="Enter product price" min="0" required>
       <div id="product-price-error" class="error-message"></div>
     </div>
-    
+    <div class="form-group">
+      <label for="product-price">Product Quantity</label>
+      <input type="number" class="form-control" id="product-quantity" name="productQuantity" placeholder="Enter product Quantity" min="0" required>
+      <div id="product-quantity-error" class="error-message"></div>
+    </div>
     <div class="form-group mt-2">
       <label for="product-category">Category</label>
       <div>
@@ -47,6 +51,7 @@
     var productPriceInput = document.getElementById('product-price');
     var productCategoryInput = document.getElementById('product-category');
     var productImageInput = document.getElementById('product-image');
+    var productQuantityInput = document.getElementById('product-quantity');
     
     // Reset error messages
     document.getElementById('product-name-error').textContent = '';
@@ -54,6 +59,7 @@
     document.getElementById('product-price-error').textContent = '';
     document.getElementById('product-category-error').textContent = '';
     document.getElementById('product-image-error').textContent = '';
+    document.getElementById('product-quantity-error').textContent = '';
     
     // Validate product name
     if (productNameInput.value.trim() === '') {
@@ -64,6 +70,13 @@
       document.getElementById('product-name-error').textContent = 'Product Name cannot exceed 25 characters';
       return false;
     }
+      
+    // Validate product price
+    if (productQuantityInput.value.trim() === '') {
+      document.getElementById('product-quantity-error').textContent = 'Product Quantity is required';
+      return false;
+    }
+    
     
     // Validate product description
     if (productDescriptionInput.value.trim() === '') {

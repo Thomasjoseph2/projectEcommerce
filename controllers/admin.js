@@ -714,8 +714,6 @@ const adminOrderDetailsPOST = async (req, res) => {
 
     const orderStatus = await adminHelper.getOrderStatus(orderId); // Assuming you have a function to get the order status
 
-    console.log(orderStatus, 'koli');
-
     res.render('admin/ordered-products', { productDetails, admin: true, orderId, isReturnRequestOrCancelRequest: isReturnRequestOrCancelRequest(orderStatus), orderStatus });
 
   } catch (error) {
@@ -736,28 +734,60 @@ const changeStatus = async (req, res) => {
 
     const status = req.body.status;
 
-
     const order = await adminHelper.getOrder(orderId);
 
     await adminHelper.changeStatusOrder(orderId, status);
+
+    const products=order.products
 
     if (order.paymentMethod === 'COD' && order.OrderStatus === "returnrequest" && status === "returned") {
 
       await adminHelper.updateWallet(order.userId, order.totalAmound);
 
+      for (const product of products) {
+
+        await productHelpers.incrementQuantity(product.item, product.quantity);
+
+      }
+
+    } else if (order.paymentMethod === 'COD' && order.OrderStatus === "cancelrequest" && status === "cancelled") {
+
+      for (const product of products) {
+
+        await productHelpers.incrementQuantity(product.item, product.quantity);
+      }
+
     } else if (order.paymentMethod === 'ONLINE' && order.OrderStatus === "cancelrequest" && status === "cancelled") {
 
       await adminHelper.updateWallet(order.userId, order.totalAmound);
+      
+      for (const product of products) {
 
-    } else if (order.paymentMethod === 'ONLINE' && order.OrderStatus === "returnrequest" && status === "returned") {
+        await productHelpers.incrementQuantity(product.item, product.quantity);
+
+      }
+
+    }else if (order.paymentMethod === 'ONLINE' && order.OrderStatus === "returnrequest" && status === "returned") {
 
       await adminHelper.updateWallet(order.userId, order.totalAmound);
+
+      for (const product of products) {
+
+        await productHelpers.incrementQuantity(product.item, product.quantity);
+
+      }
 
     } else if ((order.paymentMethod === 'WALLET' && order.OrderStatus === "returnrequest" && status === "returned") ||
 
       (order.paymentMethod === 'WALLET' && order.OrderStatus === "cancelrequest" && status === "cancelled")) {
 
       await adminHelper.updateWallet(order.userId, order.totalAmound);
+
+      for (const product of products) {
+
+        await productHelpers.incrementQuantity(product.item, product.quantity);
+        
+      }
 
     }
 

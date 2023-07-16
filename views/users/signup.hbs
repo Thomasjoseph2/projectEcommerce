@@ -13,14 +13,14 @@
             <div class="hover">
               <h4>Welcome...</h4>
               <p>There are advances being made in science and technology everyday, and a good example of this is the
-                Electronic Gadgets</p>
+                Electronic Watches</p>
             </div>
           </div>
         </div>
         <div class="col-lg-6">
           <div class="login_form_inner">
             <h3>Signup</h3>
-			{{#if verifyErr}} <h4>seems like you dont have an account </h4>{{/if}}
+			      {{#if verifyErr}} <h4>seems like you dont have an account </h4>{{/if}}
             <form class="row login_form" action="/signup" method="post" id="contactForm">
               <div class="col-md-12 form-group">
                 <input type="text" class="form-control" id="name" name="name" placeholder="Full Name"
@@ -32,12 +32,13 @@
                   onfocus="this.placeholder = ''" onblur="this.placeholder = 'Email'">
                 <span id="emailError" class="error"></span>
                 {{#if emailError}}<h7 class="text-danger text-center">{{ emailError}} </h7>{{/if}}
-              
+                 
               </div>
               <div class="col-md-12 form-group">
                 <input type="text" class="form-control" id="phoneNumber" name="phonenumber" placeholder="Phone Number"
                   onfocus="this.placeholder = ''" onblur="this.placeholder = 'Phone Number'" value="+91" required>
                 <span id="phoneNumberError" class="error"></span>
+                     {{#if phoneError}}<h7 class="text-danger text-center">{{phoneError}} </h7>{{/if}}
               </div>
               <div class="col-md-12 form-group">
                 <input type="text" class="form-control" id="referalCode" name="referalCode" placeholder="Referal Code (optional)"
@@ -49,11 +50,16 @@
                 <span id="passwordError" class="error"></span>
               </div>
 
+               <div class="col-md-12 form-group">
+                <input type="password" class="form-control" id="confirmpassword" name="confirmpassword" placeholder="Confirm Password"
+                  onfocus="this.placeholder = ''" onblur="this.placeholder = 'Password'">
+                <span id="confirmPasswordError" class="error"></span>
+              </div>
+
                 {{#if message}} <p class="text-success">{{message}}</p>{{/if}}
                   
               <div class="col-md-12 form-group">
                 <button type="submit" value="submit" class="primary-btn">Sign Up</button>
-                <a href="#">Forgot Password?</a>
               </div>
             </form>
           </div>
@@ -68,84 +74,36 @@
 <script src="/javascripts/signup.js"></script>
 
 <script>
-  // Get references to the form and form fields
-  /*const form = document.getElementById('contactForm');
-  const nameInput = document.getElementById('name');
-  const emailInput = document.getElementById('Email');
-  const phoneNumberInput = document.getElementById('phoneNumber');
-  const passwordInput = document.getElementById('Password');
+  const form = document.getElementById("contactForm");
+  const passwordInput = document.getElementById("Password");
+  const confirmPasswordInput = document.getElementById("confirmpassword");
+  const passwordError = document.getElementById("passwordError");
+  const confirmPasswordError = document.getElementById("confirmpasswordError");
 
-  // Get references to the error message elements
-  const nameError = document.getElementById('nameError');
-  const emailError = document.getElementById('emailError');
-  const phoneNumberError = document.getElementById('phoneNumberError');
-  const passwordError = document.getElementById('passwordError');
+  form.addEventListener("submit", function(event) {
+    const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
 
-  // Add an event listener to the form on submit
-  form.addEventListener('submit', function(event) {
-    // Prevent the form from submitting by default
-    event.preventDefault();
+    // Password validation
+    if (!isStrongPassword(password)) {
+      event.preventDefault();
+      passwordError.textContent = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
+    } else {
+      passwordError.textContent = "";
+    }
 
-    // Perform form validation
-    if (validateForm()) {
-      // If the form is valid, submit the form
-      form.submit();
+    // Confirm Password validation
+    if (password !== confirmPassword) {
+      event.preventDefault();
+      confirmPasswordError.textContent = "Passwords do not match.";
+    } else {
+      confirmPasswordError.textContent = "";
     }
   });
 
-  // Function to validate the form
-  function validateForm() {
-    // Get the values from the form fields
-    const name = nameInput.value.trim();
-    const email = emailInput.value.trim();
-    const phoneNumber = phoneNumberInput.value.trim();
-    const password = passwordInput.value.trim();
-
-    // Clear previous error messages
-    nameError.textContent = '';
-    emailError.textContent = '';
-    phoneNumberError.textContent = '';
-    passwordError.textContent = '';
-
-    // Perform individual field validations
-    let isValid = true;
-
-    if (name === '') {
-      nameError.textContent = 'Please enter your full name.';
-      isValid = false;
-    }
-
-    if (email === '') {
-      emailError.textContent = 'Please enter your email address.';
-      isValid = false;
-    }
-
-    if (phoneNumber === '') {
-      phoneNumberError.textContent = 'Please enter your phone number.';
-      isValid = false;
-    } else if (!isValidPhoneNumber(phoneNumber)) {
-      phoneNumberError.textContent = 'Please enter a valid phone number.';
-      isValid = false;
-    }
-
-    if (password === '') {
-      passwordError.textContent = 'Please enter your password.';
-      isValid = false;
-    }
-
-    // You can add more validations as needed
-
-    return isValid; // Return true if all validations pass
+  // Password strength validation function
+  function isStrongPassword(password) {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
   }
-
-  // Function to validate the phone number format
-  function isValidPhoneNumber(phoneNumber) {
-    // Regular expression to match a valid phone number format
-    const phoneRegex = /^[+]\d{1,3}\s?\d{3}\s?\d{3}\s?\d{4}$/;
-
-    // Test the phone number against the regex
-    return phoneRegex.test(phoneNumber);
-  }*/
 </script>
-
-

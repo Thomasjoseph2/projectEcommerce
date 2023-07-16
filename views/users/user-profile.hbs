@@ -1749,8 +1749,11 @@
   }
 </style>
 
-{{!--
-<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet"> --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+
+
 
 
 <div class="main-content">
@@ -1781,24 +1784,18 @@
         <div class="card card-profile shadow">
           <div class="row justify-content-center">
             <div class="col-lg-3 order-lg-2">
-              <form enctype="multipart/form-data" action="/add-user-image" method="POST">
-                <!-- Other form fields -->
 
-                <div class="card-profile-image">
-                  <a href="#">
-                    {{#if user.image}}
-                    <img src="/images/{{user.image}}" class="rounded-circle" id="profile-image">
-                    {{else}}
-                    <img src="/img/no-avatar.webp" class="rounded-circle" id="profile-image">
-                    {{/if}}
-                  </a>
-                </div>
+              <div class="card-profile-image">
+                <a href="#">
+                  {{#if user.image}}
+                  <img src="/images/{{user.image}}" class="rounded-circle" id="profile-image">
+                  {{else}}
+                  <img src="/img/no-avatar.webp" class="rounded-circle" id="profile-image">
+                  {{/if}}
+                </a>
+              </div>
 
-                <input type="file" name="userImage" id="profile-image-input" style="display: none;">
-
-                <!-- Form submit button (conditionally shown) -->
-                <button type="submit" id="save-button" class="btn btn-primary" style="display: none;">Save</button>
-              </form>
+              <input type="file" name="userImage" id="profile-image-input" style="display: none;">
 
             </div>
           </div>
@@ -1835,7 +1832,7 @@
                 Referal Code:{{user.referalCode}}
               </div>
               <div class="h5 mt-5">
-                
+
               </div>
 
 
@@ -1851,7 +1848,8 @@
                 <h3 class="mb-0">My account</h3>
               </div>
               <div class="col-4 text-right">
-                <a href="#!" class="btn btn-sm btn-primary">Details</a>
+                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
+                  data-target="#couponsModal">Coupons available</button>
               </div>
             </div>
           </div>
@@ -1871,7 +1869,7 @@
                     <div class="form-group focused">
                       <label class="form-control-label" for="input-email">Email address</label>
                       <input type="email" id="input-email" class="form-control form-control-alternative"
-                       value="{{user.email}}" readonly>
+                        value="{{user.email}}" readonly>
                     </div>
                   </div>
                 </div>
@@ -1880,14 +1878,14 @@
                     <div class="form-group focused">
                       <label class="form-control-label" for="input-first-name">Phone Number</label>
                       <input type="text" id="input-first-name" class="form-control form-control-alternative"
-                         value="{{user.phonenumber}}" readonly>
+                        value="{{user.phonenumber}}" readonly>
                     </div>
                   </div>
                   <div class="col-lg-6">
                     <div class="form-group focused">
                       <label class="form-control-label" for="input-first-name">User id</label>
                       <input type="text" id="input-first-name" class="form-control form-control-alternative"
-                         value="{{user._id}}" readonly>
+                        value="{{user._id}}" readonly>
                     </div>
                   </div>
                 </div>
@@ -1900,7 +1898,8 @@
   </div>
 </div>
 {{/if}}
-<div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+<div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-labelledby="editProfileModalLabel"
+  aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -1918,7 +1917,8 @@
           </div>
           <div class="form-group">
             <label for="inputPhoneNumber">Phone Number</label>
-            <input type="text" class="form-control" id="phonenumber" name="phonenumber" value="{{user.phonenumber}}" placeholder="Change mobile number" required>
+            <input type="text" class="form-control" id="phonenumber" name="phonenumber" value="{{user.phonenumber}}"
+              placeholder="Change mobile number" required>
             <small id="phoneError" class="form-text text-danger"></small>
           </div>
           <div class="form-group">
@@ -1926,15 +1926,85 @@
             <input type="email" class="form-control" id="email" name="email" value="{{user.email}}" required>
             <small id="emailError" class="form-text text-danger"></small>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary" id="saveProfileButton">Save changes</button>
-        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary" id="saveProfileButton">Save changes</button>
+      </div>
       </form>
     </div>
   </div>
 </div>
+<!-- Modal -->
+
+<form id="cropImageForm" enctype="multipart/form-data" method="POST">
+  <div class="modal fade" id="cropImageModal" tabindex="-1" role="dialog" aria-labelledby="cropImageModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="cropImageModalLabel">Crop Image</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <img id="cropping-image" src="" alt="Cropping Image">
+          <input type="hidden" id="croppedImage" name="croppedImage">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="cropImageBtn">Crop and Save</button>
+        </div>
+        <input type="file" id="croppedImageInput" name="croppedImage" style="display: none;">
+      </div>
+    </div>
+  </div>
+</form>
+
+<div class="modal fade" id="couponsModal" tabindex="-1" role="dialog" aria-labelledby="couponsModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="couponsModalLabel">Available Coupons</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Coupon Code</th>
+              <th>Discount</th>
+              <th>Min Purchase Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each coupons}}
+            <tr class="text-center">
+              <td><i class="far fa-copy copy-icon" data-coupon="{{this.couponcode}}"></i></td>
+              <td>
+                <span class="coupon-code">{{this.couponcode}}</span>
+              </td>
+              <td>{{this.discount}}%</td>
+              <td>{{this.purchaseamound}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <footer class="footer mt-5">
   <div class="row align-items-center justify-content-xl-between">
     <div class="col-xl-6 m-auto text-center">
@@ -1944,12 +2014,40 @@
     </div>
   </div>
 </footer>
+
 <script>
-  
-  document.addEventListener('DOMContentLoaded', function () {
+  var cropper; // Declare the variable to store the Cropper instance
+
+  function saveCroppedImage() {
+    if (cropper) {
+      cropper.getCroppedCanvas().toBlob(function (blob) {
+        var formData = new FormData();
+        formData.append('userImage', blob);
+
+        $.ajax({
+          url: '/add-user-image',
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (response) {
+            location.reload()
+          },
+          error: function (xhr) {
+            console.log('Image upload failed with status:', xhr.status);
+          }
+        });
+      });
+    } else {
+      console.log('No image is cropped');
+    }
+
+    $('#cropImageModal').modal('hide');
+  }
+
+  $(document).ready(function () {
     var profileImage = document.getElementById('profile-image');
     var profileImageInput = document.getElementById('profile-image-input');
-    var saveButton = document.getElementById('save-button');
 
     profileImage.addEventListener('click', function () {
       profileImageInput.click();
@@ -1960,33 +2058,79 @@
       var reader = new FileReader();
 
       reader.onload = function () {
+        // Update the source of the profile image
         profileImage.src = reader.result;
-        saveButton.style.display = 'block'; // Show the save button when an image is selected
+
+        // Show the modal to allow cropping
+        $('#cropImageModal').modal('show');
+
+        // Initialize the Cropper instance
+        if (cropper) {
+          cropper.destroy(); // Destroy the existing instance if it exists
+        }
+        var imageElement = document.getElementById('cropping-image');
+        imageElement.src = reader.result;
+        imageElement.onload = function () {
+          cropper = new Cropper(imageElement, {
+            aspectRatio: 1, // Set the aspect ratio for cropping (adjust as per your requirement)
+            viewMode: 1 // Set the default view mode
+          });
+        };
       };
 
       if (file) {
         reader.readAsDataURL(file);
       }
     });
+
+    $('#cropImageBtn').click(function () {
+      saveCroppedImage();
+    });
   });
-  
-  document.getElementById("editProfileForm").addEventListener("submit", function(event) {
-    var phoneNumberInput = document.getElementById("phonenumber");
-    var phoneNumberError = document.getElementById("phoneError");
-    var emailInput = document.getElementById("email");
-    var emailError = document.getElementById("emailError");
-    
+
+  document.getElementById('editProfileForm').addEventListener('submit', function (event) {
+    var phoneNumberInput = document.getElementById('phonenumber');
+    var phoneNumberError = document.getElementById('phoneError');
+    var emailInput = document.getElementById('email');
+    var emailError = document.getElementById('emailError');
+
     var phoneNumberValue = phoneNumberInput.value;
     if (!phoneNumberValue.match(/^\+91[0-9]{10}$/)) {
       event.preventDefault(); // Prevent form submission
       phoneNumberError.textContent = "Please enter a valid phone number starting with '+91' followed by 10 digits.";
     }
-    
+
     var emailValue = emailInput.value;
     if (!emailValue.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]+)*$/)) {
       event.preventDefault(); // Prevent form submission
       emailError.textContent = "Please enter a valid email address.";
     }
   });
-  
+
+  document.getElementById('cropImageForm').addEventListener('submit', function (event) {
+    event.preventDefault(); // Prevent form submission
+    saveCroppedImage();
+  });
+
+</script>
+<script>
+  $(document).ready(function () {
+    // Copy coupon code when copy icon is clicked
+    $('.copy-icon').click(function () {
+      var couponCode = $(this).data('coupon');
+      copyToClipboard(couponCode);
+    });
+
+    // Copy to clipboard function
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text)
+        .then(function () {
+          // Show a feedback message
+          alert('Coupon code copied to clipboard: ' + text);
+        })
+        .catch(function (error) {
+          console.error('Failed to copy coupon code to clipboard:', error);
+        });
+    }
+  });
 </script>

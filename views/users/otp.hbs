@@ -1,6 +1,3 @@
-
-
-
 <!--================Login Box Area =================-->
 <section class="login_box_area section_gap mt-5">
   <div class="container">
@@ -22,13 +19,13 @@
             <div class="col-md-12 form-group">
               <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="Phone Number" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Phone Number'">
               <p id="phoneNumberError" class="error text-danger"></p>
-			         {{#if phoneError}}
+              <div class="text-danger" id="timer"></div>
+              {{#if phoneError}}
               <p class="error text-danger">{{phoneError}}</p>
-               {{/if}}
-                {{#if blocked}}
+              {{/if}}
+              {{#if blocked}}
               <p class="error text-danger">{{blocked}}</p>
-               {{/if}}
-
+              {{/if}}
             </div>
             <div class="col-md-12 form-group">
               <button id="sendOtpBtn" type="submit" class="primary-btn">Send OTP</button>
@@ -40,11 +37,10 @@
               <p id="otpError" class="error text-danger"></p>
             </div>
             <div class="col-md-12 form-group">
-             <!-- Add this code where you want to display the error message -->
-{{#if otpError}}
-  <p class="error text-danger">{{otpError}}</p>
-{{/if}}
-
+              <!-- Add this code where you want to display the error message -->
+              {{#if otpError}}
+              <p class="error text-danger">{{otpError}}</p>
+              {{/if}}
             </div>
             <div class="col-md-12 form-group">
               <button type="submit" class="primary-btn">Log In</button>
@@ -58,10 +54,8 @@
 <!--================End Login Box Area =================-->
 
 
-<script src="/javascripts/otp.js"></script>
-
 <script>
- /* document.getElementById('contactForm').addEventListener('submit', function(event) {
+  document.getElementById('contactForm').addEventListener('submit', function(event) {
     event.preventDefault();
     validatePhoneNumber();
   });
@@ -111,5 +105,52 @@
 
     // Test the phone number against the regex
     return phoneRegex.test(phoneNumber);
-  }*/
+  }
+
+  // Function to start the timer
+  function startTimer(duration, displayElement, buttonElement) {
+    let timer = duration;
+    let minutes;
+    let seconds;
+
+    // Function to update the timer display
+    function updateTimer() {
+      minutes = Math.floor(timer / 60);
+      seconds = timer % 60;
+
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      seconds = seconds < 10 ? '0' + seconds : seconds;
+
+      displayElement.textContent = minutes + ':' + seconds;
+
+      // When the timer reaches 0, stop the timer and enable the button with "Resend OTP" text
+      if (timer <= 0) {
+        clearInterval(timerInterval);
+        buttonElement.disabled = false;
+        buttonElement.textContent = 'Resend OTP';
+      }
+
+      timer--;
+    }
+
+    // Initial update
+    updateTimer();
+
+    // Start the timer interval
+    let timerInterval = setInterval(updateTimer, 1000);
+  }
+
+  // Event listener for the "Send OTP" button
+  document.getElementById('contactForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    validatePhoneNumber();
+
+    // If the phone number is valid, start the timer and modify the button
+    if (!document.getElementById('phoneNumberError').textContent) {
+      const timerDisplay = document.getElementById('timer');
+      const sendOtpBtn = document.getElementById('sendOtpBtn');
+      sendOtpBtn.textContent = '';
+      startTimer(60, timerDisplay, sendOtpBtn);
+    }
+  });
 </script>

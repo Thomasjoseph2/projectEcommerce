@@ -20,6 +20,8 @@ module.exports = {
 
     product.productPrice = parseInt(product.productPrice);
 
+    product.productQuantity=parseInt(product.productQuantity)
+
 
     try {
 
@@ -409,6 +411,7 @@ module.exports = {
     }
 
   },
+ 
 
   isProductExist: (ctId) => {
 
@@ -454,5 +457,40 @@ module.exports = {
     });
 
   },
+
+    decrementQuantity: (productId, quantity) => {
+      return new Promise((resolve, reject) => {
+        db.get()
+          .collection(collection.PRODUCT_COLLECTION)
+          .updateOne(
+            { _id: productId },
+            { $inc: { productQuantity: -quantity } }
+          )
+          .then(() => {
+            resolve();
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
+    },
+    incrementQuantity: (productId, quantity) => {
+
+      console.log(quantity);
+      return new Promise((resolve, reject) => {
+        db.get()
+          .collection(collection.PRODUCT_COLLECTION)
+          .updateOne(
+            { _id: productId },
+            { $inc: { productQuantity: quantity } }
+          )
+          .then(() => {
+            resolve();
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
+    },
 };
 

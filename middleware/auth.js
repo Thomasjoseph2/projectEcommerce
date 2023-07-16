@@ -148,6 +148,20 @@ const userverifyEmail=async (req, res, next) => {
     res.redirect('/error-page'); // Handle the error appropriately
   }
 };
+const userverifyPhone=async (req, res, next) => {
+  try {
+    const phoneExists = await userHelper.searchUser(req.body.phonenumber);
+    if (phoneExists) {
+      req.session.phoneExistErr="Phonenumber already exists"
+      res.redirect('/signup');
+    } else {
+      next();
+    }
+  } catch (error) {
+    console.error('Error occurred during block verification:', error);
+    res.redirect('/error-page'); // Handle the error appropriately
+  }
+};
   module.exports={
     verifyLogin,
     userVerifyLogin,
@@ -158,5 +172,6 @@ const userverifyEmail=async (req, res, next) => {
     otpverifyBlock,
     otpuserisVerified,
     userverifyBlock,
-    userverifyEmail
+    userverifyEmail,
+    userverifyPhone
   }

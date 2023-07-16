@@ -53,7 +53,6 @@
                                 <div class="product_count">
                                     <input id="{{this.product._id}}" type="text" name="qty" maxlength="12"
                                         value="{{this.quantity}}" title="Quantity:" class="input-text qty" readonly>
-
                                     <button
                                         onclick="changeQuantity('{{this._id}}', '{{this.product._id}}','{{../user._id}}' ,1);"
                                         class="increase items-count" type="button"><i
@@ -77,6 +76,8 @@
                             </td>
 
                         </tr>
+                       <input type="hidden" id="productQuantity-{{this.product._id}}" value="{{this.product.productQuantity}}">
+
                         {{/each}}
 
                         <tr class="bottom_button">
@@ -90,12 +91,6 @@
 
                             </td>
                             <td>
-                                {{!-- <form action="/apply-coupon" method="post">
-    <div class="cupon_text d-flex align-items-center">
-        <input type="text" name="couponCode" placeholder="Coupon Code">
-        <button class="primary-btn" type="submit">Apply</button>
-    </div>
-</form> --}}
 
                             </td>
                         </tr>
@@ -143,47 +138,60 @@
 
 
 <script>
-  function changeQuantity(cartId, proId, userId, count) {
-    let quantity = parseInt(document.getElementById(proId).value);
-    const newQuantity = quantity + parseInt(count);
+function changeQuantity(cartId, proId, userId, count) {
+  let quantity = parseInt(document.getElementById(proId).value);
+  const newQuantity = quantity + parseInt(count);
 
-    $.ajax({
-      url: '/change-product-quantity',
-      data: {
-        user: userId,
-        cart: cartId,
-        product: proId,
-        count: count,
-        quantity: newQuantity
-      },
-      method: 'post',
-      success: (response) => {
-        if (response.cartProductRemoved) {
-          Swal.fire({
-            icon: 'success',
-            text: 'Product removed from cart'
-          }).then(() => {
-            location.reload();
-          });
-        } else {
-          console.log(response);
-          document.getElementById(proId).value = newQuantity;
-          document.getElementById("totl").innerHTML = response.Carttotal;
+  // Get the maximum quantity allowed for the product
+  const maxQuantity = parseInt(document.getElementById(`productQuantity-${proId}`).value);
 
-          const eachTotalArray = response.eachTotal;
-
-          eachTotalArray.forEach(eachTotalObject => {
-            const eachTotalElement = document.getElementById(eachTotalObject.productId);
-            if (eachTotalElement) {
-              eachTotalElement.innerHTML = eachTotalObject.total;
-            } else {
-              console.error("Element not found for product with ID " + eachTotalObject.productId);
-            }
-          });
-        }
-      }
+  if (newQuantity > maxQuantity) {
+    // Show an alert for exceeding the product quantity
+    Swal.fire({
+      icon: 'error',
+      text: 'Maximum order quantity exceeded'
     });
+    return; // Stop further execution
   }
+
+  $.ajax({
+    url: '/change-product-quantity',
+    data: {
+      user: userId,
+      cart: cartId,
+      product: proId,
+      count: count,
+      quantity: newQuantity
+    },
+    method: 'post',
+    success: (response) => {
+      if (response.cartProductRemoved) {
+        Swal.fire({
+          icon: 'success',
+          text: 'Product removed from cart'
+        }).then(() => {
+          location.reload();
+        });
+      } else {
+        console.log(response);
+        document.getElementById(proId).value = newQuantity;
+        document.getElementById("totl").innerHTML = response.Carttotal;
+
+        const eachTotalArray = response.eachTotal;
+
+        eachTotalArray.forEach(eachTotalObject => {
+          const eachTotalElement = document.getElementById(eachTotalObject.productId);
+          if (eachTotalElement) {
+            eachTotalElement.innerHTML = eachTotalObject.total;
+          } else {
+            console.error("Element not found for product with ID " + eachTotalObject.productId);
+          }
+        });
+      }
+    }
+  });
+}
+
 
   function removeProductFromCart(cartId, productId) {
     Swal.fire({

@@ -4,12 +4,14 @@ const nameInput = document.getElementById('name');
 const emailInput = document.getElementById('Email');
 const phoneNumberInput = document.getElementById('phoneNumber');
 const passwordInput = document.getElementById('Password');
+const confirmPasswordInput = document.getElementById('confirmpassword');
 
 // Get references to the error message elements
 const nameError = document.getElementById('nameError');
 const emailError = document.getElementById('emailError');
 const phoneNumberError = document.getElementById('phoneNumberError');
 const passwordError = document.getElementById('passwordError');
+const confirmPasswordError = document.getElementById('confirmPasswordError');
 
 // Add an event listener to the form on submit
 form.addEventListener('submit', function(event) {
@@ -30,12 +32,14 @@ function validateForm() {
   const email = emailInput.value.trim();
   const phoneNumber = phoneNumberInput.value.trim();
   const password = passwordInput.value.trim();
+  const confirmPassword = confirmPasswordInput.value.trim();
 
   // Clear previous error messages
   nameError.textContent = '';
   emailError.textContent = '';
   phoneNumberError.textContent = '';
   passwordError.textContent = '';
+  confirmPasswordError.textContent = '';
 
   // Perform individual field validations
   let isValid = true;
@@ -63,7 +67,19 @@ function validateForm() {
     isValid = false;
   }
 
-  // You can add more validations as needed
+  if (confirmPassword === '') {
+    confirmPasswordError.textContent = 'Please confirm your password.';
+    isValid = false;
+  } else if (password !== confirmPassword) {
+    confirmPasswordError.textContent = 'Passwords do not match.';
+    isValid = false;
+  }
+
+  // Validate the password strength
+  if (!isValidPassword(password)) {
+    passwordError.textContent = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
+    isValid = false;
+  }
 
   return isValid; // Return true if all validations pass
 }
@@ -75,4 +91,13 @@ function isValidPhoneNumber(phoneNumber) {
 
   // Test the phone number against the regex
   return phoneRegex.test(phoneNumber);
+}
+
+// Function to validate the password strength
+function isValidPassword(password) {
+  // Regular expression to match a strong password format (8 characters with both capital and small letters)
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+  // Test the password against the regex
+  return passwordRegex.test(password);
 }

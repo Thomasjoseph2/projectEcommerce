@@ -42,7 +42,7 @@ const sendVerifyMail = async (name, email, userId) => {
 
       subject: "For verification mail",
 
-      html: '<p>Hi ' + name + ' ,please click here to <a href="https://www.thomasjoseph.online/verify?id=' + userId + '">Verify </a>  your mail.</p> '
+      html: '<p>Hi ' + name + ' ,please click here to <a href="http://localhost:3000/verify?id=' + userId + '">Verify </a>  your mail.</p> '
 
     }
 
@@ -77,7 +77,7 @@ const verifyMail = async (req, res) => {
 
     const response = await userHelper.userVerified(req.query.id)
 
-    console.log(response);
+  
 
     res.render("users/email-verified")
 
@@ -95,11 +95,13 @@ const getSignup = (req, res) => {
 
   try {
 
-    res.render('users/signup', { verifyErr: req.session.verifyLoginError, emailError: req.session.emailExistErr });
+    res.render('users/signup', { verifyErr: req.session.verifyLoginError, emailError: req.session.emailExistErr,phoneError: req.session.phoneExistErr });
 
     req.session.verifyLoginError = false;
 
     req.session.emailExistErr = false;
+
+    req.session.phoneExistErr=false
 
   } catch (err) {
 
@@ -192,9 +194,7 @@ const addUserImage = async (req, res) => {
 
   try {
 
-    console.log(req.file)
-
-    let image = req.file.filename;
+    let image=req.file.filename;
 
     await userHelper.addUserImage(req.session.user._id, image);
 
@@ -331,8 +331,6 @@ const getCart = async (req, res) => {
 
     const products = await userHelper.getCartProducts(req.session.user._id);
 
-    console.log(products,"jii");
-
     const Carttotal = await userHelper.getCartTotal(req.session.user._id);
 
     res.render('users/cart', { products, user: req.session.user, Carttotal });
@@ -364,7 +362,7 @@ const getWishList = async (req, res) => {
 
 };
 
-const addToCart = (req, res) => {
+const addToCart = async (req, res) => {
 
   try {
 
@@ -376,88 +374,92 @@ const addToCart = (req, res) => {
 
     }
 
-    userHelper
+    const quantity = await userHelper.getProductById(req.params.id);
 
-      .addToCart(req.params.id, req.session.user._id)
+    if (quantity >= 1) {
 
+      
+      userHelper.addToCart(req.params.id, req.session.user._id)
+      
       .then(() => {
-
-        console.log("added to cart");
-
-        // Send a response indicating that the product was added successfully
-
+      
         res.json({ message: "Added to cart" });
-
+      
       })
+       
       .catch((error) => {
-
+      
         console.error("Error adding to cart:", error);
-
-        // Send an error response if there was an issue adding the product
-
+      
         res.status(500).json({ message: "Error adding to cart" });
-
-
-
-
+      
       });
-  }
+    
+    }else {
+    
+      res.json({ message: "Item out of stock" });
+    
+    }} 
   catch (err) {
-
+  
     console.log(err);
+  
+    res.redirect('/error-page');
+  
+  }
 
-    res.redirect('/error-page')
+};
 
+const checkCart = async (req, res) => {
+  try {
+    const proId = req.params.id;
+    const exists = await userHelper.checkCart(proId, req.session.user._id);
+    res.json(exists);
+  } catch (err) {
+    console.log(err);
+    res.redirect('/error-page');
   }
 };
+
 
 
 
 const wishlistToCart = async (req, res) => {
 
   try {
-
+  
     if (!req.session.user || !req.session.user.loggedIn) {
-
+  
       res.json({ message: "Please log in to add items to the cart" });
-
+  
       return;
-
+  
     }
 
-    await userHelper
+    const quantity = await userHelper.getProductById(req.params.id);
 
-      .addToCart(req.params.id, req.session.user._id)
-
-      .then(async () => {
-
-        //await userHelper.removeItemFromWishlist(req.params.id,req.session.user._id)
-
-        console.log("added to cart");
-
-        res.json({ message: "Added to cart" });
-
-      })
-
-      .catch((error) => {
-
-        console.error("Error adding to cart:", error);
-
-        // Send an error response if there was an issue adding the product
-
-        res.status(500).json({ message: "Error adding to cart" });
-
-      });
-
+    if (quantity >= 1) {
+  
+      await userHelper.addToCart(req.params.id, req.session.user._id);
+  
+      res.json({ message: "Added to cart" });
+  
+    } else {
+  
+      res.json({ message: "Item out of stock" });
+  
+    }
+  
   } catch (err) {
-
+  
     console.log(err);
-
-    res.redirect('/error-page')
-
+  
+    res.redirect('/error-page');
+  
   }
 
-}
+};
+
 
 const addToWishList = (req, res) => {
 
@@ -476,8 +478,6 @@ const addToWishList = (req, res) => {
       .addToWishList(req.params.id, req.session.user._id)
 
       .then(() => {
-
-        console.log("added to wishlist");
 
         // Send a response indicating that the product was added successfully
 
@@ -529,7 +529,6 @@ const getAddAddress = async (req, res) => {
 
     const address = await userHelper.getUserAddress(req.session.user._id);
 
-    console.log(address)
 
     res.render('users/add-address', { user: req.session.user, address });
 
@@ -578,7 +577,7 @@ const getHome = async function (req, res, next) {
 const changeProductQuantity = (req, res, next) => {
 
   try {
-
+   
     userHelper.changeProductQuantity(req.body).then(async (response) => {
 
       let Carttotal = await userHelper.getCartTotal(req.body.user);
@@ -792,7 +791,7 @@ sendForgotPasswordMail = async (name, email, token) => {
 
       subject: "For Reset Password",
 
-      html: '<p>Hi ' + name + ' ,please click here to <a href="https://www.thomasjoseph.online/Change-password?token=' + token + '">Reset</a>  your  Password </p> '
+      html: '<p>Hi ' + name + ' ,please click here to <a href="www.thomasjoseph.online/Change-password?token=' + token + '">Reset</a>  your  Password </p> '
 
     }
 
@@ -878,8 +877,6 @@ const getOtp = (req, res) => {
 
       res.redirect('/');
 
-      console.log(req.session.user, req.session.user.loggedIn)
-
     } else {
 
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
@@ -945,7 +942,6 @@ const verifyOtp = async (req, res) => {
 
   try {
 
-    console.log(phone)
 
     const otpCode = req.body.otp;
 
@@ -957,15 +953,13 @@ const verifyOtp = async (req, res) => {
 
       .then(async (verification_check) => {
 
-        console.log(verification_check.status);
+        // console.log(verification_check.status);
 
         if (verification_check.status === "approved") {
 
           let user = await userHelper.isPhoneVerified(phone);
 
           if (user) {
-
-            console.log(user);
 
             req.session.user = user;
 
@@ -1150,8 +1144,6 @@ const placeOrder = async (req, res, next) => {
 
       await userHelper.checkCartTotalChange(req.session.user._id);
 
-      console.log(req.session.user.couponCode);
-
       const alreadyUsed = await userHelper.isAlreadyUsedCoupon(req.session.user._id, req.session.user.couponCode);
       
 
@@ -1193,7 +1185,6 @@ const placeOrder = async (req, res, next) => {
 
     const user = await userHelper.getUser(req.session.user._id);
 
-    console.log(req.session.couponDeclined,"hi");
 
     res.render('users/place-order', { total, user, products, carttotal, address, coupon: req.session.couponapplyed, declined: req.session.couponDeclined });
 
@@ -1219,7 +1210,7 @@ const doPlaceOrder = async (req, res) => {
 
     const cartTotal = await userHelper.getCartTotal(req.session.user._id);
 
-
+   
 
     let total = 0;
 
@@ -1277,11 +1268,17 @@ const doPlaceOrder = async (req, res) => {
 
     await userHelper.updateCouponStatus(req.session.user._id, couponCode);
 
+    for (const product of products) {
+      await productHelpers.decrementQuantity(product.item, product.quantity);
+    }
+
   } catch (error) {
 
     console.log(error);
 
-    res.status(500).json({ error: 'Internal Server Error' });
+   res.redirect('/error-page')
+
+
   }
 };
 
@@ -1327,7 +1324,9 @@ const getProfile = async (req, res) => {
 
     const user = await userHelper.getUser(req.session.user._id)
 
-    res.render('users/user-profile', { user });
+    const coupons=await userHelper.getCoupons();
+
+    res.render('users/user-profile', { user ,coupons});
   }
   catch (error) {
 
@@ -1362,7 +1361,6 @@ const changeImage = async (req, res) => {
     // Retrieve the image data from the request body
     const imageData = req.body.image;
 
-    console.log(imageData,"hiii");
 
     // Generate a unique filename for the image (e.g., using a UUID library)
     const filename = generateUniqueFilename();
@@ -1642,6 +1640,7 @@ module.exports = {
   verifyToken,
   changeForgotPassword,
   getError,
-  changeImage
+  changeImage,
+  checkCart
 
 };

@@ -1845,6 +1845,27 @@ module.exports = {
   }
 
   ,
+  getProductById: (proId) => {
+
+    return new Promise(async (resolve, reject) => {
+
+      try {
+
+        const product= await db.get().collection(collection.PRODUCT_COLLECTION).findOne({ _id:ObjectId(proId)});
+
+        const quantity=product.productQuantity
+
+        resolve(quantity);
+
+      } catch (error) {
+
+        reject(error);
+
+      }
+
+    });
+
+  },
 
   listCategorys: (catId) => {
 
@@ -2207,9 +2228,6 @@ module.exports = {
 
   isAlreadyUsed: (userId, couponCode) => {
 
-
-    console.log(userId, couponCode);
-
     return new Promise(async (resolve, reject) => {
 
       try {
@@ -2480,6 +2498,23 @@ module.exports = {
       }
     });
   },
+  getCoupons: () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const currentDate = new Date();
+  
+        const coupons = await db.get().collection(collection.COUPON_COLLECTION).find({
+          removed: false,
+          expiryDate: { $gt: currentDate }
+        }).toArray();
+  
+        resolve(coupons);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+  
 
   deductAmountFromWallet: (userId, amount) => {
 
@@ -2718,9 +2753,28 @@ module.exports = {
 
     });
 
-  }
-
-  ,
+  },
+  checkCart: (proId, userId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const userCart = await db.get().collection(collection.CART_COLLECTION).findOne({ user: ObjectId(userId) });
+        if (userCart) {
+          const proExist = userCart.products.find((product) => product.item.toString() === proId);
+          if (proExist) {
+            resolve({ exists: true });
+          } else {
+            resolve({ exists: false });
+          }
+        } else {
+          resolve({ exists: false });
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+  
+  
 };
 
 
