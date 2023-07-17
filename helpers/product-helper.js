@@ -228,6 +228,8 @@ module.exports = {
 
               productPrice: parseFloat(proDetails.productPrice),
 
+              productQuantity:parseFloat(proDetails.productQuantity),
+
               images: product.images, // Keep the existing images by default
 
             };

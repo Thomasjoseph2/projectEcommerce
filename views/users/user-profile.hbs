@@ -2065,6 +2065,14 @@
           },
           error: function (xhr) {
             console.log('Image upload failed with status:', xhr.status);
+
+            Swal.fire({
+            icon: 'error',
+            title: 'Error ',
+            text:'Error adding image',
+          }).then(()=>{
+            location.href="user-profile"
+          });
           }
         });
       });
@@ -2101,9 +2109,9 @@
         var imageElement = document.getElementById('cropping-image');
         imageElement.src = reader.result;
         imageElement.onload = function () {
-          cropper = new Cropper(imageElement, {
-            aspectRatio: 1, // Set the aspect ratio for cropping (adjust as per your requirement)
-            viewMode: 1 // Set the default view mode
+        cropper = new Cropper(imageElement, {
+        aspectRatio: 1, // Set the aspect ratio for cropping (adjust as per your requirement)
+        viewMode: 1 // Set the default view mode
           });
         };
       };
@@ -2155,7 +2163,11 @@
       navigator.clipboard.writeText(text)
         .then(function () {
           // Show a feedback message
-          alert('Coupon code copied to clipboard: ' + text);
+             Swal.fire({
+            icon: 'success',
+            title: 'success',
+            text:'copied to clipboard',
+          });
         })
         .catch(function (error) {
           console.error('Failed to copy coupon code to clipboard:', error);
@@ -2185,24 +2197,30 @@ $(document).ready(function () {
         method: 'post',
         data: { total: rechargeAmount },
         success: (response) => {
-          console.log(response,"hi response")
+          
           if (response) {
             razorpayPayment(response);
             $('#rechargeModal').modal('hide'); // Hide the recharge modal after initiating payment
           } else {
-            alert('Error generating wallet recharge order.');
+                Swal.fire({
+            icon: 'error',
+            title: 'Error ',
+            text:'Error generating wallet recharge order',
+          });
           }
         },
         error: (error) => {
           console.error('Error generating wallet recharge order:', error);
-          alert('Error generating wallet recharge order.');
+              Swal.fire({
+            icon: 'error',
+            title: 'Error ',
+            text:'Error generating wallet recharge order',
+          });
         }
       });
     });
 
     function razorpayPayment(order) {
-
-      console.log(order,"hi order")
       var options = {
         "key": "rzp_test_4VSqO0TCBFvtCE", // Enter the Key ID generated from the Dashboard
         "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
@@ -2241,18 +2259,31 @@ $(document).ready(function () {
         success: (response) => {
           if (response.status) {
             
-            alert('Wallet recharged successfully.');
+             Swal.fire({
+          icon: 'success',
+          text: 'Wallet recharged'
+        }).then(() => {
+          location.reload();
+        });
 
-              location.href="user-profile"
+              
           
            
           } else {
-            alert('Payment failed');
+            Swal.fire({
+            icon: 'error',
+            title: 'Error ',
+            text:'Error verifying wallet recharge payment!',
+          });
           }
         },
         error: (error) => {
           console.error('Error verifying wallet recharge payment:', error);
-          alert('Error verifying wallet recharge payment.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error verifying wallet recharge payment',
+            text: errorMessage,
+          });
         }
       });
     }

@@ -9,6 +9,7 @@
     var productPriceInput = document.getElementById('product-price');
     var productCategoryInput = document.getElementById('product-category');
     var productImageInput = document.getElementById('product-image');
+    var productQuantityInput=document.getElementById('product-quantity')
 
     // Reset error messages
     document.getElementById('product-name-error').textContent = '';
@@ -16,6 +17,7 @@
     document.getElementById('product-price-error').textContent = '';
     document.getElementById('product-category-error').textContent = '';
     document.getElementById('product-image-error').textContent = '';
+    document.getElementById('product-quantity-error').textContent = '';
 
     // Validate product name
     if (productNameInput.value.trim() === '') {
@@ -42,6 +44,15 @@
       document.getElementById('product-price-error').textContent = 'Product Price cannot be negative';
       return false;
     }
+      // Validate product Quantity
+      if (productQuantityInput.value.trim() === '') {
+        document.getElementById('product-quantity-error').textContent = 'Product Quantity is required';
+        return false;
+      }
+      if (parseFloat(productQuantityInput.value) < 0) {
+        document.getElementById('product-quantity-error').textContent = 'Product Quantity cannot be negative';
+        return false;
+      }
 
     // Validate product category
     if (productCategoryInput.value.trim() === '') {

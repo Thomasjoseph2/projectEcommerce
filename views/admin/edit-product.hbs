@@ -63,12 +63,19 @@
       <div id="product-price-error" class="error-message"></div>
     </div>
     <div class="form-group">
+      <label style="color:#fe7200;" for="product-quantity">Product Quantity</label>
+      <input type="number" class="form-control" id="product-quantity" name="productQuantity" value="{{product.productQuantity}}" placeholder="Enter product Quantity" min="0" required>
+      <div id="product-quantity-error" class="error-message"></div>
+    </div>
+    <div class="form-group">
       <label style="color:#fe7200;" for="product-category">Category</label>
-      <select class="form-control" id="product-category" name="productCategory" required>
-        {{#each categories}}
-        <option>{{this.categoryName}}</option>
-        {{/each}}
-      </select>
+     <select class="form-control" id="product-category" name="productCategory" required>
+  <option value="{{categoryName}}" selected>{{categoryName}}</option>
+  {{#each categories}}
+    <option value="{{this.categoryName}}">{{this.categoryName}}</option>
+  {{/each}}
+</select>
+
       <div id="product-category-error" class="error-message"></div>
     </div>
     <div class="form-group">

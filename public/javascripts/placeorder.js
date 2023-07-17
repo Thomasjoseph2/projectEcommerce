@@ -39,52 +39,65 @@ $("#coupon-form").submit((e) => {
     });
   });
   
-  
-  
   $("#checkout-form").submit((e) => {
     e.preventDefault();
-    $.ajax({
-      url: '/place-order',
-      method: 'post',
-      data: $('#checkout-form').serialize(),
-      success: (response) => {
-        if (response.codStatus) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Order Placed',
-            text: 'Your order has been placed successfully!',
-          }).then(() => {
-            location.href = '/order-success';
-          });
-        } else if (response.walletStatus) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Order Placed',
-            text: 'Your order has been placed successfully!',
-          }).then(() => {
-            location.href = '/order-success';
-          });
-        } else if (response.walletStatus === false) {
+  
+    const paymentMethod = $('input[name="payment-method"]:checked').val();
+    const walletAmount = parseFloat($("#walletAmount").val());
+    const total = parseFloat($("ul.list_2 li:last-child span").text().replace(/[^0-9.-]+/g,"")); // Extract the total amount from the page
+  
+    if (paymentMethod === "WALLET" && walletAmount < total) {
+      // Show alert for insufficient wallet balance
+      Swal.fire({
+        icon: 'warning',
+        title: 'Insufficient Wallet Balance',
+        text: 'Please recharge your wallet to make the purchase using the wallet.',
+      });
+    } else {
+      // Proceed with the order placement
+      $.ajax({
+        url: '/place-order',
+        method: 'post',
+        data: $('#checkout-form').serialize(),
+        success: (response) => {
+          if (response.codStatus) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Order Placed',
+              text: 'Your order has been placed successfully!',
+            }).then(() => {
+              location.href = '/order-success';
+            });
+          } else if (response.walletStatus) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Order Placed',
+              text: 'Your order has been placed successfully!',
+            }).then(() => {
+              location.href = '/order-success';
+            });
+          } else if (response.walletStatus === false) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Insufficient Wallet Balance',
+              text: 'You do not have enough balance in your wallet.',
+            }).then(() => {
+              location.href = '/order-list';
+            });
+          } else {
+            razorpayPayment(response);
+          }
+        },
+        error: (error) => {
+          console.error('Error occurred while placing order:', error);
           Swal.fire({
             icon: 'error',
-            title: 'Insufficient Wallet Balance',
-            text: 'You do not have enough balance in your wallet.',
-          }).then(() => {
-            location.href = '/order-list';
+            title: 'Error',
+            text: 'Error placing order: ' + error,
           });
-        } else {
-          razorpayPayment(response);
         }
-      },
-      error: function (error) {
-        console.error('Error occurred while placing order:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Error placing order: ' + error,
-        });
-      }
-    });
+      });
+    }
   });
   
   

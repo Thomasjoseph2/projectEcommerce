@@ -287,11 +287,17 @@ const getEditProduct = async (req, res) => {
 
   try {
 
+
+  
     const product = await productHelpers.getProductDetails(req.params.id);
 
     const categories = await adminHelper.getCategory();
+  
+    const category=await productHelpers.getCategoryById(product.productCategory)
 
-    res.render('admin/edit-product', { admin: true, product, categories });
+    const categoryName=category.categoryName
+
+    res.render('admin/edit-product', { admin: true, product, categories ,categoryName});
 
   } catch (error) {
 
@@ -317,6 +323,8 @@ const editProduct = (req, res) => {
       productName: req.body.productName,
 
       productDescription: req.body.productDescription,
+
+      productQuantity:parseInt(req.body.productQuantity),
 
       productPrice: parseInt(req.body.productPrice),
 

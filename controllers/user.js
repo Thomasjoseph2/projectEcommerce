@@ -161,17 +161,6 @@ const signup = async (req, res) => {
 
 }
 
-// const addUserDetails = async (req, res) => {
-//   try {
-
-//     await userHelper.addUserDetails(req.session.user._id, req.body);
-//     res.redirect('/');
-//   } catch (err) {
-//     console.log(err);
-//     res.redirect('/');
-
-//   }
-// }
 const addAddress = async (req, res) => {
 
   try {
@@ -333,8 +322,6 @@ const getCart = async (req, res) => {
 
     const Carttotal = await userHelper.getCartTotal(req.session.user._id);
 
-    console.log(req.session.user,"hihihi nhnhndb");
-
     res.render('users/cart', { products, user: req.session.user, Carttotal });
 
   } catch (err) {
@@ -429,7 +416,7 @@ const checkCart = async (req, res) => {
     res.redirect('/error-page');
 
   }
-  
+
 };
 
 
@@ -965,8 +952,6 @@ const verifyOtp = async (req, res) => {
 
       .then(async (verification_check) => {
 
-        // console.log(verification_check.status);
-
         if (verification_check.status === "approved") {
 
           let user = await userHelper.isPhoneVerified(phone);
@@ -1095,9 +1080,9 @@ const cancelOrder = async (req, res) => {
 const returnOrder = async (req, res) => {
 
   try {
-    // console.log(req.body);
+   
     const orderId = req.body.orderId;
-    // console.log(orderId);
+ 
     const response = await userHelper.returnOrder(orderId);
 
     res.json(response);
@@ -1611,18 +1596,24 @@ const verifyCoupon = async (req, res) => {
 };
 
 
-const generateWalletRechargeOrder =async(req,res)=>{
+const generateWalletRechargeOrder = async (req, res) => {
+  try {
+    const user = req.session.user._id;
+    
+    const total = req.body.total;
 
+    const razorpayResponse = await userHelper.generateRazorpayForWallet(user, total);
 
-  const user=req.session.user._id
+    res.json(razorpayResponse);
 
-  const total=req.body.total
+  } catch (error) {
 
-  const razorpayResponse = await userHelper.generateRazorpayForWallet(user,total);
+    console.error('Error generating wallet recharge order:', error);
 
-  res.json(razorpayResponse);
-
+    res.redirect('/error-page')
+  }
 };
+
 
 
 const verifyWalletRecharge  = (req, res) => {
@@ -1659,7 +1650,7 @@ const verifyWalletRecharge  = (req, res) => {
 
     console.log(error);
 
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.redirect('/error-page')
 
   }
 
