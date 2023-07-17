@@ -677,6 +677,7 @@ module.exports = {
 
   updateWallet: (userId, referalAmound) => {
 
+
     return new Promise(async (resolve, reject) => {
 
       try {
@@ -2773,6 +2774,51 @@ module.exports = {
       }
     });
   },
+  generateRazorpayForWallet: (user, total) => {
+
+
+    total = parseInt(total);
+
+    return new Promise((resolve, reject) => {
+
+      try {
+
+        var options = {
+
+          amount: total * 100,  // amount in the smallest currency unit
+
+          currency: "INR",
+
+          receipt: "" + user
+
+        };
+
+        instance.orders.create(options, function (err, order) {
+
+          if (err) {
+
+            console.log(err);
+
+            reject(err);
+
+          } else {
+
+            resolve(order);
+
+          }
+
+        });
+
+      } catch (error) {
+
+        reject(error);
+
+      }
+
+    });
+
+  },
+
   
   
 };

@@ -26,7 +26,7 @@ function addToCart(productId) {
   
       if (response.exists) {
   
-        showPopupMessage("Item is already in the cart", "warning");
+        showPopupMessage("Item is already in the cart", "success");
   
       } else {
   

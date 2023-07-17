@@ -333,6 +333,8 @@ const getCart = async (req, res) => {
 
     const Carttotal = await userHelper.getCartTotal(req.session.user._id);
 
+    console.log(req.session.user,"hihihi nhnhndb");
+
     res.render('users/cart', { products, user: req.session.user, Carttotal });
 
   } catch (err) {
@@ -411,15 +413,25 @@ const addToCart = async (req, res) => {
 };
 
 const checkCart = async (req, res) => {
+
   try {
+
     const proId = req.params.id;
+
     const exists = await userHelper.checkCart(proId, req.session.user._id);
+
     res.json(exists);
+
   } catch (err) {
+
     console.log(err);
+
     res.redirect('/error-page');
+
   }
+  
 };
+
 
 
 
@@ -1255,6 +1267,12 @@ const doPlaceOrder = async (req, res) => {
 
         res.json({ walletStatus: false, message: 'Insufficient wallet balance' });
 
+        // total=total-user.walletAmount
+
+        // const razorpayResponse = await userHelper.generateRazorpay(response.insertedId, total);
+
+        // res.json(razorpayResponse);
+
       }
 
     } else if (req.body['payment-method'] === 'ONLINE') {
@@ -1269,7 +1287,9 @@ const doPlaceOrder = async (req, res) => {
     await userHelper.updateCouponStatus(req.session.user._id, couponCode);
 
     for (const product of products) {
+
       await productHelpers.decrementQuantity(product.item, product.quantity);
+
     }
 
   } catch (error) {
@@ -1401,7 +1421,6 @@ const verifyPayment = (req, res) => {
 
   try {
 
-    //console.log(req.body);
     userHelper.verifyPayment(req.body)
 
       .then(() => {
@@ -1433,6 +1452,7 @@ const verifyPayment = (req, res) => {
   }
 
 };
+
 
 const getOrderSummary = async (req, res) => {
 
@@ -1591,7 +1611,59 @@ const verifyCoupon = async (req, res) => {
 };
 
 
+const generateWalletRechargeOrder =async(req,res)=>{
 
+
+  const user=req.session.user._id
+
+  const total=req.body.total
+
+  const razorpayResponse = await userHelper.generateRazorpayForWallet(user,total);
+
+  res.json(razorpayResponse);
+
+};
+
+
+const verifyWalletRecharge  = (req, res) => {
+
+  try {
+
+    userHelper.verifyPayment(req.body)
+    
+    .then(() => {
+
+      const razorpayAmount=parseInt(req.body['order[amount]'])
+
+      const amount=parseInt(razorpayAmount/100)
+
+       userHelper. updateWallet(req.body['order[receipt]'],amount)
+
+        .then(() => {
+
+          res.json({ status: true });
+
+        });
+
+    })
+
+      .catch((err) => {
+
+        console.log(err);
+
+        res.json({ status: false });
+
+      });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({ error: 'Internal Server Error' });
+
+  }
+
+};
 
 
 module.exports = {
@@ -1641,6 +1713,8 @@ module.exports = {
   changeForgotPassword,
   getError,
   changeImage,
-  checkCart
+  checkCart,
+  generateWalletRechargeOrder,
+  verifyWalletRecharge
 
 };

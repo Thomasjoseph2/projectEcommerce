@@ -68,6 +68,10 @@ router.get('/place-order',auth.userVerifyLogin,auth.userverifyBlock,user.placeOr
 
 router.post('/place-order',auth.userVerifyLogin,user.doPlaceOrder)
 
+router.post('/generate-wallet-recharge-order',auth.userVerifyLogin,user.generateWalletRechargeOrder)
+
+router.post('/verify-wallet-recharge-payment',auth.userVerifyLogin,user.verifyWalletRecharge)
+
 router.get('/order-success',auth.userVerifyLogin,user.getOrderPlaced)
 
 router.get('/order-list',auth.userVerifyLogin,user.getOrderList)

@@ -1,48 +1,114 @@
-function showPopupMessage(message) {
-    // Set the message content
-    document.getElementById("popupMessage").textContent = message;
-    
-    // Show the modal
-    $('#popupModal').modal('show');
-  }
+function showPopupMessage(message, type = "info") {
+
+  Swal.fire({
   
+    text: message,
+  
+    icon: type,
+  
+    timer: 1500,
+  
+    showConfirmButton: false
+  
+  });
+
+}
   function addToCart(productId) {
-    // Send an AJAX request to the server
-    console.log(productId,"hiiiiiiiiiiii")
+ 
     $.ajax({
-      
-      url: '/add-to-cart/' + productId,
+    
+      url: '/check-cart/' + productId,
+    
       type: 'GET',
-      success: function(response) {
-        if (response.message === "Added to cart") {
-          showPopupMessage("Item added to cart");
+    
+      success: function (response) {
+    
+        if (response.exists) {
+    
+          showPopupMessage("Item is already in the cart", "success");
+    
         } else {
-          showPopupMessage("please login");
+    
+          $.ajax({
+    
+            url: '/add-to-cart/' + productId,
+    
+            type: 'GET',
+    
+            success: function (response) {
+    
+              if (response.message === "Added to cart") {
+    
+                showPopupMessage("Item added to cart", "success");
+    
+              } else if (response.message === "Item out of stock") {
+    
+                showPopupMessage("Item out of stock", "warning");
+    
+              } else {
+    
+                showPopupMessage("Please login", "warning");
+    
+              }
+    
+            },
+    
+            error: function (error) {
+    
+              console.error('Error occurred while adding to cart:', error);
+    
+              showPopupMessage('Error adding to cart', 'error');
+    
+            }
+    
+          });
+    
         }
+    
       },
-      error: function(error) {
-        console.error('Error occurred while adding to cart:', error);
-        // Show an error message if needed
-        showPopupMessage('Error adding to cart');
+    
+      error: function (error) {
+    
+        console.error('Error occurred while checking the cart:', error);
+    
+        showPopupMessage('Error checking the cart', 'error');
+    
       }
+    
     });
+  
   }
   function addToWishlist(productId) {
-    // Send an AJAX request to the server
+
     $.ajax({
+  
       url: '/add-to-wishlist/' + productId,
+  
       type: 'GET',
-      success: function(response) {
+  
+      success: function (response) {
+  
         if (response.message === "Added to wishlist") {
-          showPopupMessage("Item added to wishlist");
+  
+          showPopupMessage("Item added to wishlist", "success");
+  
         } else {
-          showPopupMessage("Please login");
+  
+          showPopupMessage("Please login", "warning");
+  
         }
+  
       },
-      error: function(error) {
+  
+      error: function (error) {
+  
         console.error('Error occurred while adding to wishlist:', error);
-        // Show an error message if needed
-        showPopupMessage('Error adding to wishlist');
+  
+        showPopupMessage('Error adding to wishlist', 'error');
+  
       }
+  
     });
+  
   }
+  

@@ -1815,8 +1815,12 @@
                   </div> --}}
                   <div>
                     <span class="heading">₹{{user.walletAmount}}</span>
-                    <span class="description">Your wallet balance</span>
+                    <span class="description">Your wallet balance </span> <br>
+                    <a href="/add-address" class="btn btn-sm btn-default float-right description " id="walletRechargeBtn"> Recharge your Wallet....</a>
+
+                    
                   </div>
+
                   {{!-- <div>
                     <span class="heading">89</span>
                     <span class="description">Wishlist</span>
@@ -2004,6 +2008,32 @@
   </div>
 </div>
 
+<div class="modal fade" id="rechargeModal" tabindex="-1" role="dialog" aria-labelledby="rechargeModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rechargeModalLabel">Recharge Wallet</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="rechargeModalForm">
+          <div class="form-group">
+            <label for="rechargeAmount">Recharge Amount</label>
+            <input type="text" class="form-control" id="rechargeAmount" name="rechargeAmount" placeholder="Enter amount"
+              required>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="rechargeModalSubmit">Recharge</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 <footer class="footer mt-5">
   <div class="row align-items-center justify-content-xl-between">
@@ -2112,8 +2142,7 @@
     saveCroppedImage();
   });
 
-</script>
-<script>
+
   $(document).ready(function () {
     // Copy coupon code when copy icon is clicked
     $('.copy-icon').click(function () {
@@ -2133,4 +2162,100 @@
         });
     }
   });
+
+
+
+$(document).ready(function () {
+    // Attach event listener to the wallet recharge button
+    $('#walletRechargeBtn').click((e) => {
+      e.preventDefault(); // Prevent default form submission behavior
+      $('#rechargeModal').modal('show'); // Show the recharge modal
+    });
+
+    // Handle modal submission
+    $('#rechargeModalForm').submit((e) => {
+      e.preventDefault(); // Prevent default form submission behavior
+
+      // Get the recharge amount entered by the user
+      const rechargeAmount = $('#rechargeAmount').val();
+
+      // Make an AJAX request to the server
+      $.ajax({
+        url: '/generate-wallet-recharge-order',
+        method: 'post',
+        data: { total: rechargeAmount },
+        success: (response) => {
+          console.log(response,"hi response")
+          if (response) {
+            razorpayPayment(response);
+            $('#rechargeModal').modal('hide'); // Hide the recharge modal after initiating payment
+          } else {
+            alert('Error generating wallet recharge order.');
+          }
+        },
+        error: (error) => {
+          console.error('Error generating wallet recharge order:', error);
+          alert('Error generating wallet recharge order.');
+        }
+      });
+    });
+
+    function razorpayPayment(order) {
+
+      console.log(order,"hi order")
+      var options = {
+        "key": "rzp_test_4VSqO0TCBFvtCE", // Enter the Key ID generated from the Dashboard
+        "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        "currency": "INR",
+        "name": "ShoppyBee",
+        "description": "Test Transaction",
+        "image": "https://example.com/your_logo",
+        "order_id": order.id, // This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+        "handler": function (response) {
+          verifypayment(response, order);
+        },
+        "prefill": {
+          "name": "Gaurav Kumar",
+          "email": "gaurav.kumar@example.com",
+          "contact": "9000090000"
+        },
+        "notes": {
+          "address": "Razorpay Corporate Office"
+        },
+        "theme": {
+          "color": "#3399cc"
+        }
+      };
+      var rzp1 = new Razorpay(options);
+      rzp1.open();
+    }
+
+    function verifypayment(payment, order) {
+      $.ajax({
+        url: '/verify-wallet-recharge-payment',
+        data: {
+          payment,
+          order
+        },
+        method: 'post',
+        success: (response) => {
+          if (response.status) {
+            
+            alert('Wallet recharged successfully.');
+
+              location.href="user-profile"
+          
+           
+          } else {
+            alert('Payment failed');
+          }
+        },
+        error: (error) => {
+          console.error('Error verifying wallet recharge payment:', error);
+          alert('Error verifying wallet recharge payment.');
+        }
+      });
+    }
+  });
+  
 </script>
