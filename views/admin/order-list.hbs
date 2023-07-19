@@ -7,6 +7,15 @@
 }
 
 </style>
+   <script>
+$(document).ready(function() {
+  $('.mytable').DataTable({
+    "order": [[0, "desc"]], // Sort the first column (index 0) in descending order
+    "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+    "pageLength": 5 // Set the initial page length to 5
+  });
+});
+</script>
     <!-- Start Banner Area -->
     <section class="banner-area organic-breadcrumb">
         <div class="container">
@@ -19,9 +28,31 @@
                     </nav>
                 </div>
             </div>
-             <div class="row mt-5">
-      <a href="/admin/cancel-requests" class="btn btn-danger ml-4 mb-3">Cancel Requests</a>
-       <a href="/admin/return-requests" class="btn btn-danger ml-4 mb-3">Return Requests</a>
+        <div class="row mt-5">
+        <form id="filterForm" class="form-inline" method="GET" action="/admin/order-list">
+            <div class="form-group mr-2">
+                <select name="status" class="form-control" onchange="submitFilterForm()">
+                    <option value="">Select Order Status</option>
+                    <option value="approved">Approved</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="pending">Pending</option>
+                    <option value="cancelrequest">Cancel Requested</option>
+                    <option value="returnrequest">Return Requested</option>
+                    <option value="delivered">Delivered</option>
+                </select>
+            </div>
+            <div class="form-group mr-2">
+                <select name="paymentMethod" class="form-control" onchange="submitFilterForm()">
+                    <option value="">Select Payment Method</option>
+                    <option value="COD">COD</option>
+                    <option value="ONLINE">ONLINE</option>
+                    <option value="WALLET">WALLET</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn btn-danger form-group mr-2">Apply Filters</button>
+            
+        </form>
     </div>
         </div>
     </section>
@@ -33,7 +64,7 @@
             
             <div class="cart_inner">
                 <div class="table-responsive">
-                    <table class="table" id="myTable">
+                    <table class="table mytable" id="myTable ">
                         <thead>
                             <tr>
                                 <th scope="col"> <h5  style="color:#fe7200">Date</h5></th>
@@ -67,47 +98,20 @@
                                 <button name="orderId" value="{{this._id}}" type="submit" class="btn  animate__animated animate__fadeInLeft"  style="background-color:#fe7200 ;color:white">View Products</button>
                             </form>
                              </td>
-                                <td>
+                                
               
                             </tr>
                            {{/each}}
                         </tbody>
                     </table>
                 </div>
-                <div class="">
-                    <div class="pagination-container">
-  <ul class="pagination">
-    {{#if hasPrevPage}}
-    <li class="page-item">
-      <a class="page-link" href="?page={{prevPage}}" aria-label="Previous">
-        <span aria-hidden="true">&laquo;</span>
-      </a>
-    </li>
-    {{/if}}
-    
-    {{#each pages}}
-    <li class="page-item{{#if active}} active{{/if}}">
-      <a class="page-link" href="?page={{this}}">{{this}}</a>
-    </li>
-    {{/each}}
-    
-    {{#if hasNextPage}}
-    <li class="page-item">
-      <a class="page-link" href="?page={{nextPage}}" aria-label="Next">
-        <span aria-hidden="true">&raquo;</span>
-      </a>
-    </li>
-    {{/if}}
-  </ul>
-  </div>
-</div>
             </div>
         </div>
     </section>
     <!--================End Cart Area =================-->
 
 
-   
+
 
 
 

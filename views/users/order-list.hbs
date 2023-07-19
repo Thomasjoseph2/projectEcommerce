@@ -1,9 +1,13 @@
 
- <script>
-        $(document).ready(function () {
-            $('#mytable').DataTable();
-        });
-    </script>
+<script>
+$(document).ready(function() {
+  $('#mytable').DataTable({
+    "order": [[0, "desc"]], // Sort the first column (index 0) in descending order
+    "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+    "pageLength": 5 // Set the initial page length to 5
+  });
+});
+</script>
 
 <!-- Start Banner Area -->
 <section class="banner-area organic-breadcrumb">
@@ -17,6 +21,32 @@
                 </nav>
             </div>
         </div>
+<div class="row mt-5">
+        <form id="filterForm" class="form-inline" method="GET" action="/order-list">
+            <div class="form-group mr-2">
+                <select name="status" class="form-control" onchange="submitFilterForm()">
+                    <option value="">Select Status</option>
+                    <option value="approved">Approved</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="pending">Pending</option>
+                    <option value="cancelrequest">Cancel Requested</option>
+                    <option value="returnrequest">Return Requested</option>
+                    <option value="delivered">Delivered</option>
+                </select>
+            </div>
+            <div class="form-group mr-2">
+                <select name="paymentMethod" class="form-control" onchange="submitFilterForm()">
+                    <option value="">Select Payment Method</option>
+                    <option value="COD">COD</option>
+                    <option value="ONLINE">ONLINE</option>
+                    <option value="WALLET">WALLET</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn btn-danger form-group mr-2">Apply Filters</button>
+            
+        </form>
+    </div>
     </div>
 </section>
 <!-- End Banner Area -->

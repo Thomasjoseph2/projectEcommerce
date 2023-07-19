@@ -215,3 +215,53 @@ function makePrimaryAddress(addressId) {
     }
   });
 }
+
+$("#remove-coupon-form").submit((e) => {
+  e.preventDefault();
+
+  // Display confirmation dialog
+  Swal.fire({
+    icon: 'warning',
+    title: 'Remove Coupon',
+    text: 'Are you sure you want to remove the coupon?',
+    showCancelButton: true,
+    confirmButtonText: 'Remove',
+    cancelButtonText: 'Cancel',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Proceed with removing the coupon
+      $.ajax({
+        url: '/remove-coupon',
+        method: 'post',
+        data: $('#remove-coupon-form').serialize(),
+        success: (response) => {
+          if (response.couponRemoved) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Coupon Removed',
+              text: 'Coupon has been removed successfully!',
+            }).then(() => {
+              location.reload();
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Coupon Removal Error',
+              text: 'Error occurred while removing the coupon: ' + response.error,
+            });
+          }
+        },
+        error: (error) => {
+          console.error('Error occurred while removing the coupon:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error removing the coupon: ' + error,
+          }).then(() => {
+            location.href="/error-page";
+          });
+        }
+      });
+    }
+  });
+});

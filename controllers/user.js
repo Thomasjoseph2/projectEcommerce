@@ -1183,7 +1183,7 @@ const placeOrder = async (req, res, next) => {
     const user = await userHelper.getUser(req.session.user._id);
 
 
-    res.render('users/place-order', { total, user, products, carttotal, address, coupon: req.session.couponapplyed, declined: req.session.couponDeclined });
+    res.render('users/place-order', { total, user, products, carttotal, address, coupon: req.session.couponapplyed, declined: req.session.couponDeclined,couponCode:req.session.couponCode });
 
 
   } catch (error) {
@@ -1305,23 +1305,37 @@ const getOrderPlaced = (req, res) => {
 
 };
 
-const getOrderList = async (req, res) => {
+ const getOrderList=(req, res) => {
 
-  try {
+  const { status, paymentMethod } = req.query;
 
-    const orderdetails = await userHelper.getOrderList(req.session.user._id);
+  const filters = {
 
-    res.render('users/order-list', { orderdetails, user: req.session.user });
+    status: status || '',
 
-  } catch (error) {
+    paymentMethod: paymentMethod || '',
 
-    console.log(error);
+  };
 
-    res.redirect('/error-page')
+  userHelper.getOrderList(req.session.user._id, filters)
+
+    .then((orderdetails) => {
+
+      res.render('users/order-list', { orderdetails, user: req.session.user });
+
+    })
+
+    .catch((error) => {
+
+      console.log(error);
+
+      res.redirect('/error-page');
+
+    });
 
   }
 
-};
+
 
 const getProfile = async (req, res) => {
 
@@ -1329,7 +1343,7 @@ const getProfile = async (req, res) => {
 
     const user = await userHelper.getUser(req.session.user._id)
 
-    const coupons=await userHelper.getCoupons();
+    const coupons=await userHelper.getCoupons(req.session.user._id);
 
     res.render('users/user-profile', { user ,coupons});
   }
@@ -1545,6 +1559,8 @@ const verifyCoupon = async (req, res) => {
 
               req.session.couponapplyed = true;
 
+              req.session.couponCode=req.body.couponCode;
+
               if (req.session.couponDeclined) {
 
                 req.session.couponDeclined = false
@@ -1594,6 +1610,34 @@ const verifyCoupon = async (req, res) => {
 
   }
 };
+const removeCoupon = async (req, res) => {
+
+  try {
+   
+
+
+    const couponCode = req.body.couponCode;
+
+    await userHelper.removeAppliedCoupon(couponCode, req.session.user._id);
+
+    let carttotal = await userHelper.getCartTotal(req.session.user._id);
+
+    await userHelper. addChangedTotal(req.session.user._id,carttotal);
+
+    req.session.couponapplyed = false;
+
+    res.json({ couponRemoved: true });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.redirect('/error-page');
+
+  }
+};
+
+
 
 
 const generateWalletRechargeOrder = async (req, res) => {
@@ -1706,6 +1750,7 @@ module.exports = {
   changeImage,
   checkCart,
   generateWalletRechargeOrder,
-  verifyWalletRecharge
+  verifyWalletRecharge,
+  removeCoupon
 
 };

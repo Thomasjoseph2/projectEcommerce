@@ -857,48 +857,37 @@ module.exports = {
 
   },
 
-  getTotalOrders: () => {
 
-    return new Promise(async (resolve, reject) => {
+getOrders :(filters) => {
 
-      try {
+  return new Promise(async (resolve, reject) => {
 
-        const count = await db.get().collection(collection.ORDER_COLLECTION).countDocuments();
+    try {
 
-        resolve(count);
+      let query = {};
 
-      } catch (error) {
+        if (filters.status) {
 
-        reject(error);
+          query.OrderStatus= filters.status;
 
-      }
+        }
+  
+        if (filters.paymentMethod) {
 
-    });
+          query.paymentMethod = filters.paymentMethod;
 
-  },
-
-  getOrdersByPage: (page, perPage) => {
-
-    return new Promise(async (resolve, reject) => {
-
-      try {
-
+        }
+  
         const orders = await db
 
-          .get()
+        .get()
 
-          .collection(collection.ORDER_COLLECTION)
+        .collection(collection.ORDER_COLLECTION)
 
-          .find({ OrderStatus: { $nin: ["returnrequest", "cancelrequest"] } }) // Exclude orders with OrderStatus as "returnrequest" or "cancelrequest"
+        .find(query)
 
-          .sort({ date: -1 }) // Sort by date in descending order (newest first)
-
-          .skip((page - 1) * perPage)
-
-          .limit(perPage)
-
-          .toArray();
-
+        .toArray();
+  
         resolve(orders);
 
       } catch (error) {
@@ -909,8 +898,7 @@ module.exports = {
 
     });
 
-  }
-  ,
+  },
 
   getCancelRequests: () => {
 

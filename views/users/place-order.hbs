@@ -18,18 +18,29 @@
     <section class="checkout_area section_gap">
         <div class="container">
              <div class="cupon_area">
+    {{#if this.coupon}}
   <div class="check_title">
+    <h2 class="text-success">Coupon Applied!!!</h2>
+  </div>
+<form action="/remove-coupon" method="post" id="remove-coupon-form">
+
+  <input type="hidden" name="_csrf" value="{{couponCode}}">
+  <input style="background-color: rgb(31, 176, 31); color: aliceblue" type="text" name="couponCode" id="couponCode" placeholder="Enter coupon code" value="{{couponCode}}" disabled>
+  <div id="couponMessage"></div>
+  <button class="btn btn-danger" type="submit" id="removeCouponButton">Remove Coupon</button>
+
+</form>
+
+{{else}}
+ <div class="check_title">
     <h2>Have a coupon? <a href="#">Click here to enter your code</a></h2>
   </div>
  <form action="/apply-coupon" method="post" id="coupon-form">
     <input type="text" name="couponCode" id="couponCode" placeholder="Enter coupon code">
     <div id="couponMessage"></div>
     <button class="btn" type="submit" id="applyCouponButton">Apply Coupon</button>
-      {{#if cancelled}}
-      <h4 class="text-danger ">Coupon Cancelled!!!! Apply again...</h4>
-      {{/if}}
-
 </form>
+{{/if}}
 <hr>
  {{#if address}}
 <h6 class="text-success"  data-toggle="modal" data-target="#addressModal">Have another address? Click to change address</h6>
@@ -114,7 +125,7 @@
                                <li><span class="text-success text-center">Coupon Applied</span></li>
                                {{/if}}
                                {{#if declined}}
-                               <li><span class="text-danger text-center">Coupon Declined apply again...</span></li>
+                               <li><span class="text-danger text-center">Coupon Removed apply again...</span></li>
                                {{/if}}
                                 <li><a href="#">Total <span>₹{{this.total}}/-</span></a></li>
                             </ul>

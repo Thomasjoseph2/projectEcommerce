@@ -1406,36 +1406,52 @@ module.exports = {
 
   },
 
-  getOrderList: (userId) => {
+
+  getOrderList: (userId, filters) => {
 
     return new Promise(async (resolve, reject) => {
-
+    
       try {
-
+    
+        let query = { userId: ObjectId(userId) };
+  
+        if (filters.status) {
+    
+          query.OrderStatus = filters.status;
+    
+        }
+  
+        if (filters.paymentMethod) {
+    
+          query.paymentMethod = filters.paymentMethod;
+    
+        }
+  
         let orderdetails = await db
-
-          .get()
-
-          .collection(collection.ORDER_COLLECTION)
-
-          .find({ userId: ObjectId(userId) })
-
-          .sort({ date: -1 }) // Sort by date in descending order (newest first)
-
-          .toArray();
-
+    
+        .get()
+    
+        .collection(collection.ORDER_COLLECTION)
+    
+        .find(query)
+    
+        .sort({ date: -1 })
+    
+        .toArray();
+  
         resolve(orderdetails);
-
+    
       } catch (error) {
-
+    
         reject(error);
-
+    
       }
-
+    
     });
-
+  
   },
-
+  
+  
 
   cancelOrder: (orderId) => {
 
@@ -2499,15 +2515,32 @@ module.exports = {
       }
     });
   },
-  getCoupons: () => {
+  getCoupons: (userId) => {
     return new Promise(async (resolve, reject) => {
       try {
         const currentDate = new Date();
   
-        const coupons = await db.get().collection(collection.COUPON_COLLECTION).find({
-          removed: false,
-          expiryDate: { $gt: currentDate }
-        }).toArray();
+        // Get the used coupons for the user
+        const usedCoupons = await db
+          .get()
+          .collection(collection.USED_COUPON_COLLECTION)
+          .findOne({ user: ObjectId(userId) });
+  
+        const usedCouponCodes = usedCoupons
+          ? usedCoupons.coupons
+              .filter((coupon) => coupon.status === "used")
+              .map((coupon) => coupon.couponCode)
+          : [];
+  
+        // Find the available coupons excluding the used ones
+        const coupons = await db
+          .get()
+          .collection(collection.COUPON_COLLECTION)
+          .find({
+            removed: false,
+            couponcode: { $nin: usedCouponCodes },
+          })
+          .toArray();
   
         resolve(coupons);
       } catch (error) {
@@ -2515,6 +2548,7 @@ module.exports = {
       }
     });
   },
+  
   
 
   deductAmountFromWallet: (userId, amount) => {
@@ -2818,6 +2852,53 @@ module.exports = {
     });
 
   },
+
+  removeAppliedCoupon: (couponCode, userId) => {
+
+    return new Promise(async (resolve, reject) => {
+
+      try {
+
+        const usedCouponsCollection = db.get().collection(collection.USED_COUPON_COLLECTION);
+
+        const query = { user: ObjectId(userId) };
+
+        const update = { $pull: { coupons: couponCode } };
+
+        await usedCouponsCollection.updateOne(query, update);
+
+        resolve();
+
+      } catch (error) {
+
+        reject(error);
+
+      }
+
+    });
+
+  },
+  addChangedTotal: (userId, cartTotal) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let updated = await db
+          .get()
+          .collection(collection.CART_COLLECTION)
+          .updateOne(
+            { user: ObjectId(userId) },
+            {
+              $set: {
+                discountedAmount: cartTotal,
+              },
+            }
+          );
+        resolve(updated);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+  
 
   
   

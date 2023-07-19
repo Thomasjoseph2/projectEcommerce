@@ -645,56 +645,42 @@ const removeCategory = async (req, res) => {
 
 };
 
+const getOrderList = (req, res) => {
 
-const getOrderList = async (req, res) => {
+  
+  const { status, paymentMethod } = req.query;
+  
+  const filters = {
+  
+    status: status || '',
+  
+    paymentMethod: paymentMethod || '',
+  
+  };
 
-  try {
+  adminHelper.getOrders(filters)
 
-    const currentPage = parseInt(req.query.page) || 1;
-
-    const perPage = 4; // Number of orders per page
-
-    const totalOrders = await adminHelper.getTotalOrders();
-
-    const totalPages = Math.ceil(totalOrders / perPage);
-
-    const hasPrevPage = currentPage > 5;
-
-    const hasNextPage = currentPage < totalPages;
-
-    const orders = await adminHelper.getOrdersByPage(currentPage, perPage);
-
-
-    res.render('admin/order-list', {
-
-      orders,
-
-      admin: true,
-
-      currentPage,
-
-      totalPages,
-
-      hasPrevPage,
-
-      hasNextPage,
-
-      prevPage: currentPage - 1,
-
-      nextPage: currentPage + 1,
-
-      pages: Array.from({ length: totalPages }, (_, i) => i + 1),
-
+    .then((orders) => {
+  
+      res.render('admin/order-list', {
+  
+        orders,
+  
+        admin: true,
+  
+      });
+  
+    })
+  
+    .catch((error) => {
+  
+      console.log(error);
+  
+      res.redirect('/error-page');
+  
     });
 
-  } catch (error) {
-
-    console.error(error);
-    // Send JSON response with error message
-    res.redirect('/admin/error-page');
-  }
-
-};
+  };
 
 
 const isReturnRequestOrCancelRequest = (status) => {

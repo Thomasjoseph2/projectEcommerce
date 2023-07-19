@@ -100,6 +100,8 @@ router.get('/add-address',auth.userVerifyLogin,user.getAddAddress)
 
 router.post('/apply-coupon',auth.userVerifyLogin,user.verifyCoupon)
 
+router.post('/remove-coupon',auth.userVerifyLogin,user.removeCoupon)
+
 router.post('/add-address',auth.userVerifyLogin,user.addAddress)
 
 router.post('/make-primary-address',auth.userVerifyLogin,user.makePrimaryAddress)
@@ -115,6 +117,8 @@ router.post('/verify-change-password-email',user.verifyPasswordEmail)
 router.get('/change-password',user.verifyToken)
 
 router.post('/change-forgot-password',user.changeForgotPassword)
+
+// router.post('/apply-filters',auth.userVerifyLogin,user.getOrderList)
 
 router.get('/remove-product', (req, res) => {
   let proId = req.query.id
