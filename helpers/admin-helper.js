@@ -3,7 +3,8 @@ const collection = require('../model/collections');
 const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
 const Promise = require('promise');
-
+const pdfPrinter = require("pdfmake");
+const fs=require('fs')
 module.exports = {
 
   doLogin: async (adminData) => {
@@ -443,48 +444,29 @@ module.exports = {
     });
 
   },
-
+//the function for checking categrory already exist or not 
   checkCategoryExists: (categoryName) => {
-
     return new Promise((resolve, reject) => {
-
       try {
-
         db.get()
-
           .collection(collection.CATEGORY_COLLECTION)
-
-          .findOne({ categoryName: categoryName })
-
+          .findOne({ categoryName: { $regex: new RegExp('^' + categoryName + '$', 'i') } })
           .then((category) => {
-
             if (category) {
-
               resolve(true);
-
             } else {
-
               resolve(false);
-
             }
-
           })
-
           .catch((error) => {
-
             reject(error);
-
           });
-
       } catch (error) {
-
         reject(error);
-
       }
-
     });
-
   },
+  
 
   addCategory: (categoryData) => {
 
@@ -593,6 +575,33 @@ module.exports = {
           .collection(collection.ORDER_COLLECTION)
 
           .find({ OrderStatus: 'delivered' })
+
+          .toArray();
+
+        resolve(orders);
+
+      } catch (error) {
+
+        reject(error);
+
+      }
+
+    });
+
+  },
+  getAllOrders: () => {
+
+    return new Promise(async (resolve, reject) => {
+
+      try {
+
+        const orders = await db
+
+          .get()
+
+          .collection(collection.ORDER_COLLECTION)
+
+          .find()
 
           .toArray();
 
@@ -1051,7 +1060,171 @@ getOrders :(filters) => {
     });
 
   },
+  getOrderById: (OrderId) => {
 
+    return new Promise((resolve, reject) => {
+
+      try {
+
+        db.get().collection(collection.ORDER_COLLECTION).findOne({ _id: ObjectId(OrderId) })
+
+          .then((order) => {
+
+            resolve(order);
+
+          })
+
+          .catch((error) => {
+
+            reject(error);
+
+          });
+
+      } catch (error) {
+
+        reject(error);
+
+      }
+
+    });
+
+  },
+  salesPdf: async (req, res) => {
+    try {
+      let startY = 150;
+      const writeStream = fs.createWriteStream('order.pdf');
+      const printer = new pdfPrinter({
+        Roboto: {
+          normal: 'Helvetica',
+          bold: 'Helvetica-Bold',
+          italics: 'Helvetica-Oblique',
+          bolditalics: 'Helvetica-BoldOblique',
+        },
+      });
+  
+      const orderCollection = await db.get().collection(collection.ORDER_COLLECTION).find().toArray();
+      console.log(orderCollection, 'orders');
+  
+      const totalAmountResult = await db.get().collection(collection.ORDER_COLLECTION).aggregate([
+        {
+          $match: {
+            orderStatus: { $nin: ['cancelled'] },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalAmount: { $sum: '$totalAmound' },
+          },
+        },
+      ]).toArray();
+  
+      const totalAmount = totalAmountResult[0]?.totalAmount || 0;
+  
+      const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+      // Create document definition
+      const docDefinition = {
+        content: [
+          { text: 'ShoppyBee', style: 'header' },
+          { text: '\n' },
+          { text: 'Order Information', style: 'header1' },
+          { text: '\n' },
+        ],
+        styles: {
+          header: {
+            fontSize: 25,
+            alignment: 'center',
+          },
+          header1: {
+            fontSize: 12,
+            alignment: 'center',
+          },
+          tableHeader: {
+            bold: true,
+            fontSize: 13,
+            color: 'black',
+            alignment: 'center',
+          },
+          tableRow: {
+            fontSize: 12,
+            color: 'black',
+            alignment: 'center',
+          },
+          total: {
+            fontSize: 18,
+            alignment: 'center',
+          },
+        },
+      };
+  
+      const tableHeader = [
+        { text: 'Index', style: 'tableHeader' },
+        { text: 'Date', style: 'tableHeader' },
+        { text: 'User', style: 'tableHeader' },
+        { text: 'Status', style: 'tableHeader' },
+        { text: 'Method', style: 'tableHeader' },
+        { text: 'Amount', style: 'tableHeader' },
+      ];
+  
+      const tableBody = [];
+      for (let i = 0; i < orderCollection.length; i++) {
+        const data = orderCollection[i];
+  
+        try {
+          // Convert the date string to a valid date object
+          const [datePart, timePart] = data.date.split(' ');
+          const [day, month, year] = datePart.split('/');
+          const [hour, minute, second] = timePart.split(':');
+          const orderDate = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), Number(second));
+  
+          // Format the date using Intl.DateTimeFormat
+          const formattedDate = new Intl.DateTimeFormat('en-US', dateOptions).format(orderDate);
+  
+          tableBody.push([
+            (i + 1).toString(), // Index value
+            formattedDate,
+            data.userName,
+            data.OrderStatus,
+            data.paymentMethod,
+            data.totalAmound,
+          ]);
+        } catch (error) {
+          console.log('Error parsing date:', data.date);
+          console.log(error);
+        }
+      }
+  
+      const table = {
+        widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+        body: [tableHeader, ...tableBody],
+      };
+  
+      // Add the table to the document definition
+      docDefinition.content.push({ table, style: 'tableRow' });
+      docDefinition.content.push({ text: '\n' }, { text: `Total: ${totalAmount}`, style: 'total' });
+      // Generate PDF from the document definition
+      const pdfDoc = printer.createPdfKitDocument(docDefinition);
+  
+      // Pipe the PDF document to a write stream
+      pdfDoc.pipe(writeStream);
+  
+      // Finalize the PDF and end the stream
+      pdfDoc.end();
+  
+      writeStream.on('finish', () => {
+        res.download('order.pdf', 'order.pdf');
+      });
+    } catch (error) {
+      console.log('pdfSales helper error');
+      console.log(error, 'error');
+    }
+  }
+  
+  
+  
+  
+  
+  
 };
 
 

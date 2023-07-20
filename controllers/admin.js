@@ -696,7 +696,10 @@ const adminOrderDetailsPOST = async (req, res) => {
 
     const orderId = req.body.orderId;
 
+    const order=await adminHelper.getOrderById(orderId)
+
     const productDetails = await adminHelper.getProductsInOrder(orderId);
+    
 
     const orderAddress = await adminHelper.getOrderAddress(orderId)
 
@@ -708,7 +711,7 @@ const adminOrderDetailsPOST = async (req, res) => {
 
     const orderStatus = await adminHelper.getOrderStatus(orderId); // Assuming you have a function to get the order status
 
-    res.render('admin/ordered-products', { productDetails, admin: true, orderId, isReturnRequestOrCancelRequest: isReturnRequestOrCancelRequest(orderStatus), orderStatus });
+    res.render('admin/ordered-products', { productDetails, admin: true, orderId, isReturnRequestOrCancelRequest: isReturnRequestOrCancelRequest(orderStatus), orderStatus ,order});
 
   } catch (error) {
 
@@ -970,11 +973,28 @@ const getReturnRequests = async (req, res) => {
 
 };
 
+const downloadSalesReport=async(req,res)=>{
+
+  try {
+
+    const salesPdf = await adminHelper.salesPdf(req, res);
+
+  } catch (error) {
+
+    console.log(error.message, "pdfSales controller error");
+
+    res.redirect("/admin/error-page");
+    
+  }
+
+}
+
 const getSalesReport = async (req, res) => {
 
   try {
 
     const salesData = await adminHelper.getDeleveredOrders();
+   
 
     const currentDate = moment(); // Get the current date
 
@@ -1142,45 +1162,138 @@ const getSalesReport = async (req, res) => {
 
 
 
+// const getSalesTable = async (req, res) => {
+
+//   try {
+
+//     const salesData = await adminHelper.getAllOrders();
+
+//     // Calculate yearly sales
+
+//     const yearlySales = salesData.reduce((acc, sale) => {
+
+//       const saleDate = moment(sale.date, 'DD/MM/YYYY HH:mm:ss');
+
+//       const year = saleDate.year();
+
+
+//       if (!acc[year]) {
+
+//         acc[year] = 0;
+
+//       }
+
+//       acc[year] += sale.totalAmound;
+
+//       return acc;
+
+//     }, {});
+
+
+//     res.render('admin/yearly-sales-table', { yearlySales, admin: true });
+
+//   } catch (error) {
+
+//     console.error(error);
+
+//     res.redirect('/admin');
+
+//   }
+
+// };
+
 const getSalesTable = async (req, res) => {
-
+ 
   try {
+ 
+    const orders = await adminHelper.getAllOrders();
 
-    const salesData = await adminHelper.getDeleveredOrders();
+    // Get the current year
+ 
+    const currentYear = moment().year();
 
-    // Calculate yearly sales
+    // Filter out the orders where status is not 'cancelled' or 'returned' and happened in the current year
+ 
+    const filteredOrders = orders.filter(order => {
+ 
+      // Convert the date string to a Date object for easy comparison
+ 
+      const orderDate = moment(order.date, 'DD/MM/YYYY HH:mm:ss').toDate();
+ 
+      return (
+ 
+        order.OrderStatus !== 'cancelled' &&
+ 
+        order.OrderStatus !== 'returned' &&
+ 
+        moment(orderDate).year() === currentYear
+ 
+        );
+ 
+      });
 
-    const yearlySales = salesData.reduce((acc, sale) => {
-
-      const saleDate = moment(sale.date, 'DD/MM/YYYY HH:mm:ss');
-
-      const year = saleDate.year();
-
-
-      if (!acc[year]) {
-
-        acc[year] = 0;
-
-      }
-
-      acc[year] += sale.totalAmound;
-
-      return acc;
-
-    }, {});
-
-
-    res.render('admin/yearly-sales-table', { yearlySales, admin: true });
+    // Calculate the grand total of sales for the current year
+ 
+    let grandTotal = 0;
+ 
+    for (const order of filteredOrders) {
+ 
+      grandTotal += order.totalAmound; // Summing up the totalAmound of each order
+ 
+    }
+    
+ 
+    console.log(filteredOrders,"kj;k;kj;k",grandTotal);
+ 
+    res.render('admin/yearly-sales-table', { admin: true, yearlySales: filteredOrders, grandTotal });
 
   } catch (error) {
 
-    console.error(error);
+    console.log(error, 'monthly sales controller');
 
-    res.redirect('/admin');
+    res.redirect('/error-page');
 
   }
 
 };
+
+
+const getMontlySales = async (req, res) => {
+  try {
+    const fromDate = req.query.fromDate; // Get the fromDate from the request query
+    const toDate = req.query.toDate; // Get the toDate from the request query
+
+    const orders = await adminHelper.getAllOrders();
+
+    // Filter the orders based on the selected date range (if provided)
+    let filteredOrders = orders;
+
+    if (fromDate && toDate) {
+      const startDate = moment(fromDate, 'YYYY-MM-DD').startOf('day').toDate();
+      const endDate = moment(toDate, 'YYYY-MM-DD').endOf('day').toDate();
+
+      filteredOrders = orders.filter((order) => {
+        const orderDate = moment(order.date, 'DD/MM/YYYY HH:mm:ss').toDate();
+        return orderDate >= startDate && orderDate <= endDate;
+      });
+    }
+
+    // Calculate the grand total of the filtered orders
+    let grandTotal = 0;
+    for (const order of filteredOrders) {
+      grandTotal += order.totalAmound; // Summing up the totalAmound of each order
+    }
+
+    res.render('admin/monthly-sales-table', { admin: true, MonthlySales: filteredOrders, grandTotal });
+  } catch (error) {
+    console.log(error, 'monthly sales controller');
+    res.redirect('/error-page');
+  }
+};
+
+
+
+
 
 
 module.exports = {
@@ -1218,7 +1331,9 @@ module.exports = {
   removeCategoryOffer,
   getSalesReport,
   getSalesTable,
-  getError
+  getError,
+  getMontlySales,
+  downloadSalesReport
 
 
 }

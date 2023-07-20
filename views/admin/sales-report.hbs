@@ -33,6 +33,7 @@
   </div>
   <div class="col-md-4">
     <div class="card mt-5">
+       <a style="text-decoration: none;" href="/admin/monthly-sales-table">
       <div class="card-body" style="background-color:#fe7200;color:yellow">
         <h2 class="card-title" style="color:aliceblue">This Month</h2>
          {{#if monthlySales}}
@@ -44,6 +45,7 @@
         {{/each}}
         {{/if}}
       </div>
+     </a>
     </div>
   </div>
   <div class="col-md-4">
@@ -63,6 +65,8 @@
     </div>
   </div>
 </div>
+<!-- Add a link to trigger the download -->
+<a class="btn  mt-2" style="background-color:#fe7200;color:white" href="/admin/download-sales-report" download>Download Sales Report</a>
 
 
     <div class="row">
@@ -88,15 +92,24 @@
         </table>
       </div>
     </div>
-
+     
      <div class="row">
-      <div class="col-md-12">
+      <div class="col-md-6">
         <h2 style="color:#fe7200">Growth Chart</h2>
         <hr class="text-success">
         <div id="growthChartContainer">
           <canvas id="growthChart"></canvas>
         </div>
       </div>
+      <div class="col-md-6">
+      <div class="col-md-12">
+        <h2 style="color:#fe7200">Payment Methods</h2>
+        <hr>
+        <div id="paymentMethodsChartContainer">
+          <canvas id="paymentMethodsChart"></canvas>
+        </div>
+      </div>
+    </div>
     </div>
   </div>
 <input type="hidden" id="yearlySalesData" value="{{yearlySalesData}}">
@@ -137,6 +150,28 @@
           }
         }
       }
+    }
+  });
+
+  var paymentMethodsData = [2500, 1200, 3000]; // Replace this with your actual data for payment methods
+  var paymentMethodsLabels = ['COD', 'RAZORPAY', 'WALLET']; // Replace this with your actual payment method labels
+
+  // Pass the data to the pie chart
+  var ctxPaymentMethods = document.getElementById('paymentMethodsChart').getContext('2d');
+  var paymentMethodsChart = new Chart(ctxPaymentMethods, {
+    type: 'pie',
+    data: {
+      labels: paymentMethodsLabels,
+      datasets: [{
+        data: paymentMethodsData,
+        backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)', 'rgba(255, 206, 86, 0.5)'],
+        borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
     }
   });
 </script>

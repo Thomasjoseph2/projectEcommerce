@@ -542,36 +542,49 @@ const getAddAddress = async (req, res) => {
 }
 
 const getHome = async function (req, res, next) {
-
   try {
-
     const user = req.session.user;
-
     let cartCount = null;
-
     const page = parseInt(req.query.page) || 1;
-
     const productPerPage = 8;
 
-    const totalProducts = await userHelper.getTotalProductCount();
+    // Get filter and sort options from request query
+    const filterOptions = {
+      category: req.query.category, // Assuming you have a category filter in the query (e.g., ?category=64a05c38a67dab3e62aab0ad)
+      // Add more filters if needed
+    };
 
-    userHelper.getAllProductsForHome(page, productPerPage, totalProducts).then((result) => {
+    const sortOptions = {
+      sortBy: req.query.sortBy, // Assuming you have a sorting option in the query (e.g., ?sortBy=productPrice)
+      sortOrder: req.query.sortOrder, // Assuming you have a sorting order in the query (e.g., ?sortOrder=asc)
+    };
 
+    // Check if filters are applied
+    const areFiltersApplied = Object.values(filterOptions).some((option) => option !== '');
+
+    // Calculate the total number of products based on the filter options if they are applied
+    let totalProducts;
+    if (areFiltersApplied) {
+      totalProducts = await userHelper.getTotalFilteredProductCount(filterOptions);
+    } else {
+      // If no filters are applied, get the total number of products in the database
+      totalProducts = await userHelper.getTotalProductCount();
+    }
+
+    const categories = await userHelper.getCategory();
+
+    userHelper.getAllProductsForHome(page, productPerPage, totalProducts, filterOptions, sortOptions).then((result) => {
       const { products, totalPages } = result;
-
-      res.render('users/view-products', { products, user, cartCount, currentPage: page, totalPages });
-
+      res.render('users/view-products', { products, user, cartCount, currentPage: page, totalPages, categories });
     });
-
   } catch (err) {
-
     console.log(err);
-
-    res.redirect('/error-page')
-
+    res.redirect('/error-page');
   }
-
 };
+
+
+
 
 const changeProductQuantity = (req, res, next) => {
 
@@ -614,6 +627,8 @@ const getSingleProduct = async (req, res) => {
     const productId = req.params.id;
 
     const product = await productHelpers.getProductById(productId);
+
+    console.log(product,'kkkk');
 
     const category = await productHelpers.getCategoryById(product.productCategory)
 
@@ -1061,11 +1076,12 @@ const removeAddress = async (req, res, next) => {
 const cancelOrder = async (req, res) => {
 
   try {
-
-
+   
     const orderId = req.body.orderId;
 
-    const response = await userHelper.cancelOrder(orderId);
+    const reason=req.body.reason;
+
+    const response = await userHelper.cancelOrder(orderId,reason);
 
     res.json(response);
 
@@ -1082,8 +1098,10 @@ const returnOrder = async (req, res) => {
   try {
    
     const orderId = req.body.orderId;
+
+    const reason=req.body.reason;
  
-    const response = await userHelper.returnOrder(orderId);
+    const response = await userHelper.returnOrder(orderId,reason);
 
     res.json(response);
 

@@ -90,50 +90,62 @@ module.exports = {
 
   },
 
-  getAllProductsForHome: (page, productPerPage, totalProducts) => {
-
+  getAllProductsForHome: (page, productPerPage, totalFilteredProducts, filterOptions, sortOptions) => {
     return new Promise(async (resolve, reject) => {
-
       try {
+        const productCollection = db.get().collection(collection.PRODUCT_COLLECTION);
+        const totalPages = Math.ceil(totalFilteredProducts / productPerPage);
+  
+        // Apply filters
+        let query = {};
+        if (filterOptions.category) {
+          query.productCategory = ObjectId(filterOptions.category);
+        }
+        // Add more filters if needed
+  
+        // Apply sorting
+        let sortQuery = {};
+        if (sortOptions) {
+          sortQuery[sortOptions.sortBy] = sortOptions.sortOrder === 'asc' ? 1 : -1;
+        }
+  
+        productCollection
+          .find(query)
+          .sort(sortQuery)
+          .skip((page - 1) * productPerPage)
+          .limit(productPerPage)
+          .toArray((err, products) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve({ products, totalPages });
+            }
+          });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
 
+  getTotalFilteredProductCount: (filterOptions) => {
+    return new Promise(async (resolve, reject) => {
+      try {
         const productCollection = db.get().collection(collection.PRODUCT_COLLECTION);
 
-        const totalPages = Math.ceil(totalProducts / productPerPage);
+        // Apply filters
+        let query = {};
+        if (filterOptions.category) {
+          query.productCategory = ObjectId(filterOptions.category);
+        }
+        // Add more filters if needed
 
-
-        productCollection
-
-          .find()
-
-          .skip((page - 1) * productPerPage)
-
-          .limit(productPerPage)
-
-          .toArray((err, products) => {
-
-            if (err) {
-
-              reject(err);
-
-            } else {
-
-              resolve({ products, totalPages });
-
-            }
-
-          });
-
+        const totalFilteredProducts = await productCollection.countDocuments(query);
+        resolve(totalFilteredProducts);
       } catch (error) {
-
         reject(error);
-
       }
-
     });
-
-  }
-
-  ,
+  },  
   getUserAddress: (userId) => {
 
     return new Promise(async (resolve, reject) => {
@@ -1353,6 +1365,8 @@ module.exports = {
           OrderStatus: 'pending',
 
           date: currentDate,
+
+          reason:''
         };
 
 
@@ -1453,7 +1467,7 @@ module.exports = {
   
   
 
-  cancelOrder: (orderId) => {
+  cancelOrder: (orderId,reason) => {
 
     return new Promise(async (resolve, reject) => {
 
@@ -1469,7 +1483,7 @@ module.exports = {
 
             { _id: ObjectId(orderId) },
 
-            { $set: { OrderStatus: 'cancelrequest' } }
+            { $set: { OrderStatus: 'cancelrequest',reason:reason } }
 
           );
 
@@ -1484,7 +1498,7 @@ module.exports = {
     });
 
   },
-  returnOrder: (orderId) => {
+  returnOrder: (orderId,reason) => {
 
     return new Promise(async (resolve, reject) => {
 
@@ -1500,7 +1514,7 @@ module.exports = {
 
             { _id: ObjectId(orderId) },
 
-            { $set: { OrderStatus: 'returnrequest' } }
+            { $set: { OrderStatus: 'returnrequest' ,reason:reason} }
 
           );
 

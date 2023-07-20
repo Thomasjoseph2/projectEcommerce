@@ -14,31 +14,59 @@
         </div>
     </section>
 
-    <section>
-        <div class="container">
-            <div class="cart_inner">
-                <div class="table-responsive mt-3">
-                    <table class="table"  id="myTable">
-                        <thead>
-                            <tr>
-                                
-                                <th scope="col"> <h5>Year</h5></th>
-                                <th scope="col"> <h5>Sales </h5></th>
-                            </tr>
-                        </thead>
-                        <tbody>
+ 
+<!-- ... Your previous HTML code ... -->
+
+<section>
+    <div class="container">
+        <div class="cart_inner">
+            <div class="table-responsive mt-3">
+                <table class="table" id="myTable">
+                    <thead>
+                        <tr>
+                            <th scope="col" > <h5 style="color:#fe7200">Date</h5></th>
+                            <th scope="col"> <h5 style="color:#fe7200">User</h5></th>
+                            <th scope="col"> <h5 style="color:#fe7200">Status</h5></th>
+                            <th scope="col"> <h5 style="color:#fe7200"> Amount</h5></th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         {{#each yearlySales}}
-                            <tr>
-                                <td>{{@key}}</td>
-                                <td>
-                                    <h5>₹{{this}}/-</h5>
-                                </td>
-                            </tr>
-                           {{/each}}
-                        </tbody>
-                    </table>
-                    
-                </div>
+                        <tr>
+                            <td>{{this.date}}</td>
+                            <td>{{this.userName}}</td>
+                            <td>{{this.OrderStatus}}</td>
+                            <td>₹{{this.totalAmound}}/-</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
+<!-- Show the grand total separately below the DataTable -->
+<section>
+    <div class="container">
+        <div class="cart_inner">
+            <div class="table-responsive mt-3">
+                <table class="table">
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-danger h5"><strong>Grand Total:</strong></td>
+                            <td class="text-success h5">₹{{grandTotal}}/-</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+

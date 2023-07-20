@@ -71,6 +71,8 @@ router.post('/remove-offer', auth.verifyLogin, admin.removeCategoryOffer);
 router.get('/sales-report',auth.verifyLogin,admin.getSalesReport)
 
 router.get('/yearly-sales-table',auth.verifyLogin,admin.getSalesTable)
+
+router.get('/monthly-sales-table',auth.verifyLogin,admin.getMontlySales)
  
 router.get('/order-list', auth.verifyLogin, admin.getOrderList)
 
@@ -92,7 +94,7 @@ router.get('/cancel-requests', auth.verifyLogin, admin.getCancelRequests)
 
 router.get('/return-requests',auth.verifyLogin, admin.getReturnRequests)
 
-
+router.get('/download-sales-report',auth.verifyLogin,admin.downloadSalesReport)
 
 module.exports = router;
 

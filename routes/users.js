@@ -30,6 +30,8 @@ router.post('/login', auth.verifyBlock,auth.userisVerified,user.login );
 
 router.get('/logout',user.logout);
 
+router.get('/search',user.getHome)
+
 router.get('/cart', auth.userVerifyLogin,auth.userverifyBlock,user.getCart);
 
 router.get('/wishlist', auth.userVerifyLogin,user.getWishList);
@@ -94,7 +96,7 @@ router.get('/search-category',user.searchCategory )
 
 router.post('/list-category',user.ListCategory)
 
-router.get('/search',user.getSearchResults)
+router.get('/search-products',user.getSearchResults)
 
 router.get('/add-address',auth.userVerifyLogin,user.getAddAddress)
 

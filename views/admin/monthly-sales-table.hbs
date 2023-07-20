@@ -1,0 +1,115 @@
+
+   <style>
+  .filter-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .filter-container input[type="date"] {
+    margin-right: 10px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+
+  .filter-container button {
+    padding: 8px 16px;
+    background-color: #fe7200;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .filter-container button:hover {
+    background-color: #e05900;
+  }
+</style>
+
+   
+    <!-- Start Banner Area -->
+<section class="banner-area organic-breadcrumb">
+  <div class="container">
+    <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+      <div class="col-first">
+        <h1>Monthly Sales</h1>
+        <div class="filter-container">
+          <label for="fromDate">From Date:</label>
+          <input type="date" id="fromDate" name="fromDate">
+          <label for="toDate">To Date:</label>
+          <input type="date" id="toDate" name="toDate">
+          <button onclick="filterSalesByDate()">Filter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ... Your previous HTML code ... -->
+
+<section>
+    <div class="container">
+        <div class="cart_inner">
+            <div class="table-responsive mt-3">
+                <table class="table" id="myTable">
+                    <thead>
+                        <tr>
+                            <th scope="col" > <h5 style="color:#fe7200">Date</h5></th>
+                            <th scope="col"> <h5 style="color:#fe7200">User</h5></th>
+                            <th scope="col"> <h5 style="color:#fe7200">Status</h5></th>
+                            <th scope="col"> <h5 style="color:#fe7200"> Amount</h5></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each MonthlySales}}
+                        <tr>
+                            <td>{{this.date}}</td>
+                            <td>{{this.userName}}</td>
+                            <td>{{this.OrderStatus}}</td>
+                            <td>₹{{this.totalAmound}}/-</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Show the grand total separately below the DataTable -->
+<section>
+    <div class="container">
+        <div class="cart_inner">
+            <div class="table-responsive mt-3">
+                <table class="table">
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-danger h5"><strong>Grand Total:</strong></td>
+                            <td class="text-success h5">₹{{grandTotal}}/-</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+
+<script>
+  function filterSalesByDate() {
+    const fromDate = document.getElementById("fromDate").value;
+    const toDate = document.getElementById("toDate").value;
+
+    // Redirect to the filtered sales page with the selected date range as query parameters
+    window.location.href = `/admin/monthly-sales-table?fromDate=${fromDate}&toDate=${toDate}`;
+  }
+</script>

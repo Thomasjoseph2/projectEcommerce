@@ -43,54 +43,57 @@
 
 
 
-    <section>
-        <div class="container">
-            <div class="cart_inner">
-                <div class="table-responsive mt-3">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col"> <h5>Image</h5></th>
-                                <th scope="col"> <h5>Description</h5></th>
-                                <th scope="col"> <h5>Price</h5></th>
-                                <th scope="col"> <h5>Address</h5></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {{#each productDetails}}
-                            <tr>
-                                 <td>
-                                <div class="media">
-                                    <div class="d-flex">
-                                        <img style="width:14vh;height:10vh"
-                                            src="/product-images/{{this.product.images.[0]}}" alt="">
-                                    </div>
-                                    <div class="media-body">
-                                        <p>{{this.product.productName}}</p>
-                                    </div>
-                                </div>
-                            </td>
-                              
-                                <td>{{this.product.productDescription}}</td>
-                                <td>
-                                    <h5>₹{{this.product.productPrice}}/-</h5>
-                                </td>
-                                 
-                                <td>{{this.address.address1}}
-                                    <br>
-                                    city:{{this.address.city}}
-                                    <br>
-                                    pin:{{this.address.pincode}}
-                                    <br>
-                                    phone:{{this.address.phone1}}
-                                </td>
-                            </tr>
-                           {{/each}}
-                        </tbody>
-                    </table>
-                    
-                </div>
-            </div>
-        </div>
-    </section>
+   <section>
+  <div class="container">
+    <div class="cart_inner">
+      <div class="table-responsive mt-3">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col"> <h5>Image</h5></th>
+              <th scope="col"> <h5>Description</h5></th>
+              <th scope="col"> <h5>Price</h5></th>
+              <th scope="col"> <h5>Address</h5></th>
+              {{#if order.reason}}
+              <th scope="col"> <h5>Reason</h5></th>
+              {{/if}}
+            </tr>
+          </thead>
+          <tbody>
+            {{#each productDetails}}
+              <tr>
+                <td>
+                  <div class="media">
+                    <div class="d-flex">
+                      <img style="width:14vh;height:10vh" src="/product-images/{{this.product.images.[0]}}" alt="">
+                    </div>
+                    <div class="media-body">
+                      <p>{{this.product.productName}}</p>
+                    </div>
+                  </div>
+                </td>
+                <td>{{this.product.productDescription}}</td>
+                <td>
+                  <h5>₹{{this.product.productPrice}}/-</h5>
+                </td>
+                <td>
+                  {{this.address.address1}}
+                  <br>
+                  city:{{this.address.city}}
+                  <br>
+                  pin:{{this.address.pincode}}
+                  <br>
+                  phone:{{this.address.phone1}}
+                </td>
+                {{#if ../order.reason}}
+                  <td>{{../order.reason}}</td>
+                {{/if}}
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
     <script src="/javascripts/ordered-products.js"></script>
