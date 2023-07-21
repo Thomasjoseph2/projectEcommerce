@@ -108,8 +108,7 @@
 					{{/each}}
 				</div>
 			</div>
-			<div>
-				<div>
+			
 					
 
 <div class="container text-center pagination-container">
@@ -133,9 +132,6 @@
   {{/if}}
 </div>
 
-
-</div>
-</div>
 		</div>
 
 		<div class="single-product-slider">
@@ -148,6 +144,41 @@
 						</div>
 					</div>
 				</div>
+						<section  class="container mt-3 mb-4">
+    <form id="filterForm" class="form-inline" method="GET" action="/search">
+        <div class="form-group mr-2">
+            <label for="categorySelect">Category:</label>
+            <select name="category" class="form-control" id="categorySelect" onchange="submitFilterForm()">
+                <option value="">All Categories</option>
+                <!-- Add options for all categories dynamically -->
+                {{#each categories}}
+                <option value="{{this._id}}">{{this.categoryName}}</option>
+                {{/each}}
+            </select>
+        </div>
+        <!-- Add more filter options if needed -->
+        <!-- For example, price range, brand, etc. -->
+
+        <div class="form-group mr-2">
+            <label for="sortBySelect">Sort By:</label>
+            <select name="sortBy" class="form-control" id="sortBySelect" onchange="submitFilterForm()">
+                <option value="productName">Name</option>
+                <option value="productPrice">Price</option>
+                <!-- Add more sort options if needed -->
+            </select>
+        </div>
+
+        <div class="form-group mr-2">
+            <label for="sortOrderSelect">Sort Order:</label>
+            <select name="sortOrder" class="form-control" id="sortOrderSelect" onchange="submitFilterForm()">
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-danger form-group mr-2">Apply Filters</button>
+    </form>
+</section>
 				
 				<div class="row ">	
 					<!-- single product -->
@@ -200,7 +231,28 @@
 					{{/each}}
 				</div>
 			</div>
+			<div class="container text-center pagination-container">
+  {{#if totalPages}}
+    <ul class="pagination">
+      {{#if (gt currentPage 1)}}
+        <li ><a href="/?page={{subtract currentPage 1}}">Previous</a></li>
+      {{/if}}
+	  {{#min}}
+      {{#numeric (range 1 (add (min totalPages (add currentPage 5)) 1)) as |page|}}
+        <li{{#if (eq page currentPage)}} class="active"{{/if}}>
+          <a href="/?page={{page}}">Page {{page}}</a>
+        </li>
+      {{/numeric}}
+	  {{/min}}
+
+      {{#if (lt currentPage totalPages)}}
+        <li style="margin-left: 2vh;width:5vh"><a href="/?page={{add currentPage 1}}">Next</a></li>
+      {{/if}}
+    </ul>
+  {{/if}}
+</div>
 			<div>
+
 	
          </div>
 		</div>	

@@ -4,6 +4,7 @@ const userHelpers = require('../helpers/users-helper');
 const adminHelper = require('../helpers/admin-helper');
 const moment = require('moment');
 
+//the function for load login page for admin
 const adminLoadLogin = function (req, res) {
 
   try {
@@ -14,7 +15,7 @@ const adminLoadLogin = function (req, res) {
 
     } else {
 
-      res.render('admin/login', { adminLoginErr: req.session.adminLoginErr, admin: true });
+      res.render('admin/login', { adminLoginErr: req.session.adminLoginErr, admin: true,adminLoggedIn: false });
 
       req.session.adminLoginErr = false;
     }
@@ -30,6 +31,7 @@ const adminLoadLogin = function (req, res) {
 };
 
 
+//the function manages the admin login post request
 
 const adminCheck = function (req, res) {
 
@@ -73,16 +75,16 @@ const adminCheck = function (req, res) {
 
 };
 
-
+//function displays all the products for admin
 
 const productList = function (req, res, next) {
 
   try {
-
+    //function to get all products from the database 
     productHelpers.getAllProducts().then(async (products) => {
 
       for (let i = 0; i < products.length; i++) {
-
+         //getting products category from the db
         const category = await adminHelper.getCategoryById(products[i].productCategory);
 
         if (category) {
@@ -113,14 +115,14 @@ const productList = function (req, res, next) {
 };
 
 
-
+//controller for rendering add product page 
 const getAddProduct = async function (req, res) {
 
   try {
 
     const categories = await adminHelper.getCategory();
 
-    res.render('admin/add-product', { admin: true, categories });
+    res.render('admin/add-product', { admin: true, categories,adminLoggedIn: true  });
 
   } catch (error) {
 
@@ -132,7 +134,7 @@ const getAddProduct = async function (req, res) {
 
 };
 
-
+//controller mahages add product post request
 const addProduct = (req, res) => {
 
   let arrayImage = []
@@ -166,14 +168,18 @@ const addProduct = (req, res) => {
 
 };
 
+//category offer adding controller
+
 const addCategoryOffer = async (req, res) => {
 
   try {
+    
+    
 
     const categoryOffer = parseInt(req.body.categoryOffer);
 
     const categoryId = req.body.categoryId;
-
+    //adding categoryoffer through the helper
     await adminHelper.addOffer(categoryId, categoryOffer).then(() => {
 
       res.redirect('/admin/category');
@@ -189,6 +195,7 @@ const addCategoryOffer = async (req, res) => {
   }
 };
 
+//product offer adding controller
 
 const addProductOffer = async (req, res) => {
 
@@ -212,6 +219,8 @@ const addProductOffer = async (req, res) => {
 
 };
 
+//controller for removing product offer
+
 const removeProductOffer = async (req, res) => {
 
   try {
@@ -233,6 +242,8 @@ const removeProductOffer = async (req, res) => {
   }
 
 };
+
+//category offer removing controller
 
 const removeCategoryOffer = async (req, res) => {
 
@@ -258,7 +269,7 @@ const removeCategoryOffer = async (req, res) => {
 
 };
 
-
+//product deleting controller
 
 const deleteProduct = (req, res) => {
 
@@ -282,6 +293,7 @@ const deleteProduct = (req, res) => {
 
 };
 
+//edit product rendering controller
 
 const getEditProduct = async (req, res) => {
 
@@ -295,9 +307,12 @@ const getEditProduct = async (req, res) => {
   
     const category=await productHelpers.getCategoryById(product.productCategory)
 
+    
     const categoryName=category.categoryName
+    
+    //passing all the information required for edit product while rendering
 
-    res.render('admin/edit-product', { admin: true, product, categories ,categoryName});
+    res.render('admin/edit-product', { admin: true, product, categories ,categoryName,adminLoggedIn: true });
 
   } catch (error) {
 
@@ -307,7 +322,7 @@ const getEditProduct = async (req, res) => {
   }
 };
 
-
+//controller that manages the edit product post request
 const editProduct = (req, res) => {
 
   try {
@@ -370,6 +385,8 @@ const editProduct = (req, res) => {
   }
 };
 
+//controllers give user details and for the admin display
+
 const viewUser = function (req, res) {
 
   try {
@@ -398,13 +415,15 @@ const viewUser = function (req, res) {
 
 };
 
+//search user controller
 
 const getSearchUser = function (req, res) {
 
-  res.render('admin/search-user', { admin: true });
+  res.render('admin/search-user', { admin: true,adminLoggedIn: true  });
 
 };
 
+//search user controller
 
 const searchUser = function (req, res) {
 
@@ -414,7 +433,7 @@ const searchUser = function (req, res) {
 
     userHelpers.searchUser(searchTerm).then((users) => {
 
-      res.render('admin/view-user', { users });
+      res.render('admin/view-user', { users ,adminLoggedIn: true });
 
     }).catch((error) => {
 
@@ -433,6 +452,7 @@ const searchUser = function (req, res) {
   }
 };
 
+//controller that manages logout
 
 const logout = (req, res) => {
 
@@ -452,14 +472,14 @@ const logout = (req, res) => {
 
 };
 
-
+//user manage page controller 
 const getUserManage = async (req, res) => {
 
   try {
-
+    //using helper function to retrive user details from the db
     const users = await adminHelper.getUserDetails();
 
-    res.render('admin/user-manage', { admin: true, users });
+    res.render('admin/user-manage', { admin: true, users ,adminLoggedIn: true });
 
   } catch (error) {
 
@@ -471,6 +491,7 @@ const getUserManage = async (req, res) => {
 
 };
 
+//controller for blocking user
 
 const blockUser = (req, res) => {
 
@@ -494,6 +515,7 @@ const blockUser = (req, res) => {
 
 };
 
+//controller renders blocked users
 
 const getBlockedUsers = async (req, res) => {
 
@@ -501,7 +523,7 @@ const getBlockedUsers = async (req, res) => {
 
     const users = await adminHelper.getBlockedUserDetails();
 
-    res.render('admin/blocked-users', { admin: true, users });
+    res.render('admin/blocked-users', { admin: true, users ,adminLoggedIn: true });
 
   } catch (error) {
 
@@ -512,6 +534,7 @@ const getBlockedUsers = async (req, res) => {
   }
 };
 
+//controller using for unblocking user
 
 const unblockUser = (req, res) => {
 
@@ -535,6 +558,7 @@ const unblockUser = (req, res) => {
 
 };
 
+//controller used for getting the categorys for admin display
 
 const getCategory = async function (req, res) {
 
@@ -553,6 +577,8 @@ const getCategory = async function (req, res) {
   }
 
 };
+//error page rendering controller
+
 const getError = function (req, res) {
 
   try {
@@ -568,6 +594,8 @@ const getError = function (req, res) {
   }
 
 };
+//add category managing controller
+
 const addCategory = async (req, res) => {
 
   try {
@@ -603,6 +631,7 @@ const addCategory = async (req, res) => {
 
 };
 
+//controller check products existance in the category
 
 const checkProducts = async (req, res) => {
 
@@ -623,6 +652,7 @@ const checkProducts = async (req, res) => {
   }
 };
 
+//category removing controller
 
 const removeCategory = async (req, res) => {
 
@@ -644,6 +674,8 @@ const removeCategory = async (req, res) => {
   }
 
 };
+
+//controller for getting order list
 
 const getOrderList = (req, res) => {
 
@@ -667,7 +699,8 @@ const getOrderList = (req, res) => {
         orders,
   
         admin: true,
-  
+       
+        adminLoggedIn: true 
       });
   
     })
@@ -682,6 +715,7 @@ const getOrderList = (req, res) => {
 
   };
 
+  //function to check request is a return or cancel request
 
 const isReturnRequestOrCancelRequest = (status) => {
 
@@ -689,6 +723,7 @@ const isReturnRequestOrCancelRequest = (status) => {
 
 };
 
+//controller manages the single order display for the admin
 
 const adminOrderDetailsPOST = async (req, res) => {
 
@@ -711,7 +746,7 @@ const adminOrderDetailsPOST = async (req, res) => {
 
     const orderStatus = await adminHelper.getOrderStatus(orderId); // Assuming you have a function to get the order status
 
-    res.render('admin/ordered-products', { productDetails, admin: true, orderId, isReturnRequestOrCancelRequest: isReturnRequestOrCancelRequest(orderStatus), orderStatus ,order});
+    res.render('admin/ordered-products', { productDetails, admin: true, orderId, isReturnRequestOrCancelRequest: isReturnRequestOrCancelRequest(orderStatus), orderStatus ,order,adminLoggedIn: true });
 
   } catch (error) {
 
@@ -722,6 +757,7 @@ const adminOrderDetailsPOST = async (req, res) => {
   }
 };
 
+//controller deals with the OrderStatus of the order 
 
 const changeStatus = async (req, res) => {
 
@@ -803,6 +839,7 @@ const changeStatus = async (req, res) => {
 
 };
 
+//controller responsible for displaying all the coupons for the admin
 
 const getCoupon = async (req, res) => {
 
@@ -823,7 +860,7 @@ const getCoupon = async (req, res) => {
     });
 
 
-    res.render('admin/coupon-manage', { admin: true, coupons });
+    res.render('admin/coupon-manage', { admin: true, coupons,adminLoggedIn: true  });
   } catch (error) {
 
     console.error(error);
@@ -833,12 +870,13 @@ const getCoupon = async (req, res) => {
   }
 };
 
+//controller responsible to give the create coupon page 
 
 const getCreateCoupon = (req, res) => {
 
   try {
 
-    res.render('admin/add-coupon', { admin: true, couponExists: req.session.admin.couponExistsError })
+    res.render('admin/add-coupon', { admin: true, couponExists: req.session.admin.couponExistsError,adminLoggedIn: true  })
 
     req.session.admin.couponExistsError = false
 
@@ -850,6 +888,8 @@ const getCreateCoupon = (req, res) => {
 
   }
 };
+
+//controller responsible to manage the add coupon post request
 
 const addCoupon = async (req, res) => {
 
@@ -903,6 +943,7 @@ const addCoupon = async (req, res) => {
   }
 };
 
+//controller deals with the remove coupon request
 
 const removeCoupon = (req, res) => {
 
@@ -936,6 +977,8 @@ const removeCoupon = (req, res) => {
 
 };
 
+//function to get all the cancel requests
+
 
 const getCancelRequests = async (req, res) => {
 
@@ -943,7 +986,7 @@ const getCancelRequests = async (req, res) => {
 
     const cancelRequests = await adminHelper.getCancelRequests();
 
-    res.render('admin/cancel-requests', { cancelRequests });
+    res.render('admin/cancel-requests', { cancelRequests,adminLoggedIn: true  });
 
   } catch (error) {
 
@@ -954,6 +997,8 @@ const getCancelRequests = async (req, res) => {
   }
 
 };
+
+//controller to get all the return requests
 
 const getReturnRequests = async (req, res) => {
 
@@ -961,7 +1006,7 @@ const getReturnRequests = async (req, res) => {
 
     const returnRequests = await adminHelper.getReturnRequests();
 
-    res.render('admin/return-requests', { returnRequests });
+    res.render('admin/return-requests', { returnRequests,adminLoggedIn: true  });
 
   } catch (error) {
 
@@ -972,6 +1017,8 @@ const getReturnRequests = async (req, res) => {
   }
 
 };
+
+//controller  deals with the sales report downloading
 
 const downloadSalesReport=async(req,res)=>{
 
@@ -989,13 +1036,16 @@ const downloadSalesReport=async(req,res)=>{
 
 }
 
+//controller displays the sale report
+
 const getSalesReport = async (req, res) => {
 
   try {
 
     const salesData = await adminHelper.getDeleveredOrders();
-   
 
+    const saleMethod=await adminHelper.getPaymentCounts()
+   
     const currentDate = moment(); // Get the current date
 
     // Calculate current year's sales
@@ -1146,7 +1196,15 @@ const getSalesReport = async (req, res) => {
 
       yearlySalesData,
 
-      yearlyLabels
+      yearlyLabels,
+
+      ONLINE: saleMethod.ONLINE, 
+
+      WALLET: saleMethod.WALLET,
+
+      COD: saleMethod.COD,
+
+      adminLoggedIn: true 
 
 
     });
@@ -1202,6 +1260,9 @@ const getSalesReport = async (req, res) => {
 
 // };
 
+
+//function to show the sales table
+
 const getSalesTable = async (req, res) => {
  
   try {
@@ -1243,9 +1304,7 @@ const getSalesTable = async (req, res) => {
     }
     
  
-    console.log(filteredOrders,"kj;k;kj;k",grandTotal);
- 
-    res.render('admin/yearly-sales-table', { admin: true, yearlySales: filteredOrders, grandTotal });
+    res.render('admin/yearly-sales-table', { admin: true, yearlySales: filteredOrders, grandTotal ,adminLoggedIn: true });
 
   } catch (error) {
 
@@ -1284,7 +1343,7 @@ const getMontlySales = async (req, res) => {
       grandTotal += order.totalAmound; // Summing up the totalAmound of each order
     }
 
-    res.render('admin/monthly-sales-table', { admin: true, MonthlySales: filteredOrders, grandTotal });
+    res.render('admin/monthly-sales-table', { admin: true, MonthlySales: filteredOrders, grandTotal,adminLoggedIn: true  });
   } catch (error) {
     console.log(error, 'monthly sales controller');
     res.redirect('/error-page');

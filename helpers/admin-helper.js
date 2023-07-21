@@ -7,92 +7,126 @@ const pdfPrinter = require("pdfmake");
 const fs=require('fs')
 module.exports = {
 
-  doLogin: async (adminData) => {
+// Controller function for admin login
+doLogin: async (adminData) => {
+
+  try {
+
+    // Find the admin in the database based on the provided email
+
+    const admin = await db.get().collection(collection.ADMIN_COLLECTION).findOne({ email: adminData.email });
+
+
+    
+    if (admin) {
+    
+      // If the admin exists
+
+
+      // Compare the provided password with the stored password
+      
+      const passwordMatch = await (adminData.password, admin.password);
+
+      if (passwordMatch) {
+      
+        // If the passwords match, return the admin details and set the status to true
+      
+        return {
+      
+          admin: admin,
+      
+          status: true,
+      
+        };
+      } else {
+      
+        // If the passwords do not match, return status as false (login failed)
+      
+        return { status: false };
+      
+      }
+    
+    } else {
+    
+      // If the admin does not exist, return status as false (login failed)
+    
+      return { status: false };
+    
+    }
+  
+  } catch (error) {
+  
+    // If an error occurs during login, log the error and throw it for handling
+  
+    console.error('Error occurred during login:', error);
+  
+    throw error;
+  
+  }
+
+},
+
+
+// Function to get user details for non-blocked users
+
+getUserDetails: () => {
+
+  return new Promise(async (resolve, reject) => {
 
     try {
 
-      const admin = await db.get().collection(collection.ADMIN_COLLECTION).findOne({ email: adminData.email });
+      // Retrieve all users from the database where 'blocked' is false
 
-      if (admin) {
+      const users = await db.get().collection(collection.USER_COLLECTION).find({ blocked: false }).toArray();
 
-        // Compare the provided password with the stored password
+      // Resolve the promise with the array of non-blocked users
 
-        const passwordMatch = await (adminData.password, admin.password);
-
-        if (passwordMatch) {
-
-
-          return {
-
-            admin: admin,
-
-            status: true,
-
-          };
-
-        } else {
-
-          return { status: false };
-
-        }
-
-      } else {
-
-        return { status: false };
-
-      }
+      resolve(users);
 
     } catch (error) {
 
-      console.error('Error occurred during login:', error);
+      // If an error occurs while fetching user details, reject the promise with the error
 
-      throw error;
+      reject(error);
 
     }
 
-  },
+  });
 
-  getUserDetails: () => {
-
-    return new Promise(async (resolve, reject) => {
-
-      try {
-
-        const users = await db.get().collection(collection.USER_COLLECTION).find({ blocked: false }).toArray();
-
-        resolve(users);
+},
 
 
-      } catch (error) {
 
-        reject(error);
+ // Function to get user details for blocked users
 
-      }
+ getBlockedUserDetails: () => {
 
-    });
+  return new Promise(async (resolve, reject) => {
 
-  },
+    try {
+
+      // Retrieve all users from the database where 'blocked' is true
+
+      const blockedUsers = await db.get().collection(collection.USER_COLLECTION).find({ blocked: true }).toArray();
+
+      // Resolve the promise with the array of blocked users
+
+      resolve(blockedUsers);
+
+    } catch (error) {
+
+      // If an error occurs while fetching blocked user details, reject the promise with the error
+
+      reject(error);
+
+    }
+
+  });
+
+},
 
 
-  getBlockedUserDetails: () => {
-
-    return new Promise(async (resolve, reject) => {
-
-      try {
-
-        const blockedUsers = await db.get().collection(collection.USER_COLLECTION).find({ blocked: true }).toArray();
-
-        resolve(blockedUsers);
-
-      } catch (error) {
-
-        reject(error);
-
-      }
-
-    });
-
-  },
+  // Function to block a user by updating the 'blocked' status to true in the database
 
   blockUser: (userId) => {
 
@@ -100,26 +134,83 @@ module.exports = {
 
       try {
 
-        db.get()
+        // Update the 'blocked' status to true for the specified user ID
 
+        db.get().collection(collection.USER_COLLECTION).updateOne(
 
-          .collection(collection.USER_COLLECTION)
+          { _id: ObjectId(userId) },
 
-          .updateOne({ _id: ObjectId(userId) }, { $set: { blocked: true } }, (error) => {
+          { $set: { blocked: true } },
+
+          (error) => {
 
             if (error) {
+
+              // If an error occurs while updating, reject the promise with the error
 
               reject(error);
 
             } else {
 
+              // Resolve the promise when the user is successfully blocked
+
               resolve();
 
             }
+        }
 
-          });
+        );
 
       } catch (error) {
+      // If an error occurs while processing the blockUser function, reject the promise with the error
+
+      reject(error);
+
+    }
+
+  });
+
+},
+// Function to add an offer to a category by updating the 'categoryOffer' field in the database
+
+addOffer: (ctId, offer) => {
+
+  return new Promise((resolve, reject) => {
+
+    try {
+
+      // Update the 'categoryOffer' field with the provided offer value for the specified category ID
+
+      db.get().collection(collection.CATEGORY_COLLECTION).updateOne(
+
+        { _id: ObjectId(ctId) },
+
+        { $set: { categoryOffer: offer } },
+
+        (error) => {
+
+          if (error) {
+
+            // If an error occurs while updating, reject the promise with the error
+
+            reject(error);
+
+          } else {
+
+            // Resolve the promise when the offer is successfully added to the category
+
+            resolve();
+
+          }
+
+        }
+
+        );
+
+
+      } catch (error) {
+
+        // If an error occurs while processing the addOffer function, reject the promise with the error
 
         reject(error);
 
@@ -129,41 +220,10 @@ module.exports = {
 
   },
 
-  addOffer: (ctId, offer) => {
-
-    return new Promise((resolve, reject) => {
-
-      try {
-
-        db.get()
-
-          .collection(collection.CATEGORY_COLLECTION)
-
-          .updateOne({ _id: ObjectId(ctId) }, { $set: { categoryOffer: offer } }, (error) => {
-
-            if (error) {
-
-              reject(error);
-
-            } else {
-
-              resolve();
-
-            }
-
-          });
-
-      } catch (error) {
-
-        reject(error);
-
-      }
-
-    });
-
-  },
 
 
+
+  // Function to add an offer to a product by updating the 'productOffer' and 'offerPrice' fields in the database
 
   addproductOffer: (proId, offer) => {
 
@@ -171,147 +231,186 @@ module.exports = {
 
       try {
 
-        db.get()
+        // Find the product with the provided product ID
 
-          .collection(collection.PRODUCT_COLLECTION)
+        db.get().collection(collection.PRODUCT_COLLECTION).findOne({ _id: ObjectId(proId) }, (error, product) => {
 
-          .findOne({ _id: ObjectId(proId) }, (error, product) => {
+          if (error) {
 
-            if (error) {
+            // If an error occurs while finding the product, reject the promise with the error
 
-              reject(error);
+            reject(error);
 
-            } else {
-
-              if (product) {
-
-                const productOffer = parseFloat(offer);
-
-                const productPrice = parseFloat(product.productPrice);
-
-                const offerPrice = productPrice - (productPrice * (productOffer / 100));
-
-                db.get().collection(collection.PRODUCT_COLLECTION).updateOne(
-
-                  { _id: ObjectId(proId) },
-
-                  { $set: { productOffer: productOffer, offerPrice: Math.floor(offerPrice) } },
-
-                  (error) => {
-
-                    if (error) {
-
-                      reject(error);
-
-                    } else {
-
-                      resolve();
-
-                    }
-
-                  }
-
-                );
-
-              } else {
-
-                reject(new Error('Product not found'));
-
-              }
-
-            }
-
-          });
-
-      } catch (error) {
-
-        reject(error);
-
-      }
-
-    });
-
-  },
+          } else {
 
 
-  unblockUser: (userId) => {
+            if (product) {
 
-    return new Promise((resolve, reject) => {
+              // If the product is found, extract the productOffer and productPrice from the product document
 
-      try {
+              const productOffer = parseFloat(offer);
 
-        db.get()
+              const productPrice = parseFloat(product.productPrice);
 
-          .collection(collection.USER_COLLECTION)
+            // Calculate the offerPrice based on the productPrice and productOffer
 
-          .updateOne({ _id: ObjectId(userId) }, { $set: { blocked: false } }, (error) => {
+            const offerPrice = productPrice - (productPrice * (productOffer / 100));
 
-            if (error) {
+            // Update the 'productOffer' and 'offerPrice' fields in the product document
 
-              reject(error);
+            db.get().collection(collection.PRODUCT_COLLECTION).updateOne(
 
-            } else {
+              { _id: ObjectId(proId) },
 
-              resolve();
+              { $set: { productOffer: productOffer, offerPrice: Math.floor(offerPrice) } },
 
-            }
+              (error) => {
 
-          });
+                if (error) {
 
-      } catch (error) {
+                  // If an error occurs while updating, reject the promise with the error
 
-        reject(error);
+                  reject(error);
 
-      }
+                } else {
 
-    });
+                  // Resolve the promise when the offer is successfully added to the product
 
-  },
+                  resolve();
 
-
-
-  isBlocked: (useremail) => {
-
-    return new Promise((resolve, reject) => {
-
-      try {
-
-        db.get()
-
-          .collection(collection.USER_COLLECTION)
-
-          .findOne({ email: useremail }, (err, user) => {
-
-            if (err) {
-
-              reject(err);
-
-            } else {
-
-              if (user && user.blocked === true) {
-
-                resolve(true);
-
-              } else {
-
-                resolve(false);
+                }
 
               }
 
-            }
+              );
 
-          });
+            } else {
+
+              // If the product is not found, reject the promise with an error message
+
+              reject(new Error('Product not found'));
+
+            }
+        }
+
+
+      });
+
+    } catch (error) {
+
+      // If an error occurs while processing the addproductOffer function, reject the promise with the error
+
+      reject(error);
+
+    }
+
+  });
+
+},
+
+
+
+// Function to unblock a user by updating the 'blocked' field to false in the database
+
+unblockUser: (userId) => {
+
+  return new Promise((resolve, reject) => {
+
+    try {
+
+      // Update the 'blocked' field of the user document with the provided user ID
+
+      db.get().collection(collection.USER_COLLECTION).updateOne(
+
+        { _id: ObjectId(userId) },
+
+        { $set: { blocked: false } },
+
+        (error) => {
+
+          if (error) {
+
+            // If an error occurs while updating, reject the promise with the error
+
+            reject(error);
+
+          } else {
+            // Resolve the promise when the user is successfully unblocked
+
+            resolve();
+
+          }
+
+        }
+
+        );
 
       } catch (error) {
+
+        // If an error occurs while processing the unblockUser function, reject the promise with the error
 
         reject(error);
 
       }
 
     });
+},
 
-  },
 
+
+// Function to check if a user with the provided email is blocked or not
+
+isBlocked: (useremail) => {
+
+  return new Promise((resolve, reject) => {
+
+    try {
+
+      // Find the user with the provided email
+
+      db.get().collection(collection.USER_COLLECTION).findOne({ email: useremail }, (err, user) => {
+
+        if (err) {
+
+          // If an error occurs while finding the user, reject the promise with the error
+
+          reject(err);
+
+        } else {
+
+          if (user && user.blocked === true) {
+
+            // If the user is found and blocked is true, resolve the promise with true
+
+            resolve(true);
+
+          } else {
+
+            // If the user is not found or blocked is false, resolve the promise with false
+
+            resolve(false);
+
+          }
+
+        }
+
+      });
+
+    } catch (error) {
+
+      // If an error occurs while processing the isBlocked function, reject the promise with the error
+
+      reject(error);
+
+    }
+
+  });
+
+},
+
+
+
+  // Function to check if a user with the provided user ID is blocked or not
 
   isUserBlocked: (userId) => {
 
@@ -319,172 +418,31 @@ module.exports = {
 
       try {
 
-        db.get()
+        // Find the user with the provided user ID
 
-          .collection(collection.USER_COLLECTION)
+        db.get().collection(collection.USER_COLLECTION).findOne({ _id: ObjectId(userId) }, (err, user) => {
 
-          .findOne({ _id: ObjectId(userId) }, (err, user) => {
+          if (err) {
 
-            if (err) {
+            // If an error occurs while finding the user, reject the promise with the error
 
-              reject(err);
-
-            } else {
-
-              if (user && user.blocked === true) {
-
-                resolve(true);
-
-              } else {
-
-                resolve(false);
-
-              }
-
-            }
-
-          });
-
-      } catch (error) {
-
-        reject(error);
-
-      }
-
-    });
-
-  },
-
-
-  userisSBlocked: (searchTerm) => {
-
-    return new Promise(async (resolve, reject) => {
-
-      try {
-
-        searchTerm = "+91" + searchTerm;
-
-        const user = await db
-
-          .get()
-
-          .collection(collection.USER_COLLECTION)
-
-          .findOne({ phonenumber: searchTerm });
-
-
-        if (user && user.blocked === true) {
-
-          resolve(true);
-
-        } else {
-
-          resolve(false);
-
-        }
-      }
-      catch (error) {
-
-        reject(error);
-
-      }
-    })
-      ;
-  },
-
-
-  getCategory: () => {
-
-    return new Promise(async (resolve, reject) => {
-
-      try {
-
-        const categories = await db.get()
-
-          .collection(collection.CATEGORY_COLLECTION)
-
-          .find()
-
-          .toArray();
-
-        resolve(categories);
-
-      } catch (error) {
-
-        reject(error);
-
-      }
-
-    });
-
-  },
-
-
-  removeCategory: (ctId) => {
-
-    return new Promise(async (resolve, reject) => {
-
-      try {
-
-        await db.get()
-
-          .collection(collection.CATEGORY_COLLECTION)
-
-          .deleteOne({ _id: ObjectId(ctId) });
-
-        resolve();
-
-      } catch (error) {
-
-
-        reject(error);
-
-      }
-
-    });
-
-  },
-//the function for checking categrory already exist or not 
-  checkCategoryExists: (categoryName) => {
-    return new Promise((resolve, reject) => {
-      try {
-        db.get()
-          .collection(collection.CATEGORY_COLLECTION)
-          .findOne({ categoryName: { $regex: new RegExp('^' + categoryName + '$', 'i') } })
-          .then((category) => {
-            if (category) {
-              resolve(true);
-            } else {
-              resolve(false);
-            }
-          })
-          .catch((error) => {
-            reject(error);
-          });
-      } catch (error) {
-        reject(error);
-      }
-    });
-  },
-  
-
-  addCategory: (categoryData) => {
-
-    categoryData.categoryOffer = 0;
-
-    return new Promise((resolve, reject) => {
-
-      try {
-
-        db.get().collection(collection.CATEGORY_COLLECTION).insertOne(categoryData, (error, result) => {
-
-          if (error) {
-
-            reject(error);
+            reject(err);
 
           } else {
 
-            resolve(categoryData);
+            if (user && user.blocked === true) {
+
+              // If the user is found and blocked is true, resolve the promise with true
+
+              resolve(true);
+
+            } else {
+
+              // If the user is not found or blocked is false, resolve the promise with false
+
+              resolve(false);
+
+            }
 
           }
 
@@ -492,36 +450,7 @@ module.exports = {
 
       } catch (error) {
 
-        reject(error);
-
-
-      }
-
-    });
-
-  },
-
-  getCategoryById: (categoryId) => {
-
-    return new Promise((resolve, reject) => {
-
-      try {
-
-        db.get().collection(collection.CATEGORY_COLLECTION).findOne({ _id: ObjectId(categoryId) })
-
-          .then((category) => {
-
-            resolve(category);
-
-          })
-
-          .catch((error) => {
-
-            reject(error);
-
-          });
-
-      } catch (error) {
+        // If an error occurs while processing the isUserBlocked function, reject the promise with the error
 
         reject(error);
 
@@ -531,209 +460,486 @@ module.exports = {
 
   },
 
-  getOrderList: () => {
+// Function to check if a user with the provided phone number is blocked or not
 
-    return new Promise(async (resolve, reject) => {
+userisSBlocked: (searchTerm) => {
 
-      try {
+  return new Promise(async (resolve, reject) => {
 
-        const orders = await db
+    try {
 
-          .get()
+      searchTerm = "+91" + searchTerm;
 
-          .collection(collection.ORDER_COLLECTION)
+      // Find the user with the provided phone number
 
-          .find()
+      const user = await db
 
-          .sort({ date: -1 })
+      .get()
 
-          .toArray();
+      .collection(collection.USER_COLLECTION)
 
-        resolve(orders);
+      .findOne({ phonenumber: searchTerm });
 
-      } catch (error) {
+
+      
+      if (user && user.blocked === true) {
+      
+        // If the user is found and blocked is true, resolve the promise with true
+      
+        resolve(true);
+      
+      } else {
+        // If the user is not found or blocked is false, resolve the promise with false
+      
+        resolve(false);
+      
+      }
+    } 
+    
+    catch (error) {
+    
+      // If an error occurs while processing the userisSBlocked function, reject the promise with the error
+    
+      reject(error);
+    
+    }
+ 
+  });
+
+},
+
+
+// Function to get all categories from the database
+
+getCategory: () => {
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      // Fetch all categories from the CATEGORY_COLLECTION
+
+      const categories = await db.get().collection(collection.CATEGORY_COLLECTION).find().toArray();
+
+      resolve(categories);
+
+    } catch (error) {
+
+      // If an error occurs while processing the getCategory function, reject the promise with the error
+
+      reject(error);
+
+    }
+
+  });
+
+},
+
+
+
+// Function to remove a category with the provided category ID from the database
+
+removeCategory: (ctId) => {
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      // Delete the category document with the provided category ID
+
+      await db.get().collection(collection.CATEGORY_COLLECTION).deleteOne({ _id: ObjectId(ctId) });
+
+      resolve();
+
+    } catch (error) {
+
+      // If an error occurs while processing the removeCategory function, reject the promise with the error
+
+      reject(error);
+
+    }
+
+  });
+
+},
+
+
+
+// Function to check if a category with the provided category name already exists in the database
+checkCategoryExists: (categoryName) => {
+
+  return new Promise((resolve, reject) => {
+
+    try {
+
+      // Find a category with the provided category name (case-insensitive search)
+
+      db.get()
+
+      .collection(collection.CATEGORY_COLLECTION)
+
+      .findOne({ categoryName: { $regex: new RegExp('^' + categoryName + '$', 'i') } })
+
+      .then((category) => {
+
+        if (category) {
+
+          // If a category is found, resolve the promise with true (category exists)
+
+          resolve(true);
+
+        } else {
+
+          // If no category is found, resolve the promise with false (category does not exist)
+
+          resolve(false);
+
+        }
+
+      })
+
+      .catch((error) => {
+
+        // If an error occurs while processing the checkCategoryExists function, reject the promise with the error
 
         reject(error);
 
-      }
+      });
 
-    });
+    } catch (error) {
 
-  },
+      // If an error occurs while processing the checkCategoryExists function, reject the promise with the error
+
+      reject(error);
+
+    }
+
+  });
+
+},
 
 
-  getDeleveredOrders: () => {
 
-    return new Promise(async (resolve, reject) => {
+// Function to add a new category to the database
 
-      try {
+addCategory: (categoryData) => {
 
-        const orders = await db
+  categoryData.categoryOffer = 0;
 
-          .get()
+  return new Promise((resolve, reject) => {
 
-          .collection(collection.ORDER_COLLECTION)
+    try {
 
-          .find({ OrderStatus: 'delivered' })
+      // Insert the categoryData into the CATEGORY_COLLECTION
 
-          .toArray();
+      db.get().collection(collection.CATEGORY_COLLECTION).insertOne(categoryData, (error, result) => {
 
-        resolve(orders);
+        if (error) {
 
-      } catch (error) {
+          // If an error occurs while inserting the categoryData, reject the promise with the error
+
+          reject(error);
+
+        } else {
+
+          // If the categoryData is successfully inserted, resolve the promise with the categoryData
+
+          resolve(categoryData);
+
+        }
+
+      });
+
+    } catch (error) {
+
+      // If an error occurs while processing the addCategory function, reject the promise with the error
+
+      reject(error);
+
+    }
+
+  });
+
+
+},
+
+
+
+ // Function to get a category from the database by its ID
+
+ getCategoryById: (categoryId) => {
+
+  return new Promise((resolve, reject) => {
+
+    try {
+
+      // Find the category with the provided category ID
+
+
+      db.get().collection(collection.CATEGORY_COLLECTION).findOne({ _id: ObjectId(categoryId) })
+
+      .then((category) => {
+
+        // Resolve the promise with the found category
+
+        resolve(category);
+
+      })
+
+
+      .catch((error) => {
+
+
+        // If an error occurs while finding the category, reject the promise with the error
 
         reject(error);
 
-      }
+      });
 
-    });
+    } catch (error) {
 
-  },
-  getAllOrders: () => {
+      // If an error occurs while processing the getCategoryById function, reject the promise with the error
 
-    return new Promise(async (resolve, reject) => {
+      reject(error);
 
-      try {
+    }
 
-        const orders = await db
+  });
 
-          .get()
-
-          .collection(collection.ORDER_COLLECTION)
-
-          .find()
-
-          .toArray();
-
-        resolve(orders);
-
-      } catch (error) {
-
-        reject(error);
-
-      }
-
-    });
-
-  },
+},
 
 
-  getProductsInOrder: (orderId) => {
 
-    return new Promise(async (resolve, reject) => {
+// Function to get a list of all orders from the database
 
-      try {
+getOrderList: () => {
 
-        let orderItems = await db.get().collection(collection.ORDER_COLLECTION).aggregate([
+  return new Promise(async (resolve, reject) => {
 
-          { $match: { _id: ObjectId(orderId) } },
+    try {
 
-          { $unwind: '$products' },
+      // Fetch all orders from the ORDER_COLLECTION and sort them by date in descending order
 
-          {
+      const orders = await db.get().collection(collection.ORDER_COLLECTION).find().sort({ date: -1 }).toArray();
 
-            $project: {
+      resolve(orders);
 
-              item: '$products.item',
+    } catch (error) {
 
-              quantity: '$products.quantity'
+      // If an error occurs while processing the getOrderList function, reject the promise with the error
+
+      reject(error);
 
 
-            }
+    }
 
-          },
+  });
 
-          {
+},
 
-            $lookup: {
 
-              from: collection.PRODUCT_COLLECTION,
 
-              localField: 'item',
+// Function to get a list of all delivered orders from the database
 
-              foreignField: '_id',
+getDeleveredOrders: () => {
 
-              as: 'product'
+  return new Promise(async (resolve, reject) => {
 
-            }
+    try {
 
-          },
+      // Fetch all orders from the ORDER_COLLECTION with the OrderStatus set to 'delivered'
 
-          {
+      const orders = await db.get().collection(collection.ORDER_COLLECTION).find({ OrderStatus: 'delivered' }).toArray();
 
-            $project: {
+      resolve(orders);
 
-              item: 1,
+    } catch (error) {
 
-              quantity: 1,
+      // If an error occurs while processing the getDeleveredOrders function, reject the promise with the error
 
-              product: { $arrayElemAt: ['$product', 0] }
+      reject(error);
 
-            }
+    }
+
+  });
+
+},
+
+
+
+// Function to get a list of all orders from the database
+
+getAllOrders: () => {
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      // Fetch all orders from the ORDER_COLLECTION
+
+      const orders = await db.get().collection(collection.ORDER_COLLECTION).find().toArray();
+
+      resolve(orders);
+
+    } catch (error) {
+
+      // If an error occurs while processing the getAllOrders function, reject the promise with the error
+
+
+      reject(error);
+
+    }
+
+  });
+
+},
+
+
+// Function to get products in an order from the database by the order ID
+
+getProductsInOrder: (orderId) => {
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      // Perform an aggregation to get the products in the specified order
+
+      let orderItems = await db.get().collection(collection.ORDER_COLLECTION).aggregate([
+
+        { $match: { _id: ObjectId(orderId) } },
+
+        { $unwind: '$products' },
+
+        {
+
+          $project: {
+
+            item: '$products.item',
+
+            quantity: '$products.quantity'
 
           }
 
-        ]).toArray();
+        },
 
-        resolve(orderItems);
+        {
 
-      } catch (error) {
+          $lookup: {
 
-        reject(error);
+            from: collection.PRODUCT_COLLECTION,
 
-      }
+            localField: 'item',
 
-    });
+            foreignField: '_id',
 
-  },
+            as: 'product'
 
-  getOrderAddress: (orderId) => {
+          }
 
-    return new Promise(async (resolve, reject) => {
+        },
 
-      try {
+        {
 
-        let order = await db.get().collection(collection.ORDER_COLLECTION).findOne(
+          $project: {
 
-          { _id: ObjectId(orderId) },
+            item: 1,
 
-          { projection: { _id: 0, 'address': 1 } }
+            quantity: 1,
 
-        );
+            product: { $arrayElemAt: ['$product', 0] }
 
-        if (order) {
-
-          const { address } = order;
-
-          resolve(address);
-
-        } else {
-
-          reject(new Error('Order not found'));
+          }
 
         }
 
-      } catch (error) {
+      ]).toArray();
 
-        reject(error);
 
+      
+      resolve(orderItems);
+    } 
+    catch (error) {
+    
+      // If an error occurs while processing the getProductsInOrder function, reject the promise with the error
+    
+      reject(error);
+    
+    }
+  })
+  ;
+},
+
+
+
+
+
+// Function to get the address of an order from the database by the order ID
+
+getOrderAddress: (orderId) => {
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      // Find the order with the provided order ID and project only the 'address' field
+
+      let order = await db.get().collection(collection.ORDER_COLLECTION).findOne(
+
+        { _id: ObjectId(orderId) },
+
+        { projection: { _id: 0, 'address': 1 } }
+
+        );
+
+
+      if
+       (order) {
+      
+        // If the order is found, resolve the promise with the address
+      
+        const { address } = order;
+      
+        resolve(address);
+      
+      } else {
+      
+        // If the order is not found, reject the promise with an error message
+      
+        reject(new Error('Order not found'));
+      
       }
+    } 
+    catch (error) {
+    
+      // If an error occurs while processing the getOrderAddress function, reject the promise with the error
+    
+      reject(error);
+    
+    }
+  
+  })
+  ;
 
-    });
+},
 
-  },
 
-  changeStatusOrder: (orderId, orderStatus) => {
 
-    return new Promise(async (resolve, reject) => {
+// Function to change the status of an order in the database by the order ID
 
-      try {
+changeStatusOrder: (orderId, orderStatus) => {
 
-        await db.get().collection(collection.ORDER_COLLECTION).updateOne(
+  return new Promise(async (resolve, reject) => {
 
-          { _id: ObjectId(orderId) },
+    try {
 
-          { $set: { OrderStatus: orderStatus } }
+      // Update the OrderStatus of the order with the provided order ID
+
+      await db.get().collection(collection.ORDER_COLLECTION).updateOne(
+
+        { _id: ObjectId(orderId) },
+
+        { $set: { OrderStatus: orderStatus } }
 
         );
 
@@ -741,61 +947,7 @@ module.exports = {
 
       } catch (error) {
 
-        reject(error);
-
-      }
-
-    });
-
-  },
-  addCoupon: (coupon) => {
-
-    return new Promise(async (resolve, reject) => {
-
-      try {
-
-
-
-        await db.get().collection(collection.COUPON_COLLECTION).insertOne(coupon).then((coupon) => {
-
-          resolve(coupon)
-
-        })
-
-      } catch (err) {
-
-        reject(err);
-
-      }
-
-    })
-
-  },
-
-  getAllCoupons: () => {
-
-    return new Promise(async (resolve, reject) => {
-
-      try {
-
-        const coupons = await db
-
-          .get()
-
-          .collection(collection.COUPON_COLLECTION)
-
-          .find({
-
-            removed: false
-          })
-
-          .sort({ createdAt: -1 }) // Sort by descending order of createdAt field
-
-          .toArray();
-
-        resolve(coupons);
-
-      } catch (error) {
+        // If an error occurs while processing the changeStatusOrder function, reject the promise with the error
 
         reject(error);
 
@@ -805,19 +957,88 @@ module.exports = {
 
   },
 
-  // adminHelper.js
+// Function to add a new coupon to the database
 
-  removeCoupon: (couponId) => {
+addCoupon: (coupon) => {
 
-    return new Promise(async (resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
 
-      try {
+    try {
 
-        await db.get().collection(collection.COUPON_COLLECTION).updateOne(
+      // Insert the coupon into the COUPON_COLLECTION
 
-          { _id: ObjectId(couponId) },
+      await db.get().collection(collection.COUPON_COLLECTION).insertOne(coupon).then((coupon) => {
 
-          { $set: { removed: true } }
+
+        resolve(coupon);
+
+      });
+
+    } catch (err) {
+
+      // If an error occurs while processing the addCoupon function, reject the promise with the error
+
+      reject(err);
+
+    }
+
+  });
+
+},
+
+
+// Function to get a list of all coupons from the database
+
+getAllCoupons: () => {
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      // Fetch all coupons from the COUPON_COLLECTION where removed field is false and sort them by createdAt field in descending order
+
+      const coupons = await db
+
+      .get()
+
+      .collection(collection.COUPON_COLLECTION)
+
+      .find({ removed: false })
+
+      .sort({ createdAt: -1 })
+
+      .toArray();
+
+      resolve(coupons);
+
+    } catch (error) {
+
+      // If an error occurs while processing the getAllCoupons function, reject the promise with the error
+
+      reject(error);
+
+    }
+
+  });
+
+},
+
+// adminHelper.js
+
+// Function to remove a coupon from the database by the coupon ID
+removeCoupon: (couponId) => {
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      // Update the removed field of the coupon with the provided coupon ID to true
+
+      await db.get().collection(collection.COUPON_COLLECTION).updateOne(
+
+        { _id: ObjectId(couponId) },
+
+        { $set: { removed: true } }
 
         );
 
@@ -825,38 +1046,7 @@ module.exports = {
 
       } catch (error) {
 
-        reject(error);
-
-      }
-
-
-    });
-
-  }
-
-  ,
-
-
-
-  couponExists: (coupon) => {
-
-    return new Promise(async (resolve, reject) => {
-
-      try {
-
-        const couponexists = await db.get().collection(collection.COUPON_COLLECTION).findOne({ couponcode: coupon });
-
-        if (couponexists) {
-
-          resolve(true); //coupon exists
-
-        } else {
-
-          resolve(false); //no coupon
-
-        }
-
-      } catch (error) {
+        // If an error occurs while processing the removeCoupon function, reject the promise with the error
 
         reject(error);
 
@@ -867,7 +1057,43 @@ module.exports = {
   },
 
 
-getOrders :(filters) => {
+
+ // Function to check if a coupon exists in the database by its code
+
+ couponExists: (coupon) => {
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      const couponExists = await db.get().collection(collection.COUPON_COLLECTION).findOne({ couponcode: coupon });
+
+      if (couponExists) {
+
+        resolve(true); // Coupon exists
+
+      } else {
+
+        resolve(false); // Coupon does not exist
+
+      }
+
+    } catch (error) {
+
+      // If an error occurs while processing the couponExists function, reject the promise with the error
+
+      reject(error);
+
+    }
+
+  });
+
+},
+
+
+// Function to get a list of orders from the database based on given filters
+
+getOrders: (filters) => {
 
   return new Promise(async (resolve, reject) => {
 
@@ -875,173 +1101,179 @@ getOrders :(filters) => {
 
       let query = {};
 
-        if (filters.status) {
 
-          query.OrderStatus= filters.status;
+      
+      if (filters.status) {
+      
+        query.OrderStatus = filters.status;
+      
+      }
 
-        }
+
+      
+      if (filters.paymentMethod) {
+      
+        query.paymentMethod = filters.paymentMethod;
+      
+      }
+
+      const orders = await db.get().collection(collection.ORDER_COLLECTION).find(query).toArray();
+      
+      resolve(orders);
+   
+    } catch (error) {
+      // If an error occurs while processing the getOrders function, reject the promise with the error
+   
+      reject(error);
+   
+    }
   
-        if (filters.paymentMethod) {
+  });
 
-          query.paymentMethod = filters.paymentMethod;
+},
 
-        }
-  
-        const orders = await db
+// Function to get a list of orders with the status "cancelrequest" from the database
 
-        .get()
+getCancelRequests: () => {
 
-        .collection(collection.ORDER_COLLECTION)
+  return new Promise(async (resolve, reject) => {
 
-        .find(query)
+    try {
 
-        .toArray();
-  
-        resolve(orders);
-
-      } catch (error) {
-
-        reject(error);
-
-      }
-
-    });
-
-  },
-
-  getCancelRequests: () => {
-
-    return new Promise(async (resolve, reject) => {
-
-      try {
-
-        const cancelRequests = await db.get().collection(collection.ORDER_COLLECTION).find({ OrderStatus: "cancelrequest" }).toArray();
-
-        resolve(cancelRequests);
-
-      } catch (error) {
-
-        reject(error);
-
-      }
-
-    });
-
-  },
-
-  getReturnRequests: () => {
-
-    return new Promise(async (resolve, reject) => {
-
-      try {
-
-        const cancelRequests = await db.get().collection(collection.ORDER_COLLECTION).find({ OrderStatus: "returnrequest" }).toArray();
-
-        resolve(cancelRequests);
-
-      } catch (error) {
-
-        reject(error);
-
-      }
-
-    });
-  },
+      const cancelRequests = await db.get().collection(collection.ORDER_COLLECTION).find({ OrderStatus: "cancelrequest" }).toArray();
 
 
-  getOrderStatus: (orderId) => {
+      resolve(cancelRequests);
 
-    return new Promise(async (resolve, reject) => {
+    } catch (error) {
 
-      try {
+      // If an error occurs while processing the getCancelRequests function, reject the promise with the error
 
-        const order = await db.get().collection(collection.ORDER_COLLECTION).findOne({ _id: ObjectId(orderId) });
+      reject(error);
 
-        if (order) {
+    }
 
-          resolve(order.OrderStatus);
+  });
 
-        } else {
+},
 
-          reject(new Error('Order not found'));
 
-        }
+// Function to get a list of orders with the status "returnrequest" from the database
 
-      } catch (error) {
+getReturnRequests: () => {
 
-        reject(error);
+  return new Promise(async (resolve, reject) => {
 
+    try {
+
+      const returnRequests = await db.get().collection(collection.ORDER_COLLECTION).find({ OrderStatus: "returnrequest" }).toArray();
+
+      resolve(returnRequests);
+
+    } catch (error) {
+
+      // If an error occurs while processing the getReturnRequests function, reject the promise with the error
+
+      reject(error);
+
+    }
+
+  });
+
+},
+
+
+// Function to get the status of an order from the database by its order ID
+
+getOrderStatus: (orderId) => {
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      const order = await db.get().collection(collection.ORDER_COLLECTION).findOne({ _id: ObjectId(orderId) });
+
+      if (order) {
+
+        resolve(order.OrderStatus);
+
+      } else {
+
+        reject(new Error('Order not found'));
 
       }
 
-    });
+    } catch (error) {
 
-  },
+      // If an error occurs while processing the getOrderStatus function, reject the promise with the error
 
-  getOrder: (orderId) => {
+      reject(error);
 
-    return new Promise((resolve, reject) => {
+    }
 
-      try {
+  });
 
-        db.get().collection(collection.ORDER_COLLECTION).findOne({ _id: ObjectId(orderId) })
+},
 
-          .then((order) => {
 
-            resolve(order);
+// Function to get an order from the database by its order ID
 
-          })
+getOrder: (orderId) => {
 
-          .catch((error) => {
+  return new Promise((resolve, reject) => {
 
-            reject(error);
+    try {
 
-          });
+      db.get().collection(collection.ORDER_COLLECTION).findOne({ _id: ObjectId(orderId) })
 
-      } catch (error) {
+      .then((order) => {
+
+        resolve(order);
+
+      })
+
+      .catch((error) => {
 
         reject(error);
 
-      }
+      });
 
-    });
+    } catch (error) {
 
-  }
-  ,
+      // If an error occurs while processing the getOrder function, reject the promise with the error
 
-  updateWallet: (userId, totalAmound) => {
+      reject(error);
 
-    return new Promise(async (resolve, reject) => {
+    }
 
-      try {
+  });
 
-        const user = await db
+},
 
-          .get()
 
-          .collection(collection.USER_COLLECTION)
+// Function to update the wallet amount of a user in the database
 
-          .findOne({ _id: ObjectId(userId) });
+updateWallet: (userId, totalAmount) => {
 
-        if (user) {
+  return new Promise(async (resolve, reject) => {
 
-          const currentAmount = user.walletAmount;
+    try {
 
-          const updatedAmount = currentAmount + totalAmound;
+      const user = await db.get().collection(collection.USER_COLLECTION).findOne({ _id: ObjectId(userId) });
 
-          await db
+      if (user) {
 
-            .get()
+        const currentAmount = user.walletAmount;
 
-            .collection(collection.USER_COLLECTION)
+        const updatedAmount = currentAmount + totalAmount;
 
-            .updateOne(
+        await db.get().collection(collection.USER_COLLECTION).updateOne(
 
-              { _id: ObjectId(userId) },
+          { _id: ObjectId(userId) },
 
-              { $set: { walletAmount: updatedAmount } }
+          { $set: { walletAmount: updatedAmount } }
 
-            );
+          );
 
           resolve();
 
@@ -1050,38 +1282,11 @@ getOrders :(filters) => {
           reject(new Error('User not found'));
 
         }
-      }
-      catch (error) {
-
-        reject(error);
-
-      }
-
-    });
-
-  },
-  getOrderById: (OrderId) => {
-
-    return new Promise((resolve, reject) => {
-
-      try {
-
-        db.get().collection(collection.ORDER_COLLECTION).findOne({ _id: ObjectId(OrderId) })
-
-          .then((order) => {
-
-            resolve(order);
-
-          })
-
-          .catch((error) => {
-
-            reject(error);
-
-          });
 
       } catch (error) {
 
+        // If an error occurs while processing the updateWallet function, reject the promise with the error
+
         reject(error);
 
       }
@@ -1089,42 +1294,113 @@ getOrders :(filters) => {
     });
 
   },
-  salesPdf: async (req, res) => {
+
+
+// Function to get an order from the database by its order ID
+
+getOrderById: (orderId) => {
+
+  return new Promise((resolve, reject) => {
+
     try {
-      let startY = 150;
-      const writeStream = fs.createWriteStream('order.pdf');
-      const printer = new pdfPrinter({
-        Roboto: {
-          normal: 'Helvetica',
-          bold: 'Helvetica-Bold',
-          italics: 'Helvetica-Oblique',
-          bolditalics: 'Helvetica-BoldOblique',
-        },
+
+      db.get().collection(collection.ORDER_COLLECTION).findOne({ _id: ObjectId(orderId) })
+
+      .then((order) => {
+
+        resolve(order);
+
+      })
+
+      .catch((error) => {
+
+        reject(error);
+
       });
-  
+
+    } catch (error) {
+
+      // If an error occurs while processing the getOrderById function, reject the promise with the error
+
+      reject(error);
+
+    }
+
+  });
+
+},
+
+
+
+salesPdf: async (req, res) => {
+
+  try {
+
+    let startY = 150;
+
+    const writeStream = fs.createWriteStream('order.pdf');
+
+    const printer = new pdfPrinter({
+
+      Roboto: {
+
+        normal: 'Helvetica',
+
+        bold: 'Helvetica-Bold',
+
+        italics: 'Helvetica-Oblique',
+
+        bolditalics: 'Helvetica-BoldOblique',
+
+      },
+
+    });
+
+    
       const orderCollection = await db.get().collection(collection.ORDER_COLLECTION).find().toArray();
+    
       console.log(orderCollection, 'orders');
   
+
       const totalAmountResult = await db.get().collection(collection.ORDER_COLLECTION).aggregate([
+      
         {
+      
           $match: {
+      
             orderStatus: { $nin: ['cancelled'] },
+      
           },
+      
         },
+      
         {
+      
           $group: {
+      
             _id: null,
+      
             totalAmount: { $sum: '$totalAmound' },
+      
           },
+      
         },
+      
       ]).toArray();
   
+
+      
       const totalAmount = totalAmountResult[0]?.totalAmount || 0;
   
+
       const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+      
       // Create document definition
+      
       const docDefinition = {
+      
         content: [
+      
           { text: 'ShoppyBee', style: 'header' },
           { text: '\n' },
           { text: 'Order Information', style: 'header1' },
@@ -1219,7 +1495,39 @@ getOrders :(filters) => {
       console.log(error, 'error');
     }
   }
+  ,
   
+getPaymentCounts :(req,res) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const pipeline = [
+        {
+          $group: {
+            _id: '$paymentMethod', // Group by the paymentMethod field
+            count: { $sum: 1 }, // Calculate the count for each payment method
+          },
+        },
+      ];
+
+      const paymentCounts = await db
+        .get()
+        .collection(collection.ORDER_COLLECTION)
+        .aggregate(pipeline)
+        .toArray();
+
+      // Format the result to be a dictionary with paymentMethod as key and count as value
+      const paymentCountsMap = paymentCounts.reduce((acc, item) => {
+        acc[item._id] = item.count;
+        return acc;
+      }, {});
+
+      resolve(paymentCountsMap);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
   
   
   

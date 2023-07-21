@@ -11,6 +11,8 @@ const verifySid = process.env.VERIFY_SID;
 const client = require("twilio")(accountSid, authToken);
 let phone = "";
 
+//controller used to send the verify male for the user 
+
 const sendVerifyMail = async (name, email, userId) => {
 
   try {
@@ -69,7 +71,7 @@ const sendVerifyMail = async (name, email, userId) => {
   }
 }
 
-
+//verify mail function to verify mail
 
 const verifyMail = async (req, res) => {
 
@@ -90,6 +92,7 @@ const verifyMail = async (req, res) => {
 
 }
 
+//controller renders the signup page 
 
 const getSignup = (req, res) => {
 
@@ -113,6 +116,7 @@ const getSignup = (req, res) => {
 
 }
 
+//controller deals with the signup post request 
 
 const signup = async (req, res) => {
 
@@ -161,6 +165,8 @@ const signup = async (req, res) => {
 
 }
 
+//controller to manage add adderss 
+
 const addAddress = async (req, res) => {
 
   try {
@@ -178,6 +184,8 @@ const addAddress = async (req, res) => {
   }
 
 }
+
+//controller deals with the addUserImage request
 
 const addUserImage = async (req, res) => {
 
@@ -198,6 +206,8 @@ const addUserImage = async (req, res) => {
   }
 
 }
+
+//controller used for making the address primary
 
 const makePrimaryAddress = async (req, res) => {
 
@@ -220,6 +230,7 @@ const makePrimaryAddress = async (req, res) => {
 
 }
 
+//controller gives the login page
 
 const getLogin = (req, res) => {
 
@@ -253,6 +264,8 @@ const getLogin = (req, res) => {
   }
 
 };
+
+//controller deals with the post login request 
 
 const login = (req, res) => {
 
@@ -288,6 +301,8 @@ const login = (req, res) => {
 
 }
 
+//logout controller
+
 const logout = (req, res) => {
 
   try {
@@ -314,6 +329,8 @@ const logout = (req, res) => {
 
 }
 
+//controller for rendering cart and cart product details
+
 const getCart = async (req, res) => {
 
   try {
@@ -332,7 +349,7 @@ const getCart = async (req, res) => {
   }
 
 }
-
+//wishlist rendering controller 
 const getWishList = async (req, res) => {
 
   try {
@@ -350,6 +367,8 @@ const getWishList = async (req, res) => {
   }
 
 };
+
+//controller deals with the item addition to the cart
 
 const addToCart = async (req, res) => {
 
@@ -398,6 +417,7 @@ const addToCart = async (req, res) => {
   }
 
 };
+//controller function to check that a item is already existing in the cart
 
 const checkCart = async (req, res) => {
 
@@ -420,7 +440,7 @@ const checkCart = async (req, res) => {
 };
 
 
-
+//controller deals with adding item from wishlist to cart
 
 
 const wishlistToCart = async (req, res) => {
@@ -458,6 +478,8 @@ const wishlistToCart = async (req, res) => {
   }
 
 };
+
+//controller used to add item to  the wishlist
 
 
 const addToWishList = (req, res) => {
@@ -503,6 +525,8 @@ const addToWishList = (req, res) => {
   }
 }
 
+//controller deals with the search product options
+
 const getSearchResults = async (req, res) => {
 
   try {
@@ -522,6 +546,9 @@ const getSearchResults = async (req, res) => {
   }
 
 };
+
+//controller deals with the address display for the user 
+
 const getAddAddress = async (req, res) => {
 
   try {
@@ -584,7 +611,7 @@ const getHome = async function (req, res, next) {
 };
 
 
-
+//controller deals with the change product quantity from the cart
 
 const changeProductQuantity = (req, res, next) => {
 
@@ -620,6 +647,8 @@ const changeProductQuantity = (req, res, next) => {
 
 }
 
+//controller deals with the single product image display
+
 const getSingleProduct = async (req, res) => {
 
   try {
@@ -642,6 +671,8 @@ const getSingleProduct = async (req, res) => {
 
   }
 }
+
+//controller deals with the reset password options 
 const getResetForm = async (req, res) => {
 
   try {
@@ -685,7 +716,7 @@ const getError = function (req, res) {
 
 };
 
-
+//controller responsible for managing change password post request
 
 const changePasswordController = async (req, res) => {
 
@@ -722,6 +753,7 @@ const changePasswordController = async (req, res) => {
 
 }
 
+//controller renders the forgot password page 
 
 
 const getForgotPassword = (req, res) => {
@@ -743,6 +775,8 @@ const getForgotPassword = (req, res) => {
 
   }
 }
+
+//controller verifyes the password changing email
 
 const verifyPasswordEmail = async (req, res) => {
   try {
@@ -773,6 +807,8 @@ const verifyPasswordEmail = async (req, res) => {
 
   }
 }
+
+//controller responsible to send the forgot password email
 
 sendForgotPasswordMail = async (name, email, token) => {
 
@@ -832,6 +868,8 @@ sendForgotPasswordMail = async (name, email, token) => {
   }
 }
 
+//function to verify the tocken send with the email 
+
 const verifyToken = async (req, res) => {
 
   try {
@@ -858,6 +896,7 @@ const verifyToken = async (req, res) => {
 
 }
 
+//controller to change the password id all the required things are correct
 
 const changeForgotPassword = async (req, res) => {
 
@@ -882,6 +921,9 @@ const changeForgotPassword = async (req, res) => {
     res.redirect('/error-page'); // Handle the error appropriately
   }
 }
+
+//controller function to display the otp page 
+
 
 const getOtp = (req, res) => {
 
@@ -915,6 +957,7 @@ const getOtp = (req, res) => {
 
 };
 
+//controller function to send the otp
 
 const SendOtp = async (req, res) => {
 
@@ -951,6 +994,7 @@ const SendOtp = async (req, res) => {
   }
 };
 
+//controller function to verify the otp 
 
 const verifyOtp = async (req, res) => {
 
@@ -1016,6 +1060,7 @@ const verifyOtp = async (req, res) => {
 
 }
 
+//controller function to remove item from the cart
 
 const removefromCart = async (req, res, next) => {
 
@@ -1035,6 +1080,7 @@ const removefromCart = async (req, res, next) => {
 
 };
 
+//controller function to remove from wishlist
 
 const removefromWishList = async (req, res, next) => {
 
@@ -1054,6 +1100,8 @@ const removefromWishList = async (req, res, next) => {
 
 };
 
+//controller function to remove address from the user address list
+
 const removeAddress = async (req, res, next) => {
 
   try {
@@ -1072,6 +1120,7 @@ const removeAddress = async (req, res, next) => {
 
 };
 
+//controller function to send cancel request
 
 const cancelOrder = async (req, res) => {
 
@@ -1093,6 +1142,9 @@ const cancelOrder = async (req, res) => {
   }
 
 };
+
+//controller function to send return request
+
 const returnOrder = async (req, res) => {
 
   try {
@@ -1115,6 +1167,7 @@ const returnOrder = async (req, res) => {
 
 };
 
+//controller function deals with the rendering of place order 
 
 const placeOrder = async (req, res, next) => {
 
@@ -1122,15 +1175,25 @@ const placeOrder = async (req, res, next) => {
 
     let total = 0;
 
+    //getting the cart products from the db
+
     const products = await userHelper.getCartProducts(req.session.user._id);
 
+    //getting the user address
+
     const address = await userHelper.getUserAddress(req.session.user._id);
+
+    //the  function deals with the cart total calculation
 
     let carttotal = await userHelper.getCartTotal(req.session.user._id);
 
     carttotal = parseInt(carttotal)
 
+    //getting the discounted amount from the cart
+
     const discountedAmount = await userHelper.getDiscountedAmount(req.session.user._id);
+
+    //function used for checking the cart total to understand does the user made any changes or not
 
     const checkCartTotl = await userHelper.getCheckCartTotal(req.session.user._id);
 
@@ -1212,6 +1275,8 @@ const placeOrder = async (req, res, next) => {
 
   }
 };
+
+//controller function deals with the place order post request
 
 const doPlaceOrder = async (req, res) => {
 
@@ -1305,6 +1370,8 @@ const doPlaceOrder = async (req, res) => {
   }
 };
 
+//function that renders the placeorder page
+
 const getOrderPlaced = (req, res) => {
 
   try {
@@ -1322,6 +1389,8 @@ const getOrderPlaced = (req, res) => {
   }
 
 };
+
+//controller renders the order list for thr user and also deal with the filtering 
 
  const getOrderList=(req, res) => {
 
@@ -1354,6 +1423,7 @@ const getOrderPlaced = (req, res) => {
   }
 
 
+//controller function deals with the rendering of page 
 
 const getProfile = async (req, res) => {
 
@@ -1374,6 +1444,7 @@ const getProfile = async (req, res) => {
   }
 
 };
+//controller dealswith the rendering of edit profile
 
 const editProfile = async (req, res) => {
 
@@ -1433,6 +1504,8 @@ const changeImage = async (req, res) => {
   }
 };
 
+//controller function deals with the verify payment
+
 
 const verifyPayment = (req, res) => {
 
@@ -1470,6 +1543,8 @@ const verifyPayment = (req, res) => {
 
 };
 
+//order summery display managing controller
+
 
 const getOrderSummary = async (req, res) => {
 
@@ -1491,7 +1566,7 @@ const getOrderSummary = async (req, res) => {
 
 };
 
-
+//controller function deals with the category search
 const searchCategory = async (req, res) => {
 
   try {
@@ -1512,7 +1587,7 @@ const searchCategory = async (req, res) => {
 
 };
 
-
+//function used to list all the categorys 
 
 const ListCategory = async (req, res) => {
 
@@ -1536,45 +1611,63 @@ const ListCategory = async (req, res) => {
 
 };
 
-
+//controller function for verifying coupon
 
 const verifyCoupon = async (req, res) => {
 
   try {
-
+    // Check if the coupon exists in the database
     const couponExist = await userHelper.couponExist(req.body.couponCode);
-
+   // Store the entered coupon code in the user's session for later use
     req.session.user.couponCode = req.body.couponCode;
 
     if (couponExist) {
 
-      //console.log(couponExist, "the coupon");
+     // If the coupon exists
+      
+    // Check if the coupon is not marked as removed
 
       if (couponExist.removed === false) {
 
+        // Get the total cart amount for the current user
+
         const Carttotal = await userHelper.getCartTotal(req.session.user._id);
 
+        // Get the current date
 
         const currentDate = new Date();
-
+        
+        // Check if the current date is within the coupon's expiry date
+       
         if (currentDate <= couponExist.expiryDate) {
-
+        
+          // Check if the cart total is greater than or equal to the minimum purchase amount required for the coupon
+        
           if (Carttotal >= couponExist.purchaseamound) {
+
+             // Check if the user has already used this coupon
 
             const alreadyUsed = await userHelper.isAlreadyUsed(req.session.user._id, req.body.couponCode);
 
             if (alreadyUsed) {
+                // If the user has not already used this coupon
 
+              // Calculate the discount based on the coupon's percentage discount
               const discount = Math.floor(couponExist.discount);
-
+              // Calculate the discounted cart total
               let total = parseInt(Carttotal);
 
               const discounted = total * (discount / 100);
-
+             
+              
               const discountedTotal = Math.floor(total - discounted);
-
+             
+              // Store the discounted total in the user's session
+             
               req.session.user.newtotal = discountedTotal;
-
+             
+              // Set a flag in the user's session to indicate that a coupon has been applied
+             
               req.session.couponapplyed = true;
 
               req.session.couponCode=req.body.couponCode;
@@ -1584,10 +1677,12 @@ const verifyCoupon = async (req, res) => {
                 req.session.couponDeclined = false
 
               }
-
+                // Update the user's cart with the discounted total
               await userHelper.addDiscountedTotal(req.session.user._id, discountedTotal, total)
 
                 .then(async (updated) => {
+
+                   // If the cart is updated successfully, add the coupon to the user's used coupons list
 
                   userHelper.addToUsedCoupon(req.session.user._id, req.body.couponCode);
 
@@ -1628,6 +1723,8 @@ const verifyCoupon = async (req, res) => {
 
   }
 };
+
+//controller used for removing the applied coupon
 const removeCoupon = async (req, res) => {
 
   try {
@@ -1656,7 +1753,7 @@ const removeCoupon = async (req, res) => {
 };
 
 
-
+//controller function generates the order for the wallet recharge
 
 const generateWalletRechargeOrder = async (req, res) => {
   try {
@@ -1677,6 +1774,7 @@ const generateWalletRechargeOrder = async (req, res) => {
 };
 
 
+//controller verifys the wallet recharge
 
 const verifyWalletRecharge  = (req, res) => {
 

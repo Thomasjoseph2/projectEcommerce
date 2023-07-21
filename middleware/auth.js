@@ -18,13 +18,7 @@ const verifyLogin = (req, res, next) => {
     }
   };
   
-  // const otpUserVerifyLogin = (req, res, next) => {
-  //   if (req.session.user && req.session.user.loggedIn &&req.session.user.otploggedin) {
-  //     redirect('/')
-  //   } else {
-  //     res.redirect('/otp');
-  //   }
-  // };
+
   const verifyBlock = async (req, res, next) => {
     try {
       let blocked = await adminHelper.isBlocked(req.body.email);

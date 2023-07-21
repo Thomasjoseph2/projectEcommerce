@@ -1747,6 +1747,20 @@
       margin-bottom: 10px;
     }
   }
+    #cropImageModal .modal-dialog {
+    max-width: 500px; /* Set the maximum width of the modal */
+    width: 100%; /* Set the width of the modal to occupy the full width of the viewport */
+    height: 500px; /* Set the fixed height of the modal */
+  }
+
+  #cropImageModal .modal-content {
+    height: 100%; /* Set the height of the modal content to occupy the full height of the modal */
+  }
+
+  #cropImageModal .modal-body {
+    max-height: calc(100% - 56px); /* Set the maximum height of the modal body (modal height - header height) */
+    overflow-y: auto; /* Add vertical scrollbar when the content overflows */
+  }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>

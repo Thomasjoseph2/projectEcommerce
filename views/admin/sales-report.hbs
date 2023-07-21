@@ -153,8 +153,10 @@
     }
   });
 
-  var paymentMethodsData = [2500, 1200, 3000]; // Replace this with your actual data for payment methods
-  var paymentMethodsLabels = ['COD', 'RAZORPAY', 'WALLET']; // Replace this with your actual payment method labels
+
+  // Modify the paymentMethodsData and paymentMethodsLabels to use handlebars variables
+  var paymentMethodsData = [{{ONLINE}}, {{WALLET}}, {{COD}}];
+  var paymentMethodsLabels = ['ONLINE', 'WALLET', 'COD'];
 
   // Pass the data to the pie chart
   var ctxPaymentMethods = document.getElementById('paymentMethodsChart').getContext('2d');
