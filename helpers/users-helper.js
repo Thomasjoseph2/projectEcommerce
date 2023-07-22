@@ -6,14 +6,20 @@ const { promises } = require('nodemailer/lib/xoauth2');
 const Promise = require('promise');
 const Razorpay = require('razorpay');
 const moment = require('moment');
+require('dotenv').config()
 const fs = require('fs');
 var instance = new Razorpay({
-  key_id: 'rzp_test_4VSqO0TCBFvtCE',
-  key_secret: '4iUcWrjuqM0RKejSrKHisBif'
+  key_id: process.env.KEY_ID,
+  key_secret: process.env.KEY_SECREAT
 })
+
+
 module.exports = {
 
-
+// doSignup:
+// This function registers a new user.
+// It takes the user's data, hash their password,
+// and insert the user into the database.
   doSignup: (userData, referalCode, walletAmount) => {
 
     return new Promise(async (resolve, reject) => {
@@ -45,6 +51,12 @@ module.exports = {
     });
 
   },
+// doLogin:
+// This function logs in a user.
+// It takes the user's email and password,
+// and compares the password with the hash stored in the database.
+// If the passwords match, the function returns the user object.
+
 
   doLogin: (userData) => {
 
@@ -90,6 +102,13 @@ module.exports = {
 
   },
 
+  // getAllProductsForHome:
+// This function gets all products for the home page.
+// It takes the page number, products per page,
+// total filtered products, filter options, and sort options.
+// It applies the filters and sorts the products,
+// and then returns the products and the total pages
+
   getAllProductsForHome: (page, productPerPage, totalFilteredProducts, filterOptions, sortOptions) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -126,7 +145,11 @@ module.exports = {
       }
     });
   },
-
+// getTotalFilteredProductCount:
+// This function gets the total filtered product count.
+// It takes the filter options,
+// and applies the filters to the product collection,
+// and then returns the total number of products.
   getTotalFilteredProductCount: (filterOptions) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -146,6 +169,11 @@ module.exports = {
       }
     });
   },  
+  // getUserAddress:
+// This function gets the user's addresses.
+// It takes the user ID,
+// and aggregates the address collection to get the user's addresses,
+// and then returns the addresses.
   getUserAddress: (userId) => {
 
     return new Promise(async (resolve, reject) => {
@@ -185,6 +213,12 @@ module.exports = {
   },
 
 
+
+
+// addToCart:
+// This function adds a product to the user's cart.
+// It takes the product ID and the user ID,
+// and then updates the cart collection.
   addToCart: (proId, userId) => {
 
     const proObj = {
@@ -263,6 +297,11 @@ module.exports = {
     });
 
   },
+
+  // addToWishList:
+// This function adds a product to the user's wishlist.
+// It takes the product ID and the user ID,
+// and then updates the wishlist collection.
 
   addToWishList: (proId, userId) => {
 
@@ -359,6 +398,12 @@ module.exports = {
 
   },
 
+  // getCartProducts:
+// This function gets the products in the user's cart.
+// It takes the user ID,
+// and then aggregates the cart collection to get the products in the cart.
+// It also gets the product offer and category offer for each product,
+// and then calculates the applied offer and applied offer value.
 
   getCartProducts: (userId) => {
 
@@ -499,6 +544,10 @@ module.exports = {
     });
   }
   ,
+// wishlistProducts:
+// This function gets the products in the user's wishlist.
+// It takes the user ID,
+// and then aggregates the wishlist collection to get the products in the wishlist.
 
   wishlistProducts: (userId) => {
 
@@ -552,7 +601,10 @@ module.exports = {
 
     });
   },
-
+// getCartCount:
+// This function gets the number of products in the user's cart.
+// It takes the user ID,
+// and then queries the cart collection to get the number of products.
   getCartCount: (userId) => {
 
     return new Promise(async (resolve, reject) => {
@@ -580,7 +632,10 @@ module.exports = {
     });
 
   },
-
+// searchUser:
+// This function searches for a user by phone number.
+// It takes the phone number,
+// and then queries the user collection to find the user.
   searchUser: (searchTerm) => {
 
     return new Promise(async (resolve, reject) => {
@@ -600,7 +655,10 @@ module.exports = {
     });
 
   },
-
+// isReferalExist:
+// This function checks if a referral code exists.
+// It takes the referral code,
+// and then queries the user collection to see if the referral code exists.
   isReferalExist: (referalCode) => {
 
     return new Promise(async (resolve, reject) => {
@@ -629,7 +687,10 @@ module.exports = {
     });
 
   },
-
+// isemailExists:
+// This function checks if an email exists.
+// It takes the email,
+// and then queries the user collection to see if the email exists.
   isemailExists: (searchterm) => {
 
     return new Promise(async (resolve, reject) => {
@@ -657,7 +718,10 @@ module.exports = {
     });
 
   },
-
+// isTokenExist:
+// This function checks if a token exists.
+// It takes the token,
+// and then queries the user collection to see if the token exists.
   isTokenExist: (token) => {
 
     return new Promise(async (resolve, reject) => {
@@ -686,6 +750,10 @@ module.exports = {
     });
 
   },
+  // updateWallet:
+// This function updates the user's wallet amount.
+// It takes the user ID and the referral amount,
+// and then updates the wallet amount in the user collection
 
   updateWallet: (userId, referalAmound) => {
 
@@ -739,6 +807,10 @@ module.exports = {
     });
 
   },
+  // editProfile:
+// This function edits the user's profile.
+// It takes the user ID and the new profile details,
+// and then updates the user collection.
 
   editProfile: (userId, details) => {
 
@@ -771,7 +843,10 @@ module.exports = {
     });
 
   },
-
+// changeProductQuantity:
+// This function changes the quantity of a product in the cart.
+// It takes the cart ID, product ID, and new quantity,
+// and then updates the cart collection.
   changeProductQuantity: (details) => {
 
     const count = parseInt(details.count);
@@ -842,6 +917,11 @@ module.exports = {
 
   ,
 
+  // userVerified:
+// This function verifies a user.
+// It takes the user ID,
+// and then updates the user collection to mark the user as verified.
+
   userVerified: (searchTerm) => {
 
     return new Promise(async (resolve, reject) => {
@@ -881,7 +961,10 @@ module.exports = {
     });
 
   },
-
+// addUserImage:
+// This function adds a user's image to the database.
+// It takes the user ID and the image,
+// and then updates the user collection.
   addUserImage: (userId, image) => {
 
     return new Promise(async (resolve, reject) => {
@@ -943,7 +1026,10 @@ module.exports = {
 
   }
   ,
-
+// isVerified:
+// This function checks if a user is verified.
+// It takes the user's email,
+// and then queries the user collection to see if the user is verified.
   isVerified: (searchTerm) => {
 
     return new Promise(async (resolve, reject) => {
@@ -973,6 +1059,10 @@ module.exports = {
   }
 
   ,
+  // isPhoneVerified:
+// This function checks if a user is verified by phone number.
+// It takes the user's phone number,
+// and then queries the user collection to see if the user is verified by phone number.
   isPhoneVerified: (searchTerm) => {
 
     return new Promise(async (resolve, reject) => {
@@ -1000,7 +1090,10 @@ module.exports = {
   }
 
   ,
-
+// isuserVerified:
+// This function checks if a user is verified by phone number or email.
+// It takes the user's phone number or email,
+// and then queries the user collection to see if the user is verified.
   isuserVerified: (searchTerm) => {
 
     return new Promise(async (resolve, reject) => {
@@ -1025,6 +1118,10 @@ module.exports = {
     });
 
   },
+  // getCartTotal:
+// This function gets the total amount of the products in the user's cart.
+// It takes the user ID,
+// and then aggregates the cart collection to get the total amount.
   getCartTotal: (userId) => {
 
     return new Promise(async (resolve, reject) => {
@@ -1179,7 +1276,10 @@ module.exports = {
   }
 
   ,
-
+// getEachTotal:
+// This function gets the total amount of each product in the user's cart.
+// It takes the user ID,
+// and then aggregates the cart collection to get the total amount for each product.
 
   getEachTotal: (userId) => {
 
@@ -1266,7 +1366,10 @@ module.exports = {
 
 
   ,
-
+// deleteProductFromCart:
+// This function deletes a product from the user's cart.
+// It takes the product ID and the cart ID,
+// and then updates the cart collection.
   deleteProductFromCart: (productDetails) => {
 
     return new Promise((resolve, reject) => {
@@ -1320,7 +1423,10 @@ module.exports = {
     });
 
   },
-
+// placeOrder:
+// This function places an order for the user.
+// It takes the order details, products, total amount, and user ID,
+// and then inserts a new order into the order collection.
   placeOrder: (order, products, total, userId) => {
 
     return new Promise((resolve, reject) => {
@@ -1399,7 +1505,10 @@ module.exports = {
     });
 
   },
-
+// getcartProductList:
+// This function gets the list of products in the user's cart.
+// It takes the user ID,
+// and then queries the cart collection to get the list of products.
   getcartProductList: (userId) => {
 
     return new Promise(async (resolve, reject) => {
@@ -1420,7 +1529,10 @@ module.exports = {
 
   },
 
-
+// getOrderList:
+// This function gets the list of orders for the user.
+// It takes the user ID and filters,
+// and then queries the order collection to get the list of orders.
   getOrderList: (userId, filters) => {
 
     return new Promise(async (resolve, reject) => {
@@ -1466,6 +1578,10 @@ module.exports = {
   },
   
   
+// cancelOrder:
+// This function cancels an order.
+// It takes the order ID,
+// and then updates the order collection to set the status to "cancelrequest".
 
   cancelOrder: (orderId,reason) => {
 
@@ -1498,6 +1614,10 @@ module.exports = {
     });
 
   },
+  // returnOrder:
+// This function returns an order.
+// It takes the order ID,
+// and then updates the order collection to set the status to "returnrequest".
   returnOrder: (orderId,reason) => {
 
     return new Promise(async (resolve, reject) => {
@@ -1529,6 +1649,11 @@ module.exports = {
     });
 
   },
+  // adduserAddress:
+// This function adds a user address.
+// It takes the user ID and user details,
+// and then adds a new address document to the address collection.
+
   adduserAddress: (userId, userDetails) => {
 
     return new Promise(async (resolve, reject) => {
@@ -1583,6 +1708,10 @@ module.exports = {
 
   }
   ,
+  // makePrimaryAddress:
+// This function sets a user address as primary.
+// It takes the user ID and address ID,
+// and then updates the address collection to set the primary flag of the specified address to true.
 
   makePrimaryAddress: (userId, addressId) => {
 
@@ -1625,7 +1754,10 @@ module.exports = {
 
   }
   ,
-
+// generateRazorpay:
+// This function generates a Razorpay payment link.
+// It takes the order ID and total amount,
+// and then generates a payment link using the Razorpay API.
   generateRazorpay: (orderId, total) => {
 
     total = parseInt(total);
@@ -1669,7 +1801,10 @@ module.exports = {
     });
 
   },
-
+// verifyPayment:
+// This function verifies a Razorpay payment.
+// It takes the payment details,
+// and then verifies the payment using the Razorpay API.
   verifyPayment: (details) => {
 
     return new Promise((resolve, reject) => {
@@ -1678,7 +1813,7 @@ module.exports = {
 
         const crypto = require('crypto');
 
-        let hmac = crypto.createHmac('sha256', '4iUcWrjuqM0RKejSrKHisBif');
+        let hmac = crypto.createHmac('sha256', process.env.KEY_SECREAT);
 
         hmac.update(details['payment[razorpay_order_id]'] + '|' + details['payment[razorpay_payment_id]']);
 
@@ -1702,7 +1837,10 @@ module.exports = {
     });
 
   },
-
+// changePaymentStatus:
+// This function changes the status of an order to "payed".
+// It takes the order ID,
+// and then updates the order collection to set the status to "payed".
   changePaymentStatus: (orderId) => {
 
     return new Promise((resolve, reject) => {
@@ -1730,6 +1868,10 @@ module.exports = {
     });
 
   },
+  // searchProducts:
+// This function searches for products.
+// It takes the search query,
+// and then queries the product collection to find products that match the search query.
 
   searchProducts: (searchQuery) => {
 
@@ -1786,6 +1928,9 @@ module.exports = {
 
   },
 
+// getTotalProductCount:
+// This function gets the total number of products.
+// It queries the product collection to get the total number of documents.
   getTotalProductCount: () => {
 
     return new Promise(async (resolve, reject) => {
@@ -1805,7 +1950,10 @@ module.exports = {
     });
 
   },
-
+// getPaginatedProducts:
+// This function gets the paginated products.
+// It takes the number of products per page and the current page number,
+// and then queries the product collection to get the paginated products.
   getPaginatedProducts: (perPage, currentPage) => {
 
     return new Promise(async (resolve, reject) => {
@@ -1833,7 +1981,9 @@ module.exports = {
     });
 
   },
-
+// getCategory:
+// This function gets the categories.
+// It queries the category collection to get the list of categories.
   getCategory: () => {
 
     return new Promise(async (resolve, reject) => {
@@ -1855,6 +2005,10 @@ module.exports = {
   }
 
   ,
+  // getCategoryByName:
+// This function gets the category by name.
+// It takes the category name,
+// and then queries the category collection to get the category.
   getCategoryByName: (category) => {
 
     return new Promise(async (resolve, reject) => {
@@ -1876,6 +2030,10 @@ module.exports = {
   }
 
   ,
+  // getProductById:
+// This function gets the product by ID.
+// It takes the product ID,
+// and then queries the product collection to get the product.
   getProductById: (proId) => {
 
     return new Promise(async (resolve, reject) => {
@@ -1897,7 +2055,10 @@ module.exports = {
     });
 
   },
-
+// listCategorys:
+// This function lists the products in a category.
+// It takes the category ID,
+// and then queries the product collection to get the products in the category.
   listCategorys: (catId) => {
 
     return new Promise(async (resolve, reject) => {
@@ -1919,6 +2080,10 @@ module.exports = {
     });
 
   },
+  // couponExist:
+// This function checks if a coupon exists.
+// It takes the coupon code,
+// and then queries the coupon collection to see if the coupon exists.
   couponExist: (coupon) => {
 
     return new Promise(async (resolve, reject) => {
@@ -1954,7 +2119,10 @@ module.exports = {
     });
 
   },
-
+// getOrder:
+// This function gets the order for a user.
+// It takes the user ID,
+// and then queries the order collection to get the order.
   getOrder: (userId) => {
 
     return new Promise(async (resolve, reject) => {
@@ -1980,23 +2148,13 @@ module.exports = {
     });
 
   },
-  // updateOrder:(orderId,discountedTotal)=>{
-  //   return new Promise(async (resolve, reject) => {
-  //     try {
-  //     let updated=  await db
-  //       .get()
-  //       .collection(collection.ORDER_COLLECTION)
-  //       .updateOne(
-  //         { _id: orderId},
-  //         { $set: { totalAmound: discountedTotal.toFixed(2) } }
-  //       );  
-  //       resolve(updated)
-  //     } catch (error) {
-  //       reject(error);
-  //     }
-  //   });
-  // },
 
+
+
+// addDiscountedTotal:
+// This function adds the discounted total to the cart.
+// It takes the user ID, the discounted total, and the total amount,
+// and then updates the cart collection to add the discounted total.
   addDiscountedTotal: (userId, discountedTotal, total) => {
 
     return new Promise(async (resolve, reject) => {
@@ -2038,6 +2196,10 @@ module.exports = {
     });
 
   },
+  // addDiscountedTotalChange:
+// This function changes the discounted total in the cart.
+// It takes the user ID and the discounted total,
+// and then updates the cart collection to change the discounted total.
 
   addDiscountedTotalChange: (userId, discountedTotal) => {
 
@@ -2079,6 +2241,10 @@ module.exports = {
     });
 
   },
+  // checkCartTotalChange:
+// This function resets the checkCartTotal in the cart.
+// It takes the user ID,
+// and then updates the cart collection to reset the checkCartTotal.
 
   checkCartTotalChange: (userId) => {
 
@@ -2118,6 +2284,10 @@ module.exports = {
     });
 
   },
+  // getDiscountedAmount:
+// This function gets the discounted amount from the cart.
+// It takes the user ID,
+// and then queries the cart collection to get the discounted amount.
   getDiscountedAmount: (userId) => {
 
     return new Promise(async (resolve, reject) => {
@@ -2148,7 +2318,10 @@ module.exports = {
     });
   }
   ,
-
+// getCheckCartTotal:
+// This function gets the checkCartTotal from the cart.
+// It takes the user ID,
+// and then queries the cart collection to get the checkCartTotal.
   getCheckCartTotal: (userId) => {
 
     return new Promise(async (resolve, reject) => {
@@ -2185,7 +2358,10 @@ module.exports = {
   }
   ,
 
-
+// addToUsedCoupon:
+// This function adds a coupon to the usedCoupons collection.
+// It takes the user ID and the coupon code,
+// and then updates the usedCoupons collection to add the coupon.
 
   addToUsedCoupon: (userId, couponCode) => {
 
@@ -2256,7 +2432,10 @@ module.exports = {
   }
 
   ,
-
+// isAlreadyUsed:
+// This function checks if a coupon has already been used.
+// It takes the user ID and the coupon code,
+// and then queries the usedCoupons collection to see if the coupon has already been used.
   isAlreadyUsed: (userId, couponCode) => {
 
     return new Promise(async (resolve, reject) => {
@@ -2301,7 +2480,10 @@ module.exports = {
   }
 
   ,
-  
+  // isAlreadyUsedCoupon:
+// This function checks if a coupon has already been used by the user.
+// It takes the user ID and the coupon code,
+// and then queries the usedCoupons collection to see if the coupon has already been used by the user.
   isAlreadyUsedCoupon: (userId, couponCode) => {
 
 
@@ -2347,6 +2529,10 @@ module.exports = {
   }
 
   ,
+  // isChanged:
+// This function checks if a coupon's status has been changed.
+// It takes the user ID and the coupon code,
+// and then queries the usedCoupons collection to see if the coupon's status has been changed.
   isChanged: (userId, couponCode) => {
 
     return new Promise(async (resolve, reject) => {
@@ -2392,6 +2578,7 @@ module.exports = {
 
   }
   ,
+  // Function to update the status of a coupon as "used" for a specific user
   updateCouponStatus: (userId, couponCode) => {
 
 
@@ -2420,6 +2607,8 @@ module.exports = {
 
   }
   ,
+  
+// Function to remove an item from a user's wishlist
   removeItemFromWishlist: (proId, userId) => {
 
     return new Promise((resolve, reject) => {
@@ -2469,6 +2658,7 @@ module.exports = {
     });
 
   },
+// Function to remove an address from a user's list of addresses
 
   removeAddress: (addressId, userId) => {
 
@@ -2511,6 +2701,7 @@ module.exports = {
     });
 
   },
+// Function to get user details by user ID
 
   getUser: (userId) => {
 
@@ -2529,6 +2720,8 @@ module.exports = {
       }
     });
   },
+  // Function to get available coupons for a user, excluding used ones
+
   getCoupons: (userId) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -2563,7 +2756,8 @@ module.exports = {
     });
   },
   
-  
+  // Function to deduct a specific amount from a user's wallet
+
 
   deductAmountFromWallet: (userId, amount) => {
 
@@ -2604,6 +2798,7 @@ module.exports = {
     });
 
   },
+// Function to update the status of an order
 
   updateOrderStatus: (orderId, status) => {
 
@@ -2632,6 +2827,8 @@ module.exports = {
     });
 
   },
+  // Function to update the status of an order (alias for 'updateOrderStatus')
+
   updateStatus: (orderId, status) => {
 
     return new Promise(async (resolve, reject) => {
@@ -2658,6 +2855,8 @@ module.exports = {
     });
 
   },
+  // Function to check if a provided password matches the user's password
+
   passwordMatch: (currentPassword, userId) => {
 
     return new Promise(async (resolve, reject) => {
@@ -2695,6 +2894,8 @@ module.exports = {
 
   }
   ,
+  // Function to change a user's password
+
   changePassword: (newpassword, userId) => {
 
     return new Promise(async (resolve, reject) => {
@@ -2719,6 +2920,7 @@ module.exports = {
     });
 
   },
+// Function to change a user's password when using a 'Forgot Password' feature
 
   changeForgotPassword: (newpassword, email) => {
 
@@ -2745,6 +2947,8 @@ module.exports = {
     });
 
   },
+  // Function to add a random token to a user's data
+
 
   addToken: (email, randomString) => {
 
@@ -2777,6 +2981,7 @@ module.exports = {
     });
 
   },
+// Function to change the status of a coupon (from "used" to "")
 
   changeCouponStatus: (userId, couponCode) => {
 
@@ -2803,6 +3008,8 @@ module.exports = {
     });
 
   },
+  // Function to check if a product is already in the user's cart
+
   checkCart: (proId, userId) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -2822,6 +3029,8 @@ module.exports = {
       }
     });
   },
+  // Function to generate a payment order for wallet recharge using Razorpay
+
   generateRazorpayForWallet: (user, total) => {
 
 
@@ -2866,6 +3075,8 @@ module.exports = {
     });
 
   },
+  // Function to remove an applied coupon from a user's list of used coupons
+
 
   removeAppliedCoupon: (couponCode, userId) => {
 
@@ -2892,6 +3103,8 @@ module.exports = {
     });
 
   },
+  // Function to add/update the changed total amount in the user's cart
+
   addChangedTotal: (userId, cartTotal) => {
     return new Promise(async (resolve, reject) => {
       try {

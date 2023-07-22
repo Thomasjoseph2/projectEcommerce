@@ -1358,8 +1358,6 @@ salesPdf: async (req, res) => {
 
     
       const orderCollection = await db.get().collection(collection.ORDER_COLLECTION).find().toArray();
-    
-      console.log(orderCollection, 'orders');
   
 
       const totalAmountResult = await db.get().collection(collection.ORDER_COLLECTION).aggregate([

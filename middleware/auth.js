@@ -109,7 +109,6 @@ const verifyLogin = (req, res, next) => {
    const userverifyBlock = async (req, res, next) => {
     try {
 
-      console.log(req.session.user._id);
       const blocked = await adminHelper.isUserBlocked(req.session.user._id);
 
       
@@ -129,7 +128,7 @@ const verifyLogin = (req, res, next) => {
 }
 const userverifyEmail=async (req, res, next) => {
   try {
-    console.log(req.body);
+  
     const emailExists = await userHelper.isemailExists(req.body.email);
     if (emailExists) {
       req.session.emailExistErr="email already exists"

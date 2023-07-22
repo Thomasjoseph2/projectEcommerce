@@ -657,8 +657,6 @@ const getSingleProduct = async (req, res) => {
 
     const product = await productHelpers.getProductById(productId);
 
-    console.log(product,'kkkk');
-
     const category = await productHelpers.getCategoryById(product.productCategory)
 
     res.render('users/single-product', { product, user: req.session.user, category });

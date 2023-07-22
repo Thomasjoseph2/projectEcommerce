@@ -11,7 +11,7 @@ const Promise = require('promise');
 const path = require('path');
 
 module.exports = {
-
+// Add a new product to the database
   addProduct: (product, arrayImage, callback) => {
 
     product.productOffer = 0;
@@ -39,7 +39,7 @@ module.exports = {
 
     }
   },
-
+// Add a product to a specific category by updating the category's products array
   addToCategory: (categorys, productId) => {
 
     return new Promise((resolve, reject) => {
@@ -82,7 +82,7 @@ module.exports = {
 
     });
   },
-
+// Get all products from the database
   getAllProducts: () => {
 
     return new Promise(async (resolve, reject) => {
@@ -105,6 +105,7 @@ module.exports = {
 
   },
 
+// Delete a product from the database and unlink its images
   deleteProduct: (proId) => {
 
     return new Promise((resolve, reject) => {
@@ -174,6 +175,7 @@ module.exports = {
   },
 
 
+// Get product details by product ID
   getProductDetails: (proId) => {
 
     return new Promise((resolve, reject) => {
@@ -203,7 +205,7 @@ module.exports = {
     });
 
   },
-
+//update products
   updateProduct: (proId, proDetails, categoryId, req) => {
 
     return new Promise((resolve, reject) => {
@@ -277,7 +279,7 @@ module.exports = {
     });
 
   },
-
+//getting product by id
 
   getProductById: (productId) => {
 
@@ -315,7 +317,7 @@ module.exports = {
     });
 
   },
-
+//getting category by id
   getCategoryById: (categoryId) => {
 
     return new Promise((resolve, reject) => {
@@ -352,7 +354,7 @@ module.exports = {
     });
 
   },
-
+//get categories id
 
   getCategoryId: (categoryName, callback) => {
 
@@ -380,7 +382,7 @@ module.exports = {
     }
 
   },
-
+//helper function for update product quantity
   updateProductCategory: (productId, categoryId, callback) => {
 
     try {
@@ -414,7 +416,7 @@ module.exports = {
 
   },
  
-
+//function to check the product exist or not
   isProductExist: (ctId) => {
 
     return new Promise(async (resolve, reject) => {
@@ -459,7 +461,7 @@ module.exports = {
     });
 
   },
-
+//function to decrement quantity from the product quantity
     decrementQuantity: (productId, quantity) => {
       return new Promise((resolve, reject) => {
         db.get()
@@ -476,9 +478,9 @@ module.exports = {
           });
       });
     },
+   //function to decrement quantity from the product quantity
     incrementQuantity: (productId, quantity) => {
 
-      console.log(quantity);
       return new Promise((resolve, reject) => {
         db.get()
           .collection(collection.PRODUCT_COLLECTION)
